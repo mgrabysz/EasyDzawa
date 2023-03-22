@@ -1,7 +1,7 @@
 ### Charakterystyka języka 
 
 #### Proste typy danych
-`int, float, bool, string`
+`int, float, bool`
 
 #### Złożone typy danych
 `List` -> `append(elem), remove(elem), removeAt(index), at(elem), pop(), insertAt(elem, index)`
@@ -36,41 +36,22 @@ dla i w zakres(a, b) {
 }
 ```
 #### Zmienne
-Typowanie statyczne -> `int i = 2`
+Typowanie dynamiczne 
 
-Typowanie silne -> `2 == "2"` zwraca błąd // co jest trudniejsze? w sumie nie wiem z czym to się wiąże
+Typowanie słabe 
 
-Zmienne mutowalne // bo w sumie czemu to blokować? Ewentualnie słowo kluczowe `final`
+Zmienne niemutowalne
 
 #### Definiowanie funkcji
 `int myFunction(int parameter) {}`
 
 ###### Przekazywanie argumentów
-typy proste -> przez wartość
-
-typy złożone -> przez referencję
+typy proste i złożone -> przez wartość
 
 #### Definiowanie własnych typów
-Definiowanie klas jest trudne, więc w drodze kompromisu, coś na kształt javowego recordu:
 
-klasa która posiada tylko atrybuty:
-```
-record Person {
-    string name;
-    int age;
-    bool isMarried;
-}
-```
-dostęp do atrybutów bezpośrednio:
-```
-int a = myPerson.name
-```
-albo przez gettery i settery    // opcja trudniejsza?
-```
-myPerson.setIsMarried(true);
-int a = myPerson.getAge();
-```
+Definiowanie klas bez dziedziczenia
+
+Klasy mogą agregować inne klasy
 #### Obsługa wyjątków 
-Tu trochę nie rozumiem jak to ma być 
-
-Napisanie wyjątków dziedziczących po Exception nie jest dobrym rozwiązaniem?
+Lambdę należy podać lekserowi
