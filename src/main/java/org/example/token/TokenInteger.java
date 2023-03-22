@@ -2,10 +2,12 @@ package org.example.token;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.ToString;
 import org.example.Position;
 
 @Getter
 @AllArgsConstructor
+@ToString
 public class TokenInteger implements Token {
 
 	private final TokenType type = TokenType.INTEGER;

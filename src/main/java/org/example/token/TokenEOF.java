@@ -2,9 +2,11 @@ package org.example.token;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import org.example.Position;
 
 @Getter
+@ToString
 @RequiredArgsConstructor
 public class TokenEOF implements Token {
 

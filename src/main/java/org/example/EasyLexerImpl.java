@@ -41,12 +41,17 @@ public class EasyLexerImpl implements EasyLexer {
 		if (!StringUtils.isNumeric(currentChar)) {
 			return false;
 		}
-		StringBuilder stringBuilder = new StringBuilder(currentChar);
-		while (StringUtils.isNumeric(nextChar())) {
-			stringBuilder.append(currentChar);
+		int value = Integer.valueOf(currentChar);
+		if (value != 0) {
+			while (StringUtils.isNumeric(nextChar())) {
+				int decimal = Integer.valueOf(currentChar);
+				if ((Integer.MAX_VALUE - decimal) / 10 > value) {
+					value = value * 10 + decimal;
+				} else {
+					handleError();
+				}
+			}
 		}
-		String toParse = stringBuilder.toString();
-		Integer value = Integer.valueOf(toParse);
 		this.token = new TokenInteger(tokenPosition, value);
 		return true;
 	}
@@ -77,5 +82,9 @@ public class EasyLexerImpl implements EasyLexer {
 
 	private boolean isWhitespace(String string) {
 		return string.isBlank() && !string.isEmpty();
+	}
+
+	private void handleError()  {
+		// TODO
 	}
 }
