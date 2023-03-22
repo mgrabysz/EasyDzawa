@@ -58,6 +58,8 @@ Zmienne niemutowalne
 Przekazywanie parametrów do funkcji odbywa się przez wartość zarówno dla typów
 prostych jak i złożonych.
 
+#### Funkcja wbudowana
+`napisz("Witaj świecie");` - wypisuje tekst lub wartość zmiennej w konsoli
 #### Definiowanie własnych typów
 
 Użytkownik może definiować własne typy bez dziedziczenia. Klasy mogą agregować 
@@ -75,5 +77,7 @@ klasa Ułamek {
     }
 }
 ```
+#### Komentarze
+`// tekst po podwójnym ukośniku jest interpretowany jako komentarz`
 #### Obsługa wyjątków 
 Lambdę należy podać lekserowi
