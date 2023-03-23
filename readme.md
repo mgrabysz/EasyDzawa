@@ -5,8 +5,7 @@ Opiekun projektu: Piotr Gawkowski
 
 Celem projektu jest napisanie interpretera języka o składni podobnej do C++ 
 lub Java, z możliwością wykonywania podstawowych operacji na zmiennych typu 
-int, float i bool, a także definiowania własnych funkcji i klas. Język  
-EasyDżawa<sup>TM</sup> umożliwi używanie słów kluczowych i nazw funkcji 
+int, float i bool, a także definiowania własnych funkcji i klas. Język EasyDżawa<sup>TM</sup> umożliwi używanie słów kluczowych i nazw funkcji 
 w języku polskim, jak w poniższym przykładzie:
 ```
 numery = nowy Lista;
