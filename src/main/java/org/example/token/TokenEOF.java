@@ -11,7 +11,10 @@ import org.example.Position;
 public class TokenEOF implements Token {
 
 	private final TokenType type = TokenType.END_OF_FILE;
-	private final Integer value = null;
 	private final Position position;
 
+	@Override
+	public <V> V getValue() {
+		return null;
+	}
 }

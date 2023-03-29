@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/EasyWinter.main.iml" filepath="$PROJECT_DIR$/.idea/modules/EasyWinter.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/org.example.EasyWinter.main.iml" filepath="$PROJECT_DIR$/.idea/modules/org.example.EasyWinter.main.iml" />
     </modules>
   </component>
 </project>
