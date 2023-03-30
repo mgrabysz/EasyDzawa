@@ -274,7 +274,7 @@ letter                  = "A" | "B" | "C" | ... | "Z" | "a" | "b" | "c" | ... | 
 
 non-zero-digit          = "1" | "2" | "3" | ... | "9";
 
-digit                   = "0" | digit;
+digit                   = "0" | non-zero-digit;
 
 literal                 = integer
                         | float
