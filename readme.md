@@ -277,6 +277,8 @@ negation                = "nie" | "-";
 
 new-keyword             = "nowy" | "nowa" | "nowe";
 
+relative-operator       = "==" | "!=" | "<" | ">" | ">=" | "<=";
+
 letter                  = "A" | "B" | "C" | ... | "Z" | "a" | "b" | "c" | ... | "z" | "_";
 
 non-zero-digit          = "1" | "2" | "3" | ... | "9";
