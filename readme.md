@@ -44,7 +44,7 @@ dla numer w numery {
 `tenże` - przedrostek oznaczający atrybuty klasy \
 Patrz: [przykład definiowania klasy](#definiowanie-klasy-i-funkcji)
 
-#### instrukcje
+#### Instrukcje
 `{ciało funkcji/pętli/instrukcji warunkowej} w nawiasach klamrowych`
 
 `(parametry funkcji w nawiasach okrągłych)`
@@ -106,58 +106,61 @@ napisz(lista.pobierzNa(2));
 ```
 lista = nowa Lista();
 dla i w zakres(0, 10, 1) {
-    lista.add(i * 10);
+  lista.add(i * 10);
 }
 dla i w lista {   // i nie jest widoczne poza pętlą
-    jeżeli (i > 50) {
-        napisz(i, " jest większe od 50 \n");
-    } inaczej {
-        napisz(i, " nie jest większe od 50 \n");
-    }
+  jeżeli (i > 50) {
+      napisz(i, " jest większe od 50 \n");
+  } inaczej {
+      napisz(i, " nie jest większe od 50 \n");
+  }
 }
 ```
 #### Definiowanie klasy i funkcji
 ```
 klasa Ułamek {
     
-    Ułamek(l, m) {            // konstruktor
-        tenże.licznik = l;
-        tenże.mianownik = m;
-        jeżeli (m == 0) {
-            abort();
-        }
-        jeżeli (l < m) {
-            tenże.jestWłaściwy = prawda;    // ułamek właściwy to taki, który jest mniejszy od 1
-        } inaczej {
-            tenże.jestWłaściwy = fałsz;
-        }
+  Ułamek(l, m) {            // konstruktor
+    tenże.licznik = l;
+    tenże.mianownik = m;
+    jeżeli (m == 0) {
+        abort();
     }
+    jeżeli (l < m) {
+        tenże.jestWłaściwy = prawda;    // ułamek właściwy to taki, który jest mniejszy od 1
+    } inaczej {
+        tenże.jestWłaściwy = fałsz;
+    }
+  }
 
-    rozszerz(i) {
-        tenże.licznik = tenże.licznik * i;
-        tenże.mianownik = tenże.mianownik * i;
-    }
+  rozszerz(i) {
+    tenże.licznik = tenże.licznik * i;
+    tenże.mianownik = tenże.mianownik * i;
+  }
 }
 
-x = nowy Ułamek(1, 2);
-jeżeli (x.jestWłaściwy) {
+
+main() {
+  x = nowy Ułamek(1, 2);
+  jeżeli (x.jestWłaściwy) {
     napisz("Zdefiniowano właśnie ułamek właściwy \n);
+  }
+  x.rozszerz(2);
+  napisz(y.licznik);      // 2
+  napisz(y.mianownik);    // 4
 }
-x.rozszerz(2);
-napisz(y.licznik);      // 2
-napisz(y.mianownik);    // 4
 ```
 #### Słowo kluczowe zwróć
 ```
 silnia(x) {
-    jeżeli (a < 0) {
-        abort();          // przerywa wykonanie programu
-    }
-    jeżeli (a == 0) {
-        zwróć 1;          // dalsze instrukcje nie wykonują się
-    }
-    wynik = silnia(x-1) * x;
-    zwróć wynik;
+  jeżeli (a < 0) {
+    abort();          // przerywa wykonanie programu
+  }
+  jeżeli (a == 0) {
+    zwróć 1;          // dalsze instrukcje nie wykonują się
+  }
+  wynik = silnia(x-1) * x;
+  zwróć wynik;
 } 
 ```
 
@@ -175,7 +178,7 @@ Numeric expression starting at line x position y exceeds limit
 #### na poziomie składniowym
 ```
 jeżeli (a > b {
-    a = b;
+  a = b;
 }
 While parsing statement starting at line x position y {{ jeżeli (a > b ... }} closing parenthesis not found
 ```
@@ -186,7 +189,7 @@ Unexpected token starting at line x position y
 #### na poziomie semantycznym
 ```
 dodaj(a, b) {
-    return a+b;
+  return a+b;
 }
 dodaj(2, true);
 Unsupported operation in {{ dodaj(2, true) }} starting at line x position y
@@ -204,7 +207,7 @@ wynik = a / b;
 Division by 0 in {{ wynik = a / b }} at line x postion y
 ```
 
-### Gramatyka
+## Gramatyka
 Poniższa postać gramatyki ma być czytelna dla odbiorcy - może zawierać niejednoznaczności oraz rekurencję. Próba ich wyeliminowania zostanie podjęta w kolejnych iteracjach.
 
 Zidentyfikowane przeze mnie potencjalne problemy:
@@ -290,11 +293,11 @@ digit                   = "0" | non-zero-digit;
 special-symbol          = " " | "\" | "!" | "@" | ...
 ```
 
-### Sposób uruchamiania
+## Sposób uruchamiania
 Do uruchomienia interpretera służy skryp w `bash` przyjmujący jako argument plik `.txt` zawierający treść programu 
 do zinterpretowania. Wyjściem programu jest wyjście standardowe
 
-### Analiza wymagań
+## Analiza wymagań
 * Interpreter ogranicza wielkość pliku wejściowego oraz długość konkretnego tokenu, ma to na celu uniemożliwienie 
   przepełnienia bufora
 * Interpreter umożliwia przerwanie wykonywania programu skrótem klawiszowym
@@ -306,7 +309,7 @@ do zinterpretowania. Wyjściem programu jest wyjście standardowe
   (zmienne lokalne "przykrywają" zmienne globalne) oraz zapewnienie unikalności nazw zmiennych i funkcji w tym samym
   kontekście. Próba odpowiedzi na te problemy znajduje się w sekcji [Realizacja analizatora semantycznego](#analizator-semantyczny).
 
-### Realizacja
+## Realizacja
 #### Analizator leksykalny
 Analizator leksykalny (lekser) jest modułem odpowiedzialnym za przetworzenie pliku wejściowego na ciąg tokenów. 
 Lekser oczekuje dwóch argumentów:
@@ -368,7 +371,7 @@ Za przykrycie zmiennych globalnych zmiennymi lokalnymi funkcji lub obiektu odpow
 umieszczane hashmapy zawierające funkcje i zmienne danego kontekstu. Nie znalezienie szukanej zmiennej w danym kontekście
 wywoła próbę szukania go w wyższym kontekście.
 
-### Sposób testowania
+## Sposób testowania
 Do przetestowania analizatora leksykalnego służą testy jednostkowę sprawdzające, czy na podstawie danego pliku 
 wejściowego lekser zwróci oczekiwaną listę tokenów lub podniesie oczekiwany wyjątek.
 
