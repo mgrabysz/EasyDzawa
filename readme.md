@@ -12,7 +12,7 @@ numery = nowa Lista();
 numery.dodaj(1);
 numery.dodaj(2);
 dla numer w numery {
-    napisz("Witaj świecie! Twój numer to: ", numer);
+  napisz("Witaj świecie! Twój numer to: ", numer);
 } 
 ```
 
@@ -208,13 +208,6 @@ Division by 0 in {{ wynik = a / b }} at line x postion y
 ```
 
 ## Gramatyka
-Poniższa postać gramatyki ma być czytelna dla odbiorcy - może zawierać niejednoznaczności oraz rekurencję. Próba ich wyeliminowania zostanie podjęta w kolejnych iteracjach.
-
-Zidentyfikowane przeze mnie potencjalne problemy:
-* niejednoznaczność - kilka symboli zaczyna się od `<identifier>`
-* rekursja lewostronna symbolu `<expression>` np. na ścieżce: `expression -> arithmetic-expression -> expression`
-* redundancja (dla czytelności opisu gramatyki) `<parameter> == <identifier> == <declaration>`
-* brak uwzględnienia priorytetów operacji
 
 ```
 program                 = {definition};
