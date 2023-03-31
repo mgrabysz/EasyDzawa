@@ -8,16 +8,15 @@ lub Java, z możliwością wykonywania podstawowych operacji na zmiennych typu
 int, float i bool, a także definiowania własnych funkcji i klas. Język EasyDżawa<sup>TM</sup> umożliwi używanie słów kluczowych i nazw funkcji 
 w języku polskim, jak w poniższym przykładzie:
 ```
-numery = nowy Lista();
+numery = nowa Lista();
 numery.dodaj(1);
 numery.dodaj(2);
 dla numer w numery {
-    napisz(numer);
-    napisz("Witaj świecie");
+    napisz("Witaj świecie! Twój numer to: ", numer);
 } 
 ```
 
-### Charakterystyka języka 
+## Charakterystyka języka 
 
 #### Proste typy danych
 `int, float, bool`
@@ -39,7 +38,13 @@ dla numer w numery {
 ###### instrukcja warunkowa
 `jeżeli () {} inaczej {}`
 
-###### instrukcje
+###### obiekty
+`klasa` - poprzedza definicję klasy \
+`nowy`, `nowa`, `nowe` - dowolne (jedno) z tych słów kluczowych poprzedza utworzenie obiektu \
+`tenże` - przedrostek oznaczający atrybuty klasy \
+Patrz: [przykład definiowania klasy](#definiowanie-klasy-i-funkcji)
+
+#### instrukcje
 `{ciało funkcji/pętli/instrukcji warunkowej} w nawiasach klamrowych`
 
 `(parametry funkcji w nawiasach okrągłych)`
@@ -49,7 +54,7 @@ dla numer w numery {
 #### Zmienne
 Typowanie dynamiczne \
 Typowanie słabe \
-Zmienne niemutowalne
+Zmienne mutowalne
 
 #### Definiowanie funkcji
 `mojaFunkcja(parametr1, parametr2) {}`
@@ -58,10 +63,11 @@ Przekazywanie parametrów do funkcji odbywa się przez wartość zarówno dla ty
 prostych jak i złożonych.
 
 #### Funkcje wbudowane
-`napisz("Witaj świecie")` - wypisuje tekst lub wartość zmiennej w konsoli \
-`zakres(start, stop, krok)` - zwraca listę zawierającą liczby całkowite od `start` do `stop` o podanym kroku
-#### Definiowanie własnych typów
+`napisz("Witaj świecie", ...)` - wypisuje tekst lub wartość zmiennej w konsoli, przyjmuje dowolną liczbę argumentów \
+`zakres(start, stop, krok)` - zwraca listę zawierającą liczby całkowite od `start` do `stop` o podanym kroku \
+`abort()` - przerywa wykonanie programu
 
+#### Definiowanie własnych typów
 Użytkownik może definiować własne typy bez dziedziczenia. Klasy mogą agregować 
 inne klasy
 
@@ -81,7 +87,7 @@ var3 = ((y > 5) oraz var2) lub z < 0;
 ```
 #### Operacje na obiekcie Lista
 ```
-numery = nowy Lista();
+numery = nowa Lista();
 numery.dodaj(10);
 numery.dodaj(20);
 numery.dodajNa(0, 0);
@@ -90,7 +96,7 @@ numery.usuń(10);
 numery.usuńNa(0);
 numery.dodaj(1.2);
 
-lista = nowy Lista();
+lista = nowa Lista();
 lista.dodaj(prawda);
 lista.dodaj(4 > 3);
 lista.dodaj(4.20 * 10);
@@ -98,42 +104,38 @@ napisz(lista.pobierzNa(2));
 ```
 #### Pętle i instrukcje warunkowe
 ```
-lista = nowy Lista();
+lista = nowa Lista();
 dla i w zakres(0, 10, 1) {
     lista.add(i * 10);
 }
 dla i w lista {   // i nie jest widoczne poza pętlą
     jeżeli (i > 50) {
-        napisz(i);
-        napisz("jest większe od 50 \n");
+        napisz(i, " jest większe od 50 \n");
     } inaczej {
-        napisz(i);
-        napisz("nie jest większe od 50 \n");
+        napisz(i, " nie jest większe od 50 \n");
     }
 }
 ```
 #### Definiowanie klasy i funkcji
 ```
 klasa Ułamek {
-    licznik;
-    mianownik;
-    jestWłaściwy;       // ułamek właściwy jest mnniejszy od 1
     
-    Ułamek(l, m) {      // konstruktor
-        licznik = l;
-        mianownik = m;
+    Ułamek(l, m) {            // konstruktor
+        tenże.licznik = l;
+        tenże.mianownik = m;
+        jeżeli (m == 0) {
+            abort();
+        }
         jeżeli (l < m) {
-            jestWłaściwy = prawda;
+            tenże.jestWłaściwy = prawda;    // ułamek właściwy to taki, który jest mniejszy od 1
         } inaczej {
-            jestWłaściwy = fałsz;
+            tenże.jestWłaściwy = fałsz;
         }
     }
 
     rozszerz(i) {
-        nowyLicznik = licznik * i;
-        nowyMianownik = mianownik * i;
-        nowyUłamek = nowy Ułamek(nowyLicznik, nowyMianownik);
-        zwróć nowyUłamek;
+        tenże.licznik = tenże.licznik * i;
+        tenże.mianownik = tenże.mianownik * i;
     }
 }
 
@@ -141,30 +143,22 @@ x = nowy Ułamek(1, 2);
 jeżeli (x.jestWłaściwy) {
     napisz("Zdefiniowano właśnie ułamek właściwy \n);
 }
-y = x.rozszerz(2);
+x.rozszerz(2);
 napisz(y.licznik);      // 2
 napisz(y.mianownik);    // 4
 ```
 #### Słowo kluczowe zwróć
 ```
-napiszWynikDzielenia(a, b) {
-    jeżeli (b == 0) {
-        napisz("Nie można dzielić przez zero! \n");
-        zwróć;          // dalsze instrukcje nie wykonują się
+silnia(x) {
+    jeżeli (a < 0) {
+        abort();          // przerywa wykonanie programu
     }
-    c = a / b;
-    napisz("Wynik dzielenia to: ");
-    napisz(c);
+    jeżeli (a == 0) {
+        zwróć 1;          // dalsze instrukcje nie wykonują się
+    }
+    wynik = silnia(x-1) * x;
+    zwróć wynik;
 } 
-```
-#### Przykrycie zmiennej
-```
-a = 20;
-funkcja() {
-    a = 40;
-    napisz(a);      // 40
-}
-napisz(a);          // 20
 ```
 
 ### Niepoprawne konstrukcje i komunikaty wyjątków
@@ -183,7 +177,7 @@ Numeric expression starting at line x position y exceeds limit
 jeżeli (a > b {
     a = b;
 }
-Unclosed parenthesis starting at line x position y
+While parsing statement starting at line x position y {{ jeżeli (a > b ... }} closing parenthesis not found
 ```
 ```
 var = 2 + 2 8
@@ -195,7 +189,7 @@ dodaj(a, b) {
     return a+b;
 }
 dodaj(2, true);
-Unsupported operation starting at line x position y
+Unsupported operation in {{ dodaj(2, true) }} starting at line x position y
 ```
 ```
 a = 2;
@@ -207,7 +201,7 @@ Variable <name> at line x position y not defined
 a = 2;
 b = 0;
 wynik = a / b;
-Division by 0 at line x postion y
+Division by 0 in {{ wynik = a / b }} at line x postion y
 ```
 
 ### Gramatyka
@@ -220,65 +214,58 @@ Zidentyfikowane przeze mnie potencjalne problemy:
 * brak uwzględnienia priorytetów operacji
 
 ```
-program                 = {statement};
+program                 = {definition};
 
-statement               = assignment, ";",
-                        | function-definition
-                        | class-definition
-                        | function-call, ";",
-                        | object-creation, ";",
+definition              = function-definition | class-definition
 
-assignment              = {field-access}, identifier, ("=" | "+=" | "-="), expression;
-
-function-definition     = identifier, "(", [parameters-list], ")", function-body;
+function-definition     = identifier, "(", [parameters-list], ")", block;
 
 class-definition        = "klasa", identifier, class-body;
 
-function-call           = {field-access}, identifier, "(", ([arguments-list] | '"', print-message, '"'), ")";
+class-body              = "{", {function-definition}, "}";
 
-object-creation         = "nowy", identifier, "(", [arguments-list], ")";
+block                   = "{", {statement}, "}";
 
-identifier              = letter, {letter | digit};
-
-expression              = "(", expression, ")"
-                        | boolean-expression
-                        | arithmetic-expression
-                        | relational-expression
-                        | function-call
-                        | object-creation
-                        | identifier
-                        | literal;
+statement               = object-access, [assignment], ";"
+                        | if-statement
+                        | for-statement
+                      
+object-access           = title, {".", title};
                         
-field-access            = identifier, ".";                        
+title                   = identifier, ["(", arguments-list, ")"];
 
-parameters-list         = parameter, {",", parameter};
+assignment              = ("=" | "+=" | "-="), expression;
 
-parameter               = identifier;
+if-statement            = "jeżeli", "(", expression, ")", block, ["inaczej", block];
 
-function-body           = "{", {function-statement}, "}";
+for-statement           = "dla", identifier, "w", object-access, block;
 
-class-body              = "{", {declaration | assignment}, {function-definition}, "}";
+expression              = or-expression;
 
-declaration             = identifier;
+or-expression           = and-expression, {'lub', and-expression};
+
+and-expression          = relative-expression, {'oraz', relative-expression};
+
+relative-expression     = arithmetic-expression, {relative-operator, arithmetic-expression};
+
+arithmetic-expression   = multiplicative-expression, {("+" | "-"), multiplicative-expression};
+
+multiplicative-expr.    = factor, {("*" | "/"), factor};
+
+factor                  = [negation], (literal | object-access | object-creation | "(", expression, ")");
+
+object-creation         = new-keyword, identifier, "(", [arguments-list], ")";
+
+parameters-list         = identifier, {",", identifier};
 
 arguments-list          = expression, {",", expression};
 
-boolean-expression      = expression, ("oraz" | "lub"), expression
-                        | "nie", expression;
-
-arithmetic-expression   = expression, ("+" | "-" | "*" | "/"), expression;
-
-relational-expression   = expression, ("<" | ">" | "<=" | ">=" | "==" | "!="), expression;
-
-letter                  = "A" | "B" | "C" | ... | "Z" | "a" | "b" | "c" | ... | "z" | "_";
-
-non-zero-digit          = "1" | "2" | "3" | ... | "9";
-
-digit                   = "0" | non-zero-digit;
+identifier              = letter, {letter | digit};
 
 literal                 = integer
                         | float
-                        | bool;
+                        | bool
+                        | text;
 
 integer                 = "0" | (non-zero-digit, {digit});
 
@@ -286,7 +273,19 @@ float                   = integer, ".", digit, {digit};
 
 bool                    = "prawda" | "fałsz";
 
-print-message           = ({letter} | {digit} | {special-symbol}), [print-message];
+text                    = '"', {char}, '"';
+
+char                    = ({letter} | {digit} | {special-symbol}), {char},
+
+negation                = "nie" | "-";
+
+new-keyword             = "nowy" | "nowa" | "nowe";
+
+letter                  = "A" | "B" | "C" | ... | "Z" | "a" | "b" | "c" | ... | "z" | "_";
+
+non-zero-digit          = "1" | "2" | "3" | ... | "9";
+
+digit                   = "0" | non-zero-digit;
 
 special-symbol          = " " | "\" | "!" | "@" | ...
 ```
@@ -301,6 +300,8 @@ do zinterpretowania. Wyjściem programu jest wyjście standardowe
 * Interpreter umożliwia przerwanie wykonywania programu skrótem klawiszowym
 * W celu dostarczenia precyzyjnej informacji o błędzie w programie, obiekty typu `Token` przechowują swoją pozycję 
   w pliku (numer linii, pozycja znaku w linii). Więcej w punkcie [Analizator leksykalny](#analizator-leksykalny)
+* Aby informacja o pozycji błędu programu mogła być przekazana przez analizator semantyczny, pozycja tokenu jest 
+  przekazywana do odpowiedniego węzła drzewa rozbioru składniowego
 * Potencjalne problemy interpretacji to zapewnienie dostępu do zmiennych globalnych/lokalnych w zależności od kontekstu
   (zmienne lokalne "przykrywają" zmienne globalne) oraz zapewnienie unikalności nazw zmiennych i funkcji w tym samym
   kontekście. Próba odpowiedzi na te problemy znajduje się w sekcji [Realizacja analizatora semantycznego](#analizator-semantyczny).
