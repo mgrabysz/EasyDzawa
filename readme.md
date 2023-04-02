@@ -330,7 +330,7 @@ Token posiada swój typ, pozycję w pliku wejściowym oraz (dla pewnych typów) 
 Rozpoznawane typy tokenów to: 
 * END_OF_FILE 
 * COMMENT
-* słowa kluczowe: RETURN, FOR, IF, ELSE
+* słowa kluczowe: RETURN, FOR, IF, ELSE, CLASS, NEW, THIS
 * symbole: OPEN_BRACKET, CLOSE_BRACKET, OPEN_PARENTHESIS, CLOSE_PARENTHESIS, SEMICOLON, COMA, DOUBLE_QUOTE, ASSIGN
 * operatory logiczne: AND, OR, NOT
 * operatory matematyczne: ADD, SUBTRACT, MULTIPLY, DIVIDE, ADD_AND_ASSIGN, SUBTRACT_AND_ASSIGN
