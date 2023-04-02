@@ -1,6 +1,7 @@
-package org.example;
+package org.example.lexer;
 
 import org.apache.commons.lang3.StringUtils;
+import org.example.Position;
 import org.example.token.EmptyToken;
 import org.example.token.Token;
 import org.example.token.TokenEOF;
@@ -9,7 +10,7 @@ import org.example.token.TokenInteger;
 import java.io.BufferedReader;
 import java.io.IOException;
 
-public class EasyLexerImpl implements EasyLexer {
+public class EasyLexerImpl implements Lexer {
 
 	private Token token;
 	private String currentChar;

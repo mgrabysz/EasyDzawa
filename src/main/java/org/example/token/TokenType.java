@@ -2,6 +2,7 @@ package org.example.token;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.example.Configuration;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -21,8 +22,11 @@ public enum TokenType {
 	IF,
 	ELSE,
 	CLASS,
-	NEW,
 	THIS,
+	NEW,
+	NEW_MASCULINE,
+	NEW_FEMININE,
+	NEW_NEUTER,
 
 	OPEN_BRACKET("{"),
 	CLOSE_BRACKET("}"),
@@ -53,8 +57,6 @@ public enum TokenType {
 
 	private static Properties properties;
 
-	private static String LANGUAGE_CONFIG_PATH = "src/main/resources/polish.config";
-
 	private TokenType() {
 		if (this.keyword == null) {
 			readFromLanguageConfig();
@@ -70,7 +72,7 @@ public enum TokenType {
 		if (properties == null) {
 			properties = new Properties();
 			try {
-				FileInputStream propsInput = new FileInputStream(LANGUAGE_CONFIG_PATH);
+				FileInputStream propsInput = new FileInputStream(Configuration.getPropertyValue("language.config.path"));
 				properties.load(propsInput);
 			} catch (FileNotFoundException e) {
 				throw new RuntimeException(e);

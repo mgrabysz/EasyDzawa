@@ -1,8 +1,8 @@
-package org.example;
+package org.example.lexer;
 
 import org.example.token.Token;
 
-public interface EasyLexer {
+public interface Lexer {
 
 	Token next();
 }
