@@ -8,7 +8,7 @@ lub Java, z możliwością wykonywania podstawowych operacji na zmiennych typu
 int, float i bool, a także definiowania własnych funkcji i klas. Język EasyDżawa<sup>TM</sup> umożliwi używanie słów kluczowych i nazw funkcji 
 w języku polskim, jak w poniższym przykładzie:
 ```
-numery = nowa Lista();
+numery = Lista();
 numery.dodaj(1);
 numery.dodaj(2);
 dla numer w numery {
@@ -40,7 +40,6 @@ dla numer w numery {
 
 ###### obiekty
 `klasa` - poprzedza definicję klasy \
-`nowy`, `nowa`, `nowe` - dowolne (jedno) z tych słów kluczowych poprzedza utworzenie obiektu \
 `tenże` - przedrostek oznaczający atrybuty klasy \
 Patrz: [przykład definiowania klasy](#definiowanie-klasy-i-funkcji)
 
@@ -87,7 +86,7 @@ var3 = ((y > 5) oraz var2) lub z < 0;
 ```
 #### Operacje na obiekcie Lista
 ```
-numery = nowa Lista();
+numery = Lista();
 numery.dodaj(10);
 numery.dodaj(20);
 numery.dodajNa(0, 0);
@@ -96,7 +95,7 @@ numery.usuń(10);
 numery.usuńNa(0);
 numery.dodaj(1.2);
 
-lista = nowa Lista();
+lista = Lista();
 lista.dodaj(prawda);
 lista.dodaj(4 > 3);
 lista.dodaj(4.20 * 10);
@@ -104,7 +103,7 @@ napisz(lista.pobierzNa(2));
 ```
 #### Pętle i instrukcje warunkowe
 ```
-lista = nowa Lista();
+lista = Lista();
 dla i w zakres(0, 10, 1) {
   lista.add(i * 10);
 }
@@ -225,6 +224,7 @@ block                   = "{", {statement}, "}";
 statement               = object-access, [assignment], ";"
                         | if-statement
                         | for-statement
+                        | return-statement
                       
 object-access           = title, {".", title};
                         
@@ -235,6 +235,8 @@ assignment              = ("=" | "+=" | "-="), expression;
 if-statement            = "jeżeli", "(", expression, ")", block, ["inaczej", block];
 
 for-statement           = "dla", identifier, "w", object-access, block;
+
+return-statement        = "zwróć", [expression], ";";
 
 expression              = or-expression;
 
@@ -248,9 +250,7 @@ arithmetic-expression   = multiplicative-expression, {("+" | "-"), multiplicativ
 
 multiplicative-expr.    = factor, {("*" | "/"), factor};
 
-factor                  = [negation], (literal | object-access | object-creation | "(", expression, ")");
-
-object-creation         = new-keyword, identifier, "(", [arguments-list], ")";
+factor                  = [negation], (literal | object-access | "(", expression, ")");
 
 parameters-list         = identifier, {",", identifier};
 
@@ -274,8 +274,6 @@ text                    = '"', {char}, '"';
 char                    = ({letter} | {digit} | {special-symbol}), {char},
 
 negation                = "nie" | "-";
-
-new-keyword             = "nowy" | "nowa" | "nowe";
 
 relative-operator       = "==" | "!=" | "<" | ">" | ">=" | "<=";
 
@@ -330,7 +328,7 @@ Token posiada swój typ, pozycję w pliku wejściowym oraz (dla pewnych typów) 
 Rozpoznawane typy tokenów to: 
 * END_OF_FILE 
 * COMMENT
-* słowa kluczowe: RETURN, FOR, IF, ELSE, CLASS, NEW, THIS
+* słowa kluczowe: RETURN, FOR, IF, ELSE, CLASS, THIS
 * symbole: OPEN_BRACKET, CLOSE_BRACKET, OPEN_PARENTHESIS, CLOSE_PARENTHESIS, SEMICOLON, COMA, DOUBLE_QUOTE, ASSIGN
 * operatory logiczne: AND, OR, NOT
 * operatory matematyczne: ADD, SUBTRACT, MULTIPLY, DIVIDE, ADD_AND_ASSIGN, SUBTRACT_AND_ASSIGN

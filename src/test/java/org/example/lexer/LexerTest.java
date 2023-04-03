@@ -13,6 +13,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -26,14 +27,15 @@ public class LexerTest {
     * Method with annotation @ParameterizedTest reads the stream of pairs and performs assertion
     */
     private static Stream<Arguments> testReadingIntegers() throws IOException {
-        String input = "22 348 9 9999   102456";
-        List<Token> expectedTokens = new ArrayList<>();
-        expectedTokens.add(new TokenInteger(new Position(0, 0), 22));
-        expectedTokens.add(new TokenInteger(new Position(0, 3), 348));
-        expectedTokens.add(new TokenInteger(new Position(0, 7), 9));
-        expectedTokens.add(new TokenInteger(new Position(0, 9), 9999));
-        expectedTokens.add(new TokenInteger(new Position(0, 16), 102456));
-        expectedTokens.add(new TokenEOF(new Position(0, 22)));
+        String input = "22 348 \t 9 9999  \n 102456";
+        List<Token> expectedTokens = new ArrayList<>(Arrays.asList(
+            new TokenInteger(new Position(0, 0), 22),
+            new TokenInteger(new Position(0, 3), 348),
+            new TokenInteger(new Position(0, 7), 9),
+            new TokenInteger(new Position(0, 9), 9999),
+            new TokenInteger(new Position(0, 16), 102456),
+            new TokenEOF(new Position(0, 22))
+        ));
         List<Token> actualTokens = readFromString(input);
         return IntStream.range(0, actualTokens.size())
                 .mapToObj(i -> Arguments.of(expectedTokens.get(i), actualTokens.get(i)));

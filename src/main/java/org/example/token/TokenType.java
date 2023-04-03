@@ -25,10 +25,6 @@ public enum TokenType {
 	ELSE,
 	CLASS,
 	THIS,
-	NEW,
-	NEW_MASCULINE,
-	NEW_FEMININE,
-	NEW_NEUTER,
 
 	OPEN_BRACKET("{"),
 	CLOSE_BRACKET("}"),
@@ -51,8 +47,8 @@ public enum TokenType {
 	INTEGER,
 	FLOAT,
 	BOOL,
-	BOOL_FALSE,
-	BOOL_TRUE,
+	FALSE,
+	TRUE,
 	TEXT,
 
 	IDENTIFIER;
