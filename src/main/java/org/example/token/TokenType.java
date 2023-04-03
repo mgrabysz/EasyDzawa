@@ -7,6 +7,8 @@ import org.example.Configuration;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.Properties;
 
 @Getter
@@ -49,6 +51,8 @@ public enum TokenType {
 	INTEGER,
 	FLOAT,
 	BOOL,
+	BOOL_FALSE,
+	BOOL_TRUE,
 	TEXT,
 
 	IDENTIFIER;
@@ -73,7 +77,7 @@ public enum TokenType {
 			properties = new Properties();
 			try {
 				FileInputStream propsInput = new FileInputStream(Configuration.getPropertyValue("language.config.path"));
-				properties.load(propsInput);
+				properties.load(new InputStreamReader(propsInput, Charset.forName("UTF-8")));	// this aberration reads UTF-8 symbols
 			} catch (FileNotFoundException e) {
 				throw new RuntimeException(e);
 			} catch (IOException e) {

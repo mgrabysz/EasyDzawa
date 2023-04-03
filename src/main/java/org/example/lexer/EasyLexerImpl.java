@@ -1,6 +1,7 @@
 package org.example.lexer;
 
 import org.apache.commons.lang3.StringUtils;
+import org.example.Configuration;
 import org.example.Position;
 import org.example.token.EmptyToken;
 import org.example.token.Token;
@@ -10,7 +11,12 @@ import org.example.token.TokenInteger;
 import java.io.BufferedReader;
 import java.io.IOException;
 
+import static org.example.Configuration.getPropertyValue;
+
 public class EasyLexerImpl implements Lexer {
+
+	private static final String UNDERSCORE = "_";
+	private static final String DOT = ".";
 
 	private Token token;
 	private String currentChar;
@@ -57,6 +63,22 @@ public class EasyLexerImpl implements Lexer {
 		return true;
 	}
 
+	private boolean tryBuildIdentifierOrKeyword() {
+		if (!StringUtils.isAlpha(currentChar)) {
+			return false;
+		}
+		var builder = new StringBuilder(currentChar);
+		while (isIdentifierChar(nextChar())) {
+			builder.append(currentChar);
+			if (builder.length() > Integer.valueOf(getPropertyValue("identifier.maxlength"))) {
+				// TODO
+				handleError();
+			}
+		}
+
+		return true;
+	}
+
 	private boolean tryBuildEOF() {
 		if (!StringUtils.isEmpty(currentChar)) {
 			return false;
@@ -83,6 +105,10 @@ public class EasyLexerImpl implements Lexer {
 
 	private boolean isWhitespace(String string) {
 		return string.isBlank() && !string.isEmpty();
+	}
+
+	private boolean isIdentifierChar(String string) {
+		return StringUtils.isAlphanumeric(string) || StringUtils.equals(string, UNDERSCORE);
 	}
 
 	private void handleError()  {

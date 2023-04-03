@@ -1,6 +1,7 @@
 package org.example;
 
 import org.example.token.Token;
+import org.example.token.TokenGroups;
 
 import java.io.IOException;
 import java.util.List;
@@ -12,5 +13,7 @@ public class Main {
 		for (Token token : tokens) {
 			System.out.println(token);
 		}
+
+		System.out.println(TokenGroups.KEYWORDS);
 	}
 }
