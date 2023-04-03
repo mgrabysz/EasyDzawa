@@ -21,6 +21,7 @@ public enum TokenType {
 
 	RETURN,
 	FOR,
+	IN,
 	IF,
 	ELSE,
 	CLASS,

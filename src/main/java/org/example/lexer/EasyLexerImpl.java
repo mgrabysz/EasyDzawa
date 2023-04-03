@@ -1,12 +1,8 @@
 package org.example.lexer;
 
 import org.apache.commons.lang3.StringUtils;
-import org.example.Configuration;
 import org.example.Position;
-import org.example.token.EmptyToken;
-import org.example.token.Token;
-import org.example.token.TokenEOF;
-import org.example.token.TokenInteger;
+import org.example.token.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -38,7 +34,8 @@ public class EasyLexerImpl implements Lexer {
 		this.tokenPosition = currentPosition;
 
 		if (tryBuildEOF()
-			|| tryBuildNumber()) {
+			|| tryBuildNumber()
+			|| tryBuildIdentifierOrKeyword()) {
 			return token;
 		}
 		return new EmptyToken();
@@ -70,12 +67,24 @@ public class EasyLexerImpl implements Lexer {
 		var builder = new StringBuilder(currentChar);
 		while (isIdentifierChar(nextChar())) {
 			builder.append(currentChar);
-			if (builder.length() > Integer.valueOf(getPropertyValue("identifier.maxlength"))) {
+			if (builder.length() > Integer.parseInt(getPropertyValue("identifier.maxlength"))) {
 				// TODO
 				handleError();
 			}
 		}
-
+		String key = builder.toString();
+		if (TokenGroups.BOOL_LITERALS.containsKey(key)) {
+			TokenType tokenType = TokenGroups.BOOL_LITERALS.get(key);
+			Boolean value = tokenType == TokenType.TRUE ? Boolean.TRUE : Boolean.FALSE;
+			this.token = new TokenBool(tokenPosition, value);
+			return true;
+		}
+		if (TokenGroups.KEYWORDS.containsKey(key)) {
+			TokenType tokenType = TokenGroups.KEYWORDS.get(key);
+			this.token = new TokenKeyword(tokenType, tokenPosition);
+			return true;
+		}
+		this.token = new TokenIdentifier(tokenPosition, key);
 		return true;
 	}
 
