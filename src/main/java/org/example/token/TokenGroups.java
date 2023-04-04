@@ -27,4 +27,6 @@ public class TokenGroups {
     public static final Map<String, TokenType> BOOL_LITERALS = Map.of(
             TokenType.TRUE.getKeyword(), TokenType.TRUE,
             TokenType.FALSE.getKeyword(), TokenType.FALSE);
+
+    public static final Map<String, TokenType> SYMBOLS = new HashMap<>();
 }

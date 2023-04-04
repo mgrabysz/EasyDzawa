@@ -45,19 +45,55 @@ public class EasyLexerImpl implements Lexer {
 		if (!StringUtils.isNumeric(currentChar)) {
 			return false;
 		}
-		int value = Integer.valueOf(currentChar);
+		int value = Integer.parseInt(currentChar);
 		if (value != 0) {
-			while (StringUtils.isNumeric(nextChar())) {
-				int decimal = Integer.valueOf(currentChar);
-				if ((Integer.MAX_VALUE - decimal) / 10 > value) {
-					value = value * 10 + decimal;
-				} else {
-					handleError();
-				}
+			value = getDecimalPart(value);
+		} else {
+			nextChar();
+		}
+
+		if (StringUtils.equals(currentChar, DOT)) {
+			double fraction_part = getFractionPart();
+			if (StringUtils.isAlpha(currentChar)) {			// don't allow alpha symbols follow floats
+				handleError();
 			}
+			this.token = new TokenFloat(tokenPosition, value+fraction_part);
+			return true;
+		}
+
+		if (StringUtils.isAlpha(currentChar)) {				// don't allow alpha symbols follow integers
+			handleError();
 		}
 		this.token = new TokenInteger(tokenPosition, value);
 		return true;
+	}
+
+	private int getDecimalPart(int value) {
+		int decimal;
+		while (StringUtils.isNumeric(nextChar())) {
+			decimal = Integer.parseInt(currentChar);
+			if ((Integer.MAX_VALUE - decimal) / 10 > value) {
+				value = value * 10 + decimal;
+			} else {
+				handleError();
+			}
+		}
+		return value;
+	}
+
+	private double getFractionPart() {
+		int num_of_digits = 0;
+		int fraction = 0;
+		while (StringUtils.isNumeric(nextChar())) {
+			int decimal = Integer.parseInt(currentChar);
+			if ((Integer.MAX_VALUE - decimal) / 10 > fraction) {
+				fraction = fraction * 10 + decimal;
+				num_of_digits++;
+			} else {
+				handleError();
+			}
+		}
+		return fraction / Math.pow(10, num_of_digits);
 	}
 
 	private boolean tryBuildIdentifierOrKeyword() {
@@ -68,7 +104,6 @@ public class EasyLexerImpl implements Lexer {
 		while (isIdentifierChar(nextChar())) {
 			builder.append(currentChar);
 			if (builder.length() > Integer.parseInt(getPropertyValue("identifier.maxlength"))) {
-				// TODO
 				handleError();
 			}
 		}
@@ -97,7 +132,7 @@ public class EasyLexerImpl implements Lexer {
 	}
 
 	private String nextChar() {
-		int character = 0;
+		int character;
 		try {
 			character = bufferedReader.read();
 		} catch (IOException e) {

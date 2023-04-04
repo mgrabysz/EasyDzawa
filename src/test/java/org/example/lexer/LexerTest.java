@@ -67,6 +67,28 @@ public class LexerTest {
         assertEquals(expectedToken.getType(), actualToken.getType());
     }
 
+    private static Stream<Arguments> testReadingFloats() throws IOException {
+        String input = "22.22 348.098473 \t 9. 9999.12342423  \n 0.102456";
+        List<Token> expectedTokens = new ArrayList<>(Arrays.asList(
+                new TokenFloat(new Position(), 22.22),
+                new TokenFloat(new Position(), 348.098473),
+                new TokenFloat(new Position(), 9.0),
+                new TokenFloat(new Position(), 9999.12342423),
+                new TokenFloat(new Position(), 0.102456),
+                new TokenEOF(new Position())
+        ));
+        List<Token> actualTokens = readFromString(input);
+        return IntStream.range(0, actualTokens.size())
+                .mapToObj(i -> Arguments.of(expectedTokens.get(i), actualTokens.get(i)));
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    void testReadingFloats(Token expectedToken, Token actualToken) {
+        assertEquals((Double) expectedToken.getValue(), actualToken.getValue());
+        assertEquals(expectedToken.getType(), actualToken.getType());
+    }
+
     private static List<Token> readFromString(String input) throws IOException {
         List<Token> tokens = new ArrayList<>();
         try (var reader = new BufferedReader(new StringReader(input))) {
