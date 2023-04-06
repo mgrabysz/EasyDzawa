@@ -1,11 +1,11 @@
 # Projekt wstępny
-Nazwa projektu: `EasyDżawa` \
+Nazwa projektu: `Żmija` \
 Autor: Marcin Grabysz \
 Opiekun projektu: Piotr Gawkowski 
 
-Celem projektu jest napisanie interpretera języka o składni podobnej do C++ 
-lub Java, z możliwością wykonywania podstawowych operacji na zmiennych typu 
-int, float i bool, a także definiowania własnych funkcji i klas. Język EasyDżawa<sup>TM</sup> umożliwi używanie słów kluczowych i nazw funkcji 
+Celem projektu jest napisanie interpretera języka o składni podobnej do języka Python,
+z możliwością wykonywania podstawowych operacji na zmiennych typu 
+int, float i bool, a także definiowania własnych funkcji i klas. Język Żmija<sup>TM</sup> umożliwi używanie słów kluczowych i nazw funkcji 
 w języku polskim, jak w poniższym przykładzie:
 ```
 numery = Lista();
@@ -64,7 +64,7 @@ prostych jak i złożonych.
 #### Funkcje wbudowane
 `napisz("Witaj świecie", ...)` - wypisuje tekst lub wartość zmiennej w konsoli, przyjmuje dowolną liczbę argumentów \
 `zakres(start, stop, krok)` - zwraca listę zawierającą liczby całkowite od `start` do `stop` o podanym kroku \
-`abort()` - przerywa wykonanie programu
+`kończWaść()` - przerywa wykonanie programu
 
 #### Definiowanie własnych typów
 Użytkownik może definiować własne typy bez dziedziczenia. Klasy mogą agregować 
@@ -123,7 +123,7 @@ klasa Ułamek {
     tenże.licznik = l;
     tenże.mianownik = m;
     jeżeli (m == 0) {
-        abort();
+        kończWaść();
     }
     jeżeli (l < m) {
         tenże.jestWłaściwy = prawda;    // ułamek właściwy to taki, który jest mniejszy od 1
@@ -153,7 +153,7 @@ main() {
 ```
 silnia(x) {
   jeżeli (a < 0) {
-    abort();          // przerywa wykonanie programu
+    kończWaść();          // przerywa wykonanie programu
   }
   jeżeli (a == 0) {
     zwróć 1;          // dalsze instrukcje nie wykonują się
@@ -329,10 +329,10 @@ Rozpoznawane typy tokenów to:
 * END_OF_FILE 
 * COMMENT
 * słowa kluczowe: RETURN, FOR, IF, ELSE, CLASS, THIS
-* symbole: OPEN_BRACKET, CLOSE_BRACKET, OPEN_PARENTHESIS, CLOSE_PARENTHESIS, SEMICOLON, COMA, DOUBLE_QUOTE, ASSIGN
-* operatory logiczne: AND, OR, NOT
-* operatory matematyczne: ADD, SUBTRACT, MULTIPLY, DIVIDE, ADD_AND_ASSIGN, SUBTRACT_AND_ASSIGN
+* symbole: OPEN_BRACKET, CLOSE_BRACKET, OPEN_PARENTHESIS, CLOSE_PARENTHESIS, SEMICOLON, COMA, DOUBLE_QUOTE, ASSIGN, ADD_AND_ASSIGN, SUBTRACT_AND_ASSIGN
 * operatory porównania: EQUAL, NOT_EQUAL, GREATER, LESS, GREATER_OR_EQUAL, LESS_OR_EQUAL
+* operatory logiczne: AND, OR, NOT
+* operatory matematyczne: ADD, SUBTRACT, MULTIPLY, DIVIDE 
 * wartości liczbowe i logiczne: INTEGER, FLOAT, BOOL, TEXT
 * IDENTIFIER
 
