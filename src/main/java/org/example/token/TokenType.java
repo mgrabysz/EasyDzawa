@@ -5,10 +5,9 @@ import lombok.Getter;
 import org.example.Configuration;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
 @Getter
@@ -33,7 +32,6 @@ public enum TokenType {
 	CLOSE_PARENTHESIS(")"),
 	SEMICOLON(";"),
 	COMA(","),
-	DOUBLE_QUOTE("\""),
 	ASSIGN("="),
 	ADD_AND_ASSIGN("+="),
 	SUBTRACT_AND_ASSIGN("-="),
@@ -42,8 +40,17 @@ public enum TokenType {
 	NOT_EQUAL("!="),
 	GREATER(">"),
 	LESS("<"),
-	GREATER_OR_EQUAL("<="),
-	LESS_OR_EQUAL(">="),
+	GREATER_OR_EQUAL(">="),
+	LESS_OR_EQUAL("<="),
+
+	AND,
+	OR,
+	NOT,
+
+	ADD("+"),
+	SUBTRACT("-"),
+	MULTIPLY("*"),
+	DIVIDE("/"),
 
 	INTEGER,
 	FLOAT,
@@ -58,7 +65,7 @@ public enum TokenType {
 
 	private static Properties properties;
 
-	private TokenType() {
+	TokenType() {
 		if (this.keyword == null) {
 			readFromLanguageConfig();
 		}
@@ -73,10 +80,8 @@ public enum TokenType {
 		if (properties == null) {
 			properties = new Properties();
 			try {
-				FileInputStream propsInput = new FileInputStream(Configuration.getPropertyValue("language.config.path"));
-				properties.load(new InputStreamReader(propsInput, Charset.forName("UTF-8")));	// this aberration reads UTF-8 symbols
-			} catch (FileNotFoundException e) {
-				throw new RuntimeException(e);
+				FileInputStream propsInput = new FileInputStream(Configuration.getLanguageConfigPath());
+				properties.load(new InputStreamReader(propsInput, StandardCharsets.UTF_8));	// this aberration reads UTF-8 symbols
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}

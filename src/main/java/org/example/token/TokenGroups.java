@@ -1,11 +1,12 @@
 package org.example.token;
 
 import lombok.experimental.UtilityClass;
-import org.apache.commons.lang3.StringUtils;
 
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
+
+import static org.example.token.TokenType.*;
 
 @UtilityClass
 public class TokenGroups {
@@ -17,16 +18,24 @@ public class TokenGroups {
     */
     public static Map<String, TokenType> KEYWORDS = new HashMap<>();
     static {
-        EnumSet.allOf(TokenType.class)
-                .stream()
-                .filter(tokenType -> StringUtils.isAlpha(tokenType.getKeyword()))
-                .filter(tokenType -> tokenType != TokenType.TRUE && tokenType != TokenType.FALSE)
-                .forEach(tokenType -> KEYWORDS.put(tokenType.getKeyword(), tokenType));
+        Stream.of(RETURN, FOR, IN, IF, ELSE, CLASS, THIS, AND, OR, NOT)
+				.forEach(tokenType -> KEYWORDS.put(tokenType.getKeyword(), tokenType));
     }
 
-    public static final Map<String, TokenType> BOOL_LITERALS = Map.of(
-            TokenType.TRUE.getKeyword(), TokenType.TRUE,
-            TokenType.FALSE.getKeyword(), TokenType.FALSE);
-
+    public static final Map<String, TokenType> BOOL_LITERALS = new HashMap<>();
+	static {
+		Stream.of(TRUE, FALSE)
+				.forEach(tokenType -> BOOL_LITERALS.put(tokenType.getKeyword(), tokenType));
+	}
     public static final Map<String, TokenType> SYMBOLS = new HashMap<>();
+    static {
+        Stream.of(
+				COMMENT, SEMICOLON, COMA, 											// general symbols
+				OPEN_BRACKET, CLOSE_BRACKET, OPEN_PARENTHESIS, CLOSE_PARENTHESIS, 	// parenthesis
+				ASSIGN, ADD_AND_ASSIGN, SUBTRACT_AND_ASSIGN,						// assignment
+				EQUAL, NOT_EQUAL, GREATER, LESS, GREATER_OR_EQUAL, LESS_OR_EQUAL,	// relation
+				ADD, SUBTRACT, MULTIPLY, DIVIDE)									// math
+				.forEach(tokenType -> SYMBOLS.put(tokenType.getKeyword(), tokenType));
+    }
+
 }

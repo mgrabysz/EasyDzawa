@@ -14,6 +14,6 @@ public class Main {
 			System.out.println(token);
 		}
 
-		System.out.println(TokenGroups.KEYWORDS);
+		System.out.println(TokenGroups.SYMBOLS);
 	}
 }

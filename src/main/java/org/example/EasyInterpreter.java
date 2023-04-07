@@ -1,6 +1,6 @@
 package org.example;
 
-import org.example.lexer.EasyLexerImpl;
+import org.example.lexer.LexerImpl;
 import org.example.token.Token;
 import org.example.token.TokenType;
 
@@ -16,7 +16,7 @@ public class EasyInterpreter {
 
 		List<Token> tokens = new ArrayList<>();
 		try (var file = new BufferedReader(new FileReader(path))) {
-			var lexer = new EasyLexerImpl(file);
+			var lexer = new LexerImpl(file);
 			Token token = lexer.next();
 			while (token.getType() != TokenType.END_OF_FILE) {
 				tokens.add(token);

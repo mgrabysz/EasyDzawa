@@ -1,18 +1,18 @@
 package org.example.lexer;
 
 import org.apache.commons.lang3.StringUtils;
+import org.example.Configuration;
 import org.example.Position;
 import org.example.token.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 
-import static org.example.Configuration.getPropertyValue;
-
-public class EasyLexerImpl implements Lexer {
+public class LexerImpl implements Lexer {
 
 	private static final String UNDERSCORE = "_";
 	private static final String DOT = ".";
+	private static final String DOUBLE_QUOTE = "\"";
 
 	private Token token;
 	private String currentChar;
@@ -20,7 +20,7 @@ public class EasyLexerImpl implements Lexer {
 	private Position tokenPosition;
 	private final BufferedReader bufferedReader;
 
-	public EasyLexerImpl(BufferedReader bufferedReader) {
+	public LexerImpl(BufferedReader bufferedReader) {
 		this.bufferedReader = bufferedReader;
 		this.currentPosition = new Position(0, -1);
 		this.currentChar = nextChar();
@@ -35,10 +35,12 @@ public class EasyLexerImpl implements Lexer {
 
 		if (tryBuildEOF()
 			|| tryBuildNumber()
-			|| tryBuildIdentifierOrKeyword()) {
+			|| tryBuildIdentifierOrKeyword()
+			|| tryBuildSymbolOrComment()
+			|| tryBuildText()) {
 			return token;
 		}
-		return new EmptyToken();
+		return new TokenUndefined(tokenPosition);
 	}
 
 	private boolean tryBuildNumber() {
@@ -103,7 +105,7 @@ public class EasyLexerImpl implements Lexer {
 		var builder = new StringBuilder(currentChar);
 		while (isIdentifierChar(nextChar())) {
 			builder.append(currentChar);
-			if (builder.length() > Integer.parseInt(getPropertyValue("identifier.maxlength"))) {
+			if (builder.length() > Configuration.getIdentifierMaxLength()) {
 				handleError();
 			}
 		}
@@ -120,6 +122,112 @@ public class EasyLexerImpl implements Lexer {
 			return true;
 		}
 		this.token = new TokenIdentifier(tokenPosition, key);
+		return true;
+	}
+
+	private boolean tryBuildSymbolOrComment() {
+		if (!TokenGroups.SYMBOLS.containsKey(currentChar) && !currentChar.equals("!")) {
+			return false;
+		}
+		switch (currentChar) {
+			case "=" -> {
+				if (StringUtils.equals(nextChar(), "=")) {
+					this.token = new TokenSymbol(TokenType.EQUAL, tokenPosition);
+					nextChar();
+				} else {
+					this.token = new TokenSymbol(TokenType.ASSIGN, tokenPosition);
+				}
+			}
+			case "+" -> {
+				if (StringUtils.equals(nextChar(), "=")) {
+					this.token = new TokenSymbol(TokenType.ADD_AND_ASSIGN, tokenPosition);
+					nextChar();
+				} else {
+					this.token = new TokenSymbol(TokenType.ADD, tokenPosition);
+				}
+			}
+			case "-" -> {
+				if (StringUtils.equals(nextChar(), "=")) {
+					this.token = new TokenSymbol(TokenType.SUBTRACT_AND_ASSIGN, tokenPosition);
+					nextChar();
+				} else {
+					this.token = new TokenSymbol(TokenType.SUBTRACT, tokenPosition);
+				}
+			}
+			case "<" -> {
+				if (StringUtils.equals(nextChar(), "=")) {
+					this.token = new TokenSymbol(TokenType.LESS_OR_EQUAL, tokenPosition);
+					nextChar();
+				} else {
+					this.token = new TokenSymbol(TokenType.LESS, tokenPosition);
+				}
+			}
+			case ">" -> {
+				if (StringUtils.equals(nextChar(), "=")) {
+					this.token = new TokenSymbol(TokenType.GREATER_OR_EQUAL, tokenPosition);
+					nextChar();
+				} else {
+					this.token = new TokenSymbol(TokenType.GREATER, tokenPosition);
+				}
+			}
+			case "!" -> {
+				if(StringUtils.equals(nextChar(), "=")) {
+					this.token = new TokenSymbol(TokenType.NOT_EQUAL, tokenPosition);
+					nextChar();
+				} else {
+					handleError();
+					return false;
+				}
+			}
+			case "/" -> {
+				if (StringUtils.equals(nextChar(), "/")) {
+					parseComment();
+				} else {
+					this.token = new TokenSymbol(TokenType.DIVIDE, tokenPosition);
+				}
+			}
+			default -> {
+				final var tokenType = TokenGroups.SYMBOLS.get(currentChar);
+				this.token = new TokenSymbol(tokenType, tokenPosition);
+				nextChar();
+			}
+		}
+		return true;
+	}
+
+	private void parseComment() {
+		final var builder = new StringBuilder();
+		while (!StringUtils.isEmpty(nextChar())) {
+			if (tryBuildLineSeparator()) {
+				this.token = new TokenComment(tokenPosition, builder.toString());
+				return;
+			}
+			if (builder.length() > Configuration.getCommentMaxLength()) {
+				handleError();
+				return;
+			}
+			builder.append(currentChar);
+		}
+	}
+
+	private boolean tryBuildText() {
+		if (!StringUtils.equals(currentChar, DOUBLE_QUOTE)) {
+			return false;
+		}
+		final var builder = new StringBuilder();
+		while (!StringUtils.equals(nextChar(), DOUBLE_QUOTE)) {
+			if (builder.length() > Configuration.getTextMaxLength()) {
+				handleError();
+				return false;
+			}
+			if (StringUtils.isEmpty(currentChar)) {
+				handleError();
+				return false;
+			}
+			builder.append(currentChar);
+		}
+		this.token = new TokenText(tokenPosition, builder.toString());
+		nextChar();
 		return true;
 	}
 
@@ -153,6 +261,21 @@ public class EasyLexerImpl implements Lexer {
 
 	private boolean isIdentifierChar(String string) {
 		return StringUtils.isAlphanumeric(string) || StringUtils.equals(string, UNDERSCORE);
+	}
+
+	private boolean tryBuildLineSeparator() {
+		if (StringUtils.equals(currentChar, "\n")) {
+			nextChar();
+			return true;
+		}
+		if (StringUtils.equals(currentChar, "\r")) {
+			nextChar();
+			if (StringUtils.equals(currentChar, "\n")) {
+				nextChar();
+			}
+			return true;
+		}
+		return false;
 	}
 
 	private void handleError()  {
