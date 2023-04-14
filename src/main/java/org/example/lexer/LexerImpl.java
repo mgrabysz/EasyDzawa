@@ -2,6 +2,7 @@ package org.example.lexer;
 
 import org.apache.commons.lang3.StringUtils;
 import org.example.Configuration;
+import org.example.EscapeUtils;
 import org.example.Position;
 import org.example.token.*;
 
@@ -13,6 +14,7 @@ public class LexerImpl implements Lexer {
 	private static final String UNDERSCORE = "_";
 	private static final String DOT = ".";
 	private static final String DOUBLE_QUOTE = "\"";
+	private static final String BACKSLASH = "\\";
 
 	private Token token;
 	private String currentChar;
@@ -58,6 +60,7 @@ public class LexerImpl implements Lexer {
 			double fraction_part = getFractionPart();
 			if (StringUtils.isAlpha(currentChar)) {			// don't allow alpha symbols follow floats
 				handleError();
+				return false;
 			}
 			this.token = new TokenFloat(tokenPosition, value+fraction_part);
 			return true;
@@ -65,6 +68,7 @@ public class LexerImpl implements Lexer {
 
 		if (StringUtils.isAlpha(currentChar)) {				// don't allow alpha symbols follow integers
 			handleError();
+			return false;
 		}
 		this.token = new TokenInteger(tokenPosition, value);
 		return true;
@@ -107,6 +111,7 @@ public class LexerImpl implements Lexer {
 			builder.append(currentChar);
 			if (builder.length() > Configuration.getIdentifierMaxLength()) {
 				handleError();
+				return false;
 			}
 		}
 		String key = builder.toString();
@@ -224,11 +229,20 @@ public class LexerImpl implements Lexer {
 				handleError();
 				return false;
 			}
+			if (StringUtils.equals(currentChar, BACKSLASH)) {
+				builder.append(parseEscapeCharacter());
+				continue;
+			}
 			builder.append(currentChar);
 		}
 		this.token = new TokenText(tokenPosition, builder.toString());
 		nextChar();
 		return true;
+	}
+
+	private String parseEscapeCharacter() {
+		nextChar();
+		return EscapeUtils.SEQUENCE_MAP.getOrDefault(currentChar, currentChar);
 	}
 
 	private boolean tryBuildEOF() {

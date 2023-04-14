@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class LexerTest {
+public class LexerStringInputTest {
 
     /*
     * Static method returns Stream of pairs - each pair contains expected and actually received Token
