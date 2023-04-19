@@ -1,2 +1,9 @@
-22 348 9 9999
-22 348 9 9999
+main() {
+  x = nowy Ułamek(1, 2);
+  jeżeli (x.jestWłaściwy) {
+    napisz("Zdefiniowano właśnie ułamek właściwy \n");
+  }
+  x.rozszerz(2);
+  napisz(y.licznik);      // 2
+  napisz(y.mianownik);    // 4
+}
