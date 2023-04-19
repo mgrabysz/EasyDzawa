@@ -1,0 +1,11 @@
+lista = Lista();
+dla i w zakres(0, 10, 1) {
+  lista.add(i * 10);
+}
+dla i w lista {   // i nie jest widoczne poza pętlą
+  jeżeli (i > 50) {
+      napisz(i, " jest większe od 50 \n");
+  } inaczej {
+      napisz(i, " nie jest większe od 50 \n");
+  }
+}

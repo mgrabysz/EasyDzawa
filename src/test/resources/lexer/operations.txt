@@ -1,0 +1,7 @@
+x = 10 + 20 - 5 * (3+2);
+x += 5;
+y = 10.5 / 2;
+z = x * y;
+var1 = z >= x;
+var2 = var1 lub (x == 10);
+var3 = ((y > 5) oraz var2) lub z < 0;

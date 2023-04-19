@@ -1,5 +1,6 @@
 package org.example;
 
+import org.example.error.manager.ErrorManager;
 import org.example.lexer.LexerImpl;
 import org.example.token.Token;
 import org.example.token.TokenType;
@@ -10,13 +11,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EasyInterpreter {
+public class Interpreter {
 
 	public List<Token> readTokens(String path) throws IOException {
 
 		List<Token> tokens = new ArrayList<>();
 		try (var file = new BufferedReader(new FileReader(path))) {
-			var lexer = new LexerImpl(file);
+			var lexer = new LexerImpl(file, ErrorManager::handleError);
 			Token token = lexer.next();
 			while (token.getType() != TokenType.END_OF_FILE) {
 				tokens.add(token);

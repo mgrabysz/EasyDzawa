@@ -166,13 +166,23 @@ silnia(x) {
 ### Niepoprawne konstrukcje i komunikaty wyjątków
 #### na poziomie leksykalnym
 ```
-var = ----;
+var = 123abc;
 var2 = @$abc;
-Undefined expression starting at line x position y
+Undefined expression: 123abc at line x position y
 ```
 ```
-var = 99999999999999999999999999999999999;
-Numeric expression starting at line x position y exceeds limit
+var = 2147483648;
+Numeric expression: 214748364... at line 0 position 0 exceeds limit
+```
+```
+"abcdefgh
+End of file reached while parsing text: abcdefgh starting at line x position y
+```
+Oraz (maksymalna długość jest konfigurowana dla identyfikatorów, komentarzy i tekstów z osobna):
+```
+Identifier: aaaaaaaaaaaaaaaaaaaaaaaa... starting at line x position y exceeds maximal length
+Text: aaaaaaaaaaaaaaaaaaaaaaaa... starting at line x position y exceeds maximal length
+Comment: aaaaaaaaaaaaaaaaaaaaaaaa starting at line x position y exceeds maximal length
 ```
 #### na poziomie składniowym
 ```
@@ -306,8 +316,7 @@ do zinterpretowania. Wyjściem programu jest wyjście standardowe
 #### Analizator leksykalny
 Analizator leksykalny (lekser) jest modułem odpowiedzialnym za przetworzenie pliku wejściowego na ciąg tokenów. 
 Lekser oczekuje dwóch argumentów:
-* `eventHandler` - wyrażenie lub funkcja (obiekt Function lub dziedziczący po nim) określające, co należy wykonać
-  przy napotkaniu błędu
+* `eventHandler` - wyrażenie lub funkcja określające, co należy wykonać przy napotkaniu błędu
 * `bufferedReader` - obiekt typu BufferedReader stanowiący źródło znaków do interpretacji.
 
 Lekser pobiera znaki _leniwie_, tj. w momencie w którym potrzebuje kolejnego znaku. Każdy znak po pobraniu jest poddany 
@@ -329,7 +338,7 @@ Rozpoznawane typy tokenów to:
 * END_OF_FILE 
 * COMMENT
 * słowa kluczowe: RETURN, FOR, IF, ELSE, CLASS, THIS
-* symbole: OPEN_BRACKET, CLOSE_BRACKET, OPEN_PARENTHESIS, CLOSE_PARENTHESIS, SEMICOLON, COMA, DOUBLE_QUOTE, ASSIGN, ADD_AND_ASSIGN, SUBTRACT_AND_ASSIGN
+* symbole: OPEN_BRACKET, CLOSE_BRACKET, OPEN_PARENTHESIS, CLOSE_PARENTHESIS, SEMICOLON, COMA, DOT, ASSIGN, ADD_AND_ASSIGN, SUBTRACT_AND_ASSIGN
 * operatory porównania: EQUAL, NOT_EQUAL, GREATER, LESS, GREATER_OR_EQUAL, LESS_OR_EQUAL
 * operatory logiczne: AND, OR, NOT
 * operatory matematyczne: ADD, SUBTRACT, MULTIPLY, DIVIDE 

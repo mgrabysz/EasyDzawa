@@ -32,6 +32,7 @@ public enum TokenType {
 	CLOSE_PARENTHESIS(")"),
 	SEMICOLON(";"),
 	COMA(","),
+	DOT("."),
 	ASSIGN("="),
 	ADD_AND_ASSIGN("+="),
 	SUBTRACT_AND_ASSIGN("-="),

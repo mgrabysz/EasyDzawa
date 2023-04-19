@@ -28,6 +28,8 @@ public class Configuration {
 	private static final Integer commentMaxLength = Integer.valueOf(getPropertyValue("comment.maxlength"));
 	@Getter
 	private static final Integer textMaxLength = Integer.valueOf(getPropertyValue("text.maxlength"));
+	@Getter
+	private static final Integer errorMessageExpressionMaxLength = Integer.valueOf(getPropertyValue("error.message.expression.maxlength"));
 
 	private static String getPropertyValue(String key) {
 		return applicationProperties.getProperty(key);

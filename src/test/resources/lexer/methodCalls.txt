@@ -1,0 +1,8 @@
+numery = Lista();
+numery.dodaj(10);
+numery.dodaj(20);
+numery.dodajNa(0, 0);
+i = numery.pobierzNa(2);
+numery.usuń(10);
+numery.usuńNa(0);
+numery.dodaj(1.2);

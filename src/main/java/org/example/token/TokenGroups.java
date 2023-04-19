@@ -30,7 +30,7 @@ public class TokenGroups {
     public static final Map<String, TokenType> SYMBOLS = new HashMap<>();
     static {
         Stream.of(
-				COMMENT, SEMICOLON, COMA, 											// general symbols
+				COMMENT, SEMICOLON, COMA, DOT,										// general symbols
 				OPEN_BRACKET, CLOSE_BRACKET, OPEN_PARENTHESIS, CLOSE_PARENTHESIS, 	// parenthesis
 				ASSIGN, ADD_AND_ASSIGN, SUBTRACT_AND_ASSIGN,						// assignment
 				EQUAL, NOT_EQUAL, GREATER, LESS, GREATER_OR_EQUAL, LESS_OR_EQUAL,	// relation

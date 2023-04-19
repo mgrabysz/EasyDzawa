@@ -1,6 +1,7 @@
 package org.example.lexer;
 
 import org.example.Position;
+import org.example.error.manager.ErrorManager;
 import org.example.token.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -24,13 +25,14 @@ public class LexerStringInputTest {
     * Method with annotation @ParameterizedTest reads the stream of pairs and performs assertion
     */
     private static Stream<Arguments> testReadingIntegers() throws IOException {
-        String input = "22 348 \t 9 9999  \n 102456";
+        String input = "22 348 \t 9 9999  \n 102456 2147483647";
         List<Token> expectedTokens = new ArrayList<>(Arrays.asList(
-            new TokenInteger(new Position(0, 0), 22),
-            new TokenInteger(new Position(0, 3), 348),
-            new TokenInteger(new Position(0, 7), 9),
-            new TokenInteger(new Position(0, 9), 9999),
-            new TokenInteger(new Position(0, 16), 102456),
+            new TokenInteger(new Position(), 22),
+            new TokenInteger(new Position(), 348),
+            new TokenInteger(new Position(), 9),
+            new TokenInteger(new Position(), 9999),
+            new TokenInteger(new Position(), 102456),
+            new TokenInteger(new Position(), Integer.MAX_VALUE),
             new TokenEOF(new Position(0, 22))
         ));
         List<Token> actualTokens = readFromString(input);
@@ -99,7 +101,7 @@ public class LexerStringInputTest {
     }
 
     private static Stream<Arguments> testReadingSymbols() throws IOException {
-        String input = "{}();,=+=-===!=><\n>=<=+-*/ //comment\n;";
+        String input = "{}();,=+=-===!=><\n>=<=+-*/ //comment\n;.";
         List<Token> expectedTokens = new ArrayList<>(Arrays.asList(
             new TokenSymbol(TokenType.OPEN_BRACKET, new Position()),
             new TokenSymbol(TokenType.CLOSE_BRACKET, new Position()),
@@ -122,6 +124,7 @@ public class LexerStringInputTest {
             new TokenSymbol(TokenType.DIVIDE, new Position()),
             new TokenComment(new Position(), "comment"),
             new TokenSymbol(TokenType.SEMICOLON, new Position()),
+            new TokenSymbol(TokenType.DOT, new Position()),
             new TokenEOF(new Position())
         ));
         List<Token> actualTokens = readFromString(input);
@@ -141,7 +144,7 @@ public class LexerStringInputTest {
         List<Token> expectedTokens = new ArrayList<>(Arrays.asList(
                 new TokenText(new Position(), "Hello, it's me - I was wandering...\n"),
                 new TokenText(new Position(), "this is plus:+;"),
-                new TokenEOF(new Position(0, 22))
+                new TokenEOF(new Position())
         ));
         List<Token> actualTokens = readFromString(input);
         return IntStream.range(0, actualTokens.size())
@@ -155,11 +158,67 @@ public class LexerStringInputTest {
         assertEquals(expectedToken.getType(), actualToken.getType());
     }
 
+    private static Stream<Arguments> testParsingNewLineUnix() throws IOException {
+        String input = " //Hello Unix user\n//Nice to meet you";
+        List<Token> expectedTokens = new ArrayList<>(Arrays.asList(
+                new TokenComment(new Position(), "Hello Unix user"),
+                new TokenComment(new Position(), "Nice to meet you"),
+                new TokenEOF(new Position())
+        ));
+        List<Token> actualTokens = readFromString(input);
+        return IntStream.range(0, actualTokens.size())
+                .mapToObj(i -> Arguments.of(expectedTokens.get(i), actualTokens.get(i)));
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    void testParsingNewLineUnix(Token expectedToken, Token actualToken) {
+        assertEquals((String) expectedToken.getValue(), actualToken.getValue());
+        assertEquals(expectedToken.getType(), actualToken.getType());
+    }
+
+    private static Stream<Arguments> testParsingNewLineWindows() throws IOException {
+        String input = " //Hello Windows user\r\n//Nice to meet you";
+        List<Token> expectedTokens = new ArrayList<>(Arrays.asList(
+                new TokenComment(new Position(), "Hello Windows user"),
+                new TokenComment(new Position(), "Nice to meet you"),
+                new TokenEOF(new Position())
+        ));
+        List<Token> actualTokens = readFromString(input);
+        return IntStream.range(0, actualTokens.size())
+                .mapToObj(i -> Arguments.of(expectedTokens.get(i), actualTokens.get(i)));
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    void testParsingNewLineWindows(Token expectedToken, Token actualToken) {
+        assertEquals((String) expectedToken.getValue(), actualToken.getValue());
+        assertEquals(expectedToken.getType(), actualToken.getType());
+    }
+
+    private static Stream<Arguments> testParsingNewLineMac() throws IOException {
+        String input = " //Hello Mac user\r//Nice to meet you";
+        List<Token> expectedTokens = new ArrayList<>(Arrays.asList(
+                new TokenComment(new Position(), "Hello Mac user"),
+                new TokenComment(new Position(), "Nice to meet you"),
+                new TokenEOF(new Position())
+        ));
+        List<Token> actualTokens = readFromString(input);
+        return IntStream.range(0, actualTokens.size())
+                .mapToObj(i -> Arguments.of(expectedTokens.get(i), actualTokens.get(i)));
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    void testParsingNewLineMac(Token expectedToken, Token actualToken) {
+        assertEquals((String) expectedToken.getValue(), actualToken.getValue());
+        assertEquals(expectedToken.getType(), actualToken.getType());
+    }
 
     private static List<Token> readFromString(String input) throws IOException {
         List<Token> tokens = new ArrayList<>();
         try (var reader = new BufferedReader(new StringReader(input))) {
-            var lexer = new LexerImpl(reader);
+            var lexer = new LexerImpl(reader, ErrorManager::handleError);
             Token token = lexer.next();
             while (token.getType() != TokenType.END_OF_FILE) {
                 tokens.add(token);

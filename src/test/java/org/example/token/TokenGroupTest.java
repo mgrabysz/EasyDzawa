@@ -13,6 +13,9 @@ public class TokenGroupTest {
 		Assertions.assertEquals(TokenType.ELSE, TokenGroups.KEYWORDS.get("inaczej"));
 		Assertions.assertEquals(TokenType.CLASS, TokenGroups.KEYWORDS.get("klasa"));
 		Assertions.assertEquals(TokenType.THIS, TokenGroups.KEYWORDS.get("tenże"));
+		Assertions.assertEquals(TokenType.OR, TokenGroups.KEYWORDS.get("lub"));
+		Assertions.assertEquals(TokenType.AND, TokenGroups.KEYWORDS.get("oraz"));
+		Assertions.assertEquals(TokenType.NOT, TokenGroups.KEYWORDS.get("nie"));
 	}
 
 	@Test
