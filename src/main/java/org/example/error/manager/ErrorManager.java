@@ -27,31 +27,31 @@ public class ErrorManager {
 		switch (errorDetails.type()) {
 			case UNDEFINED_TOKEN -> {
 				errorMessage = UNDEFINED_TOKEN_MESSAGE.formatted(trimExpression(errorDetails.expression()),
-						errorDetails.position().getLine(), errorDetails.position().getCharacterNumber());
+						errorDetails.position().getLineNumber(), errorDetails.position().getCharacterNumber());
 			}
 			case NUMERIC_LIMIT_EXCEEDED -> {
 				errorMessage = NUMERIC_LIMIT_EXCEEDED_MESSAGE.formatted(trimExpression(errorDetails.expression()),
-						errorDetails.position().getLine(), errorDetails.position().getCharacterNumber());
+						errorDetails.position().getLineNumber(), errorDetails.position().getCharacterNumber());
 			}
 			case IDENTIFIER_LENGTH_EXCEEDED -> {
 				errorMessage = IDENTIFIER_LENGTH_EXCEEDED.formatted(trimExpression(errorDetails.expression()),
-						errorDetails.position().getLine(), errorDetails.position().getCharacterNumber());
+						errorDetails.position().getLineNumber(), errorDetails.position().getCharacterNumber());
 			}
 			case TEXT_LENGTH_EXCEEDED -> {
 				errorMessage = TEXT_LENGTH_EXCEEDED_MESSAGE.formatted(trimExpression(errorDetails.expression()),
-						errorDetails.position().getLine(), errorDetails.position().getCharacterNumber());
+						errorDetails.position().getLineNumber(), errorDetails.position().getCharacterNumber());
 			}
 			case COMMENT_LENGTH_EXCEEDED -> {
 				errorMessage = COMMENT_LENGTH_EXCEEDED_MESSAGE.formatted(trimExpression(errorDetails.expression()),
-						errorDetails.position().getLine(), errorDetails.position().getCharacterNumber());
+						errorDetails.position().getLineNumber(), errorDetails.position().getCharacterNumber());
 			}
 			case END_OF_FILE_REACHED -> {
 				errorMessage = END_OF_FILE_REACHED_MESSAGE.formatted(trimExpression(errorDetails.expression()),
-						errorDetails.position().getLine(), errorDetails.position().getCharacterNumber());
+						errorDetails.position().getLineNumber(), errorDetails.position().getCharacterNumber());
 			}
 			default -> {
 				errorMessage = GENERIC_LEXICAL_ERROR_MESSAGE.formatted(
-						errorDetails.position().getLine(), errorDetails.position().getCharacterNumber());
+						errorDetails.position().getLineNumber(), errorDetails.position().getCharacterNumber());
 			}
 		}
 		throw new LexicalException(errorMessage);

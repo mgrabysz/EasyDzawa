@@ -16,7 +16,8 @@ public class Interpreter {
 	public List<Token> readTokens(String path) throws IOException {
 
 		List<Token> tokens = new ArrayList<>();
-		try (var file = new BufferedReader(new FileReader(path))) {
+		try (FileReader fileReader = new FileReader(path)) {
+			var file = new BufferedReader(fileReader);
 			var lexer = new LexerImpl(file, ErrorManager::handleError);
 			Token token = lexer.next();
 			while (token.getType() != TokenType.END_OF_FILE) {

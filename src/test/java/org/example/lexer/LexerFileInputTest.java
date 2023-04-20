@@ -124,13 +124,13 @@ public class LexerFileInputTest {
 	private static Stream<Arguments> testPositions() {
 		final String path = "src/test/resources/lexer/positions.txt";
 		List<Position> positions = new ArrayList<>(Arrays.asList(
-				new Position(0, 0),
 				new Position(1, 1),
 				new Position(2, 2),
 				new Position(3, 3),
 				new Position(4, 4),
 				new Position(5, 5),
-				new Position(5, 9)
+				new Position(6, 6),
+				new Position(6, 10)
 		));
 		final List<Token> actualTokens = readFromFile(path);
 		return IntStream.range(0, actualTokens.size())
@@ -140,7 +140,7 @@ public class LexerFileInputTest {
 	@ParameterizedTest
 	@MethodSource
 	void testPositions(Position expectedPosition, Position actualPosition) {
-		assertEquals(expectedPosition.getLine(), actualPosition.getLine());
+		assertEquals(expectedPosition.getLineNumber(), actualPosition.getLineNumber());
 		assertEquals(expectedPosition.getCharacterNumber(), actualPosition.getCharacterNumber());
 	}
 

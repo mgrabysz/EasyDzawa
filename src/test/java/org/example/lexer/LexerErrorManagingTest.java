@@ -23,13 +23,14 @@ public class LexerErrorManagingTest {
 
 	private static Stream<Arguments> testUndefinedToken() {
 		return Stream.of(
-				Arguments.of("@#$%^&", "Undefined expression: @#$%^& at line 0 position 0"),
-				Arguments.of("123abc", "Undefined expression: 123abc at line 0 position 0"),
-				Arguments.of("123.abc", "Undefined expression: 123.abc at line 0 position 0"),
-				Arguments.of("123.456abc", "Undefined expression: 123.456abc at line 0 position 0"),
-				Arguments.of("@$abc", "Undefined expression: @$abc at line 0 position 0"),
-				Arguments.of("!+", "Undefined expression: !+ at line 0 position 0"),
-				Arguments.of("correct @#$ correct", "Undefined expression: @#$ at line 0 position 8")
+				Arguments.of("@#$%^&", "Undefined expression: @#$%^& at line 1 position 1"),
+				Arguments.of("123abc", "Undefined expression: 123abc at line 1 position 1"),
+				Arguments.of("123abc+", "Undefined expression: 123abc at line 1 position 1"),
+				Arguments.of("123.abc", "Undefined expression: 123.abc at line 1 position 1"),
+				Arguments.of("123.456abc", "Undefined expression: 123.456abc at line 1 position 1"),
+				Arguments.of("@$abc", "Undefined expression: @$abc at line 1 position 1"),
+				Arguments.of("!+", "Undefined expression: !+ at line 1 position 1"),
+				Arguments.of("correct @#$ correct", "Undefined expression: @#$ at line 1 position 9")
 		);
 	}
 
@@ -44,8 +45,8 @@ public class LexerErrorManagingTest {
 	private static Stream<Arguments> testNumericLimitExceeded() {
 		// Maximal integer value == 2147483647
 		return Stream.of(
-				Arguments.of("2147483648", "Numeric expression: 214748364... at line 0 position 0 exceeds limit"),
-				Arguments.of("0.2147483648", "Numeric expression: 0.214748364... at line 0 position 0 exceeds limit")
+				Arguments.of("2147483648", "Numeric expression: 214748364... at line 1 position 1 exceeds limit"),
+				Arguments.of("0.2147483648", "Numeric expression: 0.214748364... at line 1 position 1 exceeds limit")
 		);
 	}
 
@@ -62,7 +63,7 @@ public class LexerErrorManagingTest {
 		String inputString = "a".repeat(257);
 		String trimmedExpression = "a".repeat(24) + "...";
 		String expectedMessage = "Identifier: %s starting at line %d position %d exceeds maximal length"
-				.formatted(trimmedExpression, 0, 0);
+				.formatted(trimmedExpression, 1, 1);
 
 		Exception exception = assertThrows(LexicalException.class, () -> readFromString(inputString));
 		String actualMessage = exception.getMessage();
@@ -74,7 +75,7 @@ public class LexerErrorManagingTest {
 		String inputString = "\"" + "a".repeat(1025) + "\"";
 		String trimmedExpression = "a".repeat(24) + "...";
 		String expectedMessage = "Text: %s starting at line %d position %d exceeds maximal length"
-				.formatted(trimmedExpression, 0, 0);
+				.formatted(trimmedExpression, 1, 1);
 
 		Exception exception = assertThrows(LexicalException.class, () -> readFromString(inputString));
 		String actualMessage = exception.getMessage();
@@ -85,7 +86,7 @@ public class LexerErrorManagingTest {
 	public void testTextReachedEndOfFile() {
 		String inputString = "\"abc";
 		String expectedMessage = "End of file reached while parsing text: %s starting at line %d position %d"
-				.formatted("abc", 0, 0);
+				.formatted("abc", 1, 1);
 
 		Exception exception = assertThrows(LexicalException.class, () -> readFromString(inputString));
 		String actualMessage = exception.getMessage();
@@ -97,7 +98,7 @@ public class LexerErrorManagingTest {
 		String inputString = "//" + "a".repeat(1025);
 		String trimmedExpression = "a".repeat(24) + "...";
 		String expectedMessage = "Comment: %s starting at line %d position %d exceeds maximal length"
-				.formatted(trimmedExpression, 0, 0);
+				.formatted(trimmedExpression, 1, 1);
 
 		Exception exception = assertThrows(LexicalException.class, () -> readFromString(inputString));
 		String actualMessage = exception.getMessage();

@@ -24,18 +24,21 @@ public class LexerImpl implements Lexer {
 	private static final int LINE_FEED_ASCII = 10;
 	private static final int CARRIAGE_RETURN_ASCII = 13;
 
-	private Token token;
-	private char currentChar;
-	private Position currentPosition;
-	private Position tokenPosition;
 	private final BufferedReader bufferedReader;
 	private final ErrorHandler errorHandler;
+	private final Position currentPosition;
+
+	private Token token;
+	private char currentChar;
+	private Position tokenPosition;
+	private boolean lineSeparatorMarked;
 
 	public LexerImpl(BufferedReader bufferedReader, ErrorHandler errorHandler) {
 		this.bufferedReader = bufferedReader;
 		this.errorHandler = errorHandler;
-		this.currentPosition = new Position(0, -1);
+		this.currentPosition = new Position(1, 0);
 		this.currentChar = nextChar();
+		this.lineSeparatorMarked = false;
 	}
 
 	@Override
@@ -43,7 +46,7 @@ public class LexerImpl implements Lexer {
 		while (Character.isWhitespace(currentChar)) {
 			currentChar = nextChar();
 		}
-		this.tokenPosition = currentPosition;	// TODO kopia
+		this.tokenPosition = currentPosition.copy();
 
 		if (tryBuildEOF()
 			|| tryBuildNumber()
@@ -61,59 +64,66 @@ public class LexerImpl implements Lexer {
 			return false;
 		}
 		int value = Character.getNumericValue(currentChar);
-		if (value != 0) {
-			value = getDecimalPart(value);
-		} else {
-			nextChar();
+		Integer decimalPart = parseDecimalPart(value);
+		if (decimalPart == null) {
+			return true;
 		}
 
 		if (currentChar == DOT) {
-			double fractionPart = getFractionPart(value);
-			if (Character.isLetter(currentChar)) {			// don't allow alpha symbols follow floats
-				if (fractionPart == 0) {
-					buildUndefinedTokenAndHandleError(StringUtils.join(value, DOT, currentChar));
-				} else {
-					buildUndefinedTokenAndHandleError(StringUtils.join(value+fractionPart, currentChar));
-				}
-				return true;	// number is not built, although function returns true as we don't want to evaluate other token types
-			}
-			this.token = new TokenFloat(tokenPosition, value+fractionPart);
+			parseFloat(decimalPart);
 			return true;
 		}
 
 		if (Character.isLetter(currentChar)) {				// don't allow alpha symbols follow integers
-			buildUndefinedTokenAndHandleError(StringUtils.join(value, currentChar));
-			return true;	// number is not built, although function returns true as we don't want to evaluate other token types
+			buildUndefinedTokenAndHandleError(StringUtils.join(decimalPart, currentChar));
+			return true;
 		}
-		this.token = new TokenInteger(tokenPosition, value);
+		this.token = new TokenInteger(tokenPosition, decimalPart);
 		return true;
 	}
 
-	private int getDecimalPart(int value) {
-		int decimal;
+	private void parseFloat(Integer decimalPart) {
+		Double fractionPart = parseFractionPart(decimalPart);
+		if (fractionPart == null) {
+			return;
+		}
+		if (Character.isLetter(currentChar)) {			// don't allow alpha symbols follow floats
+			if (fractionPart == 0) {
+				buildUndefinedTokenAndHandleError(StringUtils.join(decimalPart, DOT, currentChar));
+			} else {
+				buildUndefinedTokenAndHandleError(StringUtils.join(decimalPart +fractionPart, currentChar));
+			}
+			return;
+		}
+		this.token = new TokenFloat(tokenPosition, decimalPart +fractionPart);
+	}
+
+	private Integer parseDecimalPart(int value) {
+		int digit;
 		while (Character.isDigit(nextChar())) {
-			decimal = Character.getNumericValue(currentChar);
-			if ((Integer.MAX_VALUE - decimal) / 10 >= value) {
-				value = value * 10 + decimal;
+			digit = Character.getNumericValue(currentChar);
+			if ((Integer.MAX_VALUE - digit) / 10 >= value) {
+				value = value * 10 + digit;
 			} else {
 				handleError(ErrorType.NUMERIC_LIMIT_EXCEEDED, tokenPosition, value + "...");
-				// TODO break
+				return null;
 			}
 		}
 		return value;
 	}
 
-	private double getFractionPart(int decimalPart) {
+	private Double parseFractionPart(int decimalPart) {
 		int num_of_digits = 0;
 		int fraction = 0;
+		int digit;
 		while (Character.isDigit(nextChar())) {
-			int decimal = Character.getNumericValue(currentChar);
-			if ((Integer.MAX_VALUE - decimal) / 10 >= fraction) {
-				fraction = fraction * 10 + decimal;
+			digit = Character.getNumericValue(currentChar);
+			if ((Integer.MAX_VALUE - digit) / 10 >= fraction) {
+				fraction = fraction * 10 + digit;
 				num_of_digits++;
 			} else {
 				handleError(ErrorType.NUMERIC_LIMIT_EXCEEDED, tokenPosition, StringUtils.join(decimalPart, DOT, fraction, "..."));
-				// TODO break
+				return null;
 			}
 		}
 		return fraction / Math.pow(10, num_of_digits);
@@ -125,22 +135,23 @@ public class LexerImpl implements Lexer {
 		}
 		var builder = new StringBuilder(Character.toString(currentChar));
 		while (isIdentifierChar(nextChar())) {
-			if (builder.length() >= Configuration.getIdentifierMaxLength()) {	// todo tylko ==
+			if (builder.length() == Configuration.getIdentifierMaxLength()) {
 				handleError(ErrorType.IDENTIFIER_LENGTH_EXCEEDED, tokenPosition, builder.toString());
 				return true;
 			}
 			builder.append(currentChar);
 		}
+
 		String key = builder.toString();
-		// todo nie trzeba odpytywać hashmapy dwa razy
-		if (TokenGroups.BOOL_LITERALS.containsKey(key)) {
-			TokenType tokenType = TokenGroups.BOOL_LITERALS.get(key);
+		TokenType tokenType = TokenGroups.BOOL_LITERALS.get(key);
+		if (tokenType != null) {
 			Boolean value = tokenType == TokenType.TRUE ? Boolean.TRUE : Boolean.FALSE;
 			this.token = new TokenBool(tokenPosition, value);
 			return true;
 		}
-		if (TokenGroups.KEYWORDS.containsKey(key)) {
-			TokenType tokenType = TokenGroups.KEYWORDS.get(key);
+
+		tokenType = TokenGroups.KEYWORDS.get(key);
+		if (tokenType != null) {
 			this.token = new TokenKeyword(tokenType, tokenPosition);
 			return true;
 		}
@@ -199,7 +210,7 @@ public class LexerImpl implements Lexer {
 				this.token = new TokenComment(tokenPosition, builder.toString());
 				return;
 			}
-			if (builder.length() >= Configuration.getCommentMaxLength()) {
+			if (builder.length() == Configuration.getCommentMaxLength()) {
 				handleError(ErrorType.COMMENT_LENGTH_EXCEEDED, tokenPosition, builder.toString());
 				return;
 			}
@@ -214,7 +225,7 @@ public class LexerImpl implements Lexer {
 		}
 		final var builder = new StringBuilder();
 		while (nextChar() != DOUBLE_QUOTE) {
-			if (builder.length() >= Configuration.getTextMaxLength()) {
+			if (builder.length() == Configuration.getTextMaxLength()) {
 				handleError(ErrorType.TEXT_LENGTH_EXCEEDED, tokenPosition, builder.toString());
 			}
 			if (currentChar == ETX) {
@@ -246,8 +257,7 @@ public class LexerImpl implements Lexer {
 
 	private void buildUndefinedTokenAndHandleError(String initialString) {
 		final var builder = new StringBuilder(initialString);
-		while (!Character.isWhitespace(nextChar())
-				&& currentChar != ETX
+		while (isUndefinedTokenChar(nextChar())
 				&& builder.length() < Configuration.getIdentifierMaxLength()) {
 			builder.append(currentChar);
 		}
@@ -264,7 +274,8 @@ public class LexerImpl implements Lexer {
 			throw new RuntimeException(e);
 		}
 		if (isLineSeparator) {
-			this.currentPosition = currentPosition.nextLine();
+			movePosition();
+			markLineSeparator();
 			this.currentChar = LINE_SEPARATOR;
 			return this.currentChar;
 		}
@@ -273,7 +284,7 @@ public class LexerImpl implements Lexer {
 		} else {
 			this.currentChar = (char) character;
 		}
-		this.currentPosition = currentPosition.nextChar();
+		movePosition();
 		return this.currentChar;
 	}
 
@@ -292,8 +303,25 @@ public class LexerImpl implements Lexer {
 		return false;
 	}
 
+	private void markLineSeparator() {
+		lineSeparatorMarked = true;
+	}
+
+	private void movePosition() {
+		if (lineSeparatorMarked) {
+			this.currentPosition.nextLine();
+			lineSeparatorMarked = false;
+		} else {
+			this.currentPosition.nextChar();
+		}
+	}
+
 	private boolean isIdentifierChar(char c) {
 		return Character.isLetter(c) || Character.isDigit(c) || c == UNDERSCORE;
+	}
+
+	private boolean isUndefinedTokenChar(char c) {
+		return !(Character.isWhitespace(c) || currentChar == ETX || TokenGroups.SYMBOLS.containsKey(Character.toString(c)));
 	}
 
 	@SneakyThrows
