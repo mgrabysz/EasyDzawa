@@ -290,6 +290,11 @@ public class LexerImpl implements Lexer {
 
 	private boolean tryConsumeLineSeparator(int character) throws IOException {
 		if (character == LINE_FEED_ASCII) {
+			bufferedReader.mark(1);
+			character = bufferedReader.read();	// reading the next character
+			if (character != CARRIAGE_RETURN_ASCII) {	// if it is not carriage return, reset pointer to the previous character
+				bufferedReader.reset();
+			}
 			return true;
 		}
 		if (character == CARRIAGE_RETURN_ASCII) {	// if character is carriage return, the next can be line feed
