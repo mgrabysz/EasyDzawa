@@ -1,27 +1,32 @@
 package org.example;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
-@RequiredArgsConstructor
+@AllArgsConstructor
 @Getter
 @ToString
 public class Position {
 
-	final int line;
-	final int characterNumber;
+	int lineNumber;
+	int characterNumber;
 
 	public Position() {
-		this.line = 0;
-		this.characterNumber = -1;
+		this.lineNumber = 1;
+		this.characterNumber = 1;
 	}
 
-	public Position nextLine() {
-		return new Position(this.line + 1, -1);
+	public void nextLine() {
+		this.lineNumber += 1;
+		this.characterNumber = 1;
 	}
 
-	public Position nextChar() {
-		return new Position(this.line, this.characterNumber + 1);
+	public void nextChar() {
+		this.characterNumber += 1;
+	}
+
+	public Position copy() {
+		return new Position(this.lineNumber, this.characterNumber);
 	}
 }

@@ -1,0 +1,4 @@
+"This is tab: \t, this is newline: \n"
+"This is \"quote\" inside a quote"
+"This is backslash: \\"
+"This single backslash\ is ignored"

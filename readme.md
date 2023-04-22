@@ -1,14 +1,14 @@
 # Projekt wstępny
-Nazwa projektu: `EasyDżawa` \
+Nazwa projektu: `Żmija` \
 Autor: Marcin Grabysz \
 Opiekun projektu: Piotr Gawkowski 
 
-Celem projektu jest napisanie interpretera języka o składni podobnej do C++ 
-lub Java, z możliwością wykonywania podstawowych operacji na zmiennych typu 
-int, float i bool, a także definiowania własnych funkcji i klas. Język EasyDżawa<sup>TM</sup> umożliwi używanie słów kluczowych i nazw funkcji 
+Celem projektu jest napisanie interpretera języka o składni podobnej do języka Python,
+z możliwością wykonywania podstawowych operacji na zmiennych typu 
+int, float i bool, a także definiowania własnych funkcji i klas. Język Żmija<sup>TM</sup> umożliwi używanie słów kluczowych i nazw funkcji 
 w języku polskim, jak w poniższym przykładzie:
 ```
-numery = nowa Lista();
+numery = Lista();
 numery.dodaj(1);
 numery.dodaj(2);
 dla numer w numery {
@@ -40,7 +40,6 @@ dla numer w numery {
 
 ###### obiekty
 `klasa` - poprzedza definicję klasy \
-`nowy`, `nowa`, `nowe` - dowolne (jedno) z tych słów kluczowych poprzedza utworzenie obiektu \
 `tenże` - przedrostek oznaczający atrybuty klasy \
 Patrz: [przykład definiowania klasy](#definiowanie-klasy-i-funkcji)
 
@@ -65,7 +64,7 @@ prostych jak i złożonych.
 #### Funkcje wbudowane
 `napisz("Witaj świecie", ...)` - wypisuje tekst lub wartość zmiennej w konsoli, przyjmuje dowolną liczbę argumentów \
 `zakres(start, stop, krok)` - zwraca listę zawierającą liczby całkowite od `start` do `stop` o podanym kroku \
-`abort()` - przerywa wykonanie programu
+`kończWaść()` - przerywa wykonanie programu
 
 #### Definiowanie własnych typów
 Użytkownik może definiować własne typy bez dziedziczenia. Klasy mogą agregować 
@@ -87,7 +86,7 @@ var3 = ((y > 5) oraz var2) lub z < 0;
 ```
 #### Operacje na obiekcie Lista
 ```
-numery = nowa Lista();
+numery = Lista();
 numery.dodaj(10);
 numery.dodaj(20);
 numery.dodajNa(0, 0);
@@ -96,7 +95,7 @@ numery.usuń(10);
 numery.usuńNa(0);
 numery.dodaj(1.2);
 
-lista = nowa Lista();
+lista = Lista();
 lista.dodaj(prawda);
 lista.dodaj(4 > 3);
 lista.dodaj(4.20 * 10);
@@ -104,7 +103,7 @@ napisz(lista.pobierzNa(2));
 ```
 #### Pętle i instrukcje warunkowe
 ```
-lista = nowa Lista();
+lista = Lista();
 dla i w zakres(0, 10, 1) {
   lista.add(i * 10);
 }
@@ -124,7 +123,7 @@ klasa Ułamek {
     tenże.licznik = l;
     tenże.mianownik = m;
     jeżeli (m == 0) {
-        abort();
+        kończWaść();
     }
     jeżeli (l < m) {
         tenże.jestWłaściwy = prawda;    // ułamek właściwy to taki, który jest mniejszy od 1
@@ -143,7 +142,7 @@ klasa Ułamek {
 main() {
   x = nowy Ułamek(1, 2);
   jeżeli (x.jestWłaściwy) {
-    napisz("Zdefiniowano właśnie ułamek właściwy \n);
+    napisz("Zdefiniowano właśnie ułamek właściwy \n");
   }
   x.rozszerz(2);
   napisz(y.licznik);      // 2
@@ -154,7 +153,7 @@ main() {
 ```
 silnia(x) {
   jeżeli (a < 0) {
-    abort();          // przerywa wykonanie programu
+    kończWaść();          // przerywa wykonanie programu
   }
   jeżeli (a == 0) {
     zwróć 1;          // dalsze instrukcje nie wykonują się
@@ -167,13 +166,23 @@ silnia(x) {
 ### Niepoprawne konstrukcje i komunikaty wyjątków
 #### na poziomie leksykalnym
 ```
-var = ----;
+var = 123abc;
 var2 = @$abc;
-Undefined expression starting at line x position y
+Undefined expression: 123abc at line x position y
 ```
 ```
-var = 99999999999999999999999999999999999;
-Numeric expression starting at line x position y exceeds limit
+var = 2147483648;
+Numeric expression: 214748364... at line 0 position 0 exceeds limit
+```
+```
+"abcdefgh
+End of file reached while parsing text: abcdefgh starting at line x position y
+```
+Oraz (maksymalna długość jest konfigurowana dla identyfikatorów, komentarzy i tekstów z osobna):
+```
+Identifier: aaaaaaaaaaaaaaaaaaaaaaaa... starting at line x position y exceeds maximal length
+Text: aaaaaaaaaaaaaaaaaaaaaaaa... starting at line x position y exceeds maximal length
+Comment: aaaaaaaaaaaaaaaaaaaaaaaa starting at line x position y exceeds maximal length
 ```
 #### na poziomie składniowym
 ```
@@ -225,6 +234,7 @@ block                   = "{", {statement}, "}";
 statement               = object-access, [assignment], ";"
                         | if-statement
                         | for-statement
+                        | return-statement
                       
 object-access           = title, {".", title};
                         
@@ -235,6 +245,8 @@ assignment              = ("=" | "+=" | "-="), expression;
 if-statement            = "jeżeli", "(", expression, ")", block, ["inaczej", block];
 
 for-statement           = "dla", identifier, "w", object-access, block;
+
+return-statement        = "zwróć", [expression], ";";
 
 expression              = or-expression;
 
@@ -248,9 +260,7 @@ arithmetic-expression   = multiplicative-expression, {("+" | "-"), multiplicativ
 
 multiplicative-expr.    = factor, {("*" | "/"), factor};
 
-factor                  = [negation], (literal | object-access | object-creation | "(", expression, ")");
-
-object-creation         = new-keyword, identifier, "(", [arguments-list], ")";
+factor                  = [negation], (literal | object-access | "(", expression, ")");
 
 parameters-list         = identifier, {",", identifier};
 
@@ -274,8 +284,6 @@ text                    = '"', {char}, '"';
 char                    = ({letter} | {digit} | {special-symbol}), {char},
 
 negation                = "nie" | "-";
-
-new-keyword             = "nowy" | "nowa" | "nowe";
 
 relative-operator       = "==" | "!=" | "<" | ">" | ">=" | "<=";
 
@@ -308,8 +316,7 @@ do zinterpretowania. Wyjściem programu jest wyjście standardowe
 #### Analizator leksykalny
 Analizator leksykalny (lekser) jest modułem odpowiedzialnym za przetworzenie pliku wejściowego na ciąg tokenów. 
 Lekser oczekuje dwóch argumentów:
-* `eventHandler` - wyrażenie lub funkcja (obiekt Function lub dziedziczący po nim) określające, co należy wykonać
-  przy napotkaniu błędu
+* `eventHandler` - wyrażenie lub funkcja określające, co należy wykonać przy napotkaniu błędu
 * `bufferedReader` - obiekt typu BufferedReader stanowiący źródło znaków do interpretacji.
 
 Lekser pobiera znaki _leniwie_, tj. w momencie w którym potrzebuje kolejnego znaku. Każdy znak po pobraniu jest poddany 
@@ -330,11 +337,11 @@ Token posiada swój typ, pozycję w pliku wejściowym oraz (dla pewnych typów) 
 Rozpoznawane typy tokenów to: 
 * END_OF_FILE 
 * COMMENT
-* słowa kluczowe: RETURN, FOR, IF, ELSE, CLASS, NEW, THIS
-* symbole: OPEN_BRACKET, CLOSE_BRACKET, OPEN_PARENTHESIS, CLOSE_PARENTHESIS, SEMICOLON, COMA, DOUBLE_QUOTE, ASSIGN
-* operatory logiczne: AND, OR, NOT
-* operatory matematyczne: ADD, SUBTRACT, MULTIPLY, DIVIDE, ADD_AND_ASSIGN, SUBTRACT_AND_ASSIGN
+* słowa kluczowe: RETURN, FOR, IF, ELSE, CLASS, THIS
+* symbole: OPEN_BRACKET, CLOSE_BRACKET, OPEN_PARENTHESIS, CLOSE_PARENTHESIS, SEMICOLON, COMA, DOT, ASSIGN, ADD_AND_ASSIGN, SUBTRACT_AND_ASSIGN
 * operatory porównania: EQUAL, NOT_EQUAL, GREATER, LESS, GREATER_OR_EQUAL, LESS_OR_EQUAL
+* operatory logiczne: AND, OR, NOT
+* operatory matematyczne: ADD, SUBTRACT, MULTIPLY, DIVIDE 
 * wartości liczbowe i logiczne: INTEGER, FLOAT, BOOL, TEXT
 * IDENTIFIER
 
