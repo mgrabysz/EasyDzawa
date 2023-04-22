@@ -31,14 +31,12 @@ public class LexerImpl implements Lexer {
 	private Token token;
 	private char currentChar;
 	private Position tokenPosition;
-	private boolean lineSeparatorMarked;
 
 	public LexerImpl(BufferedReader bufferedReader, ErrorHandler errorHandler) {
 		this.bufferedReader = bufferedReader;
 		this.errorHandler = errorHandler;
-		this.currentPosition = new Position(1, 0);
-		this.currentChar = nextChar();
-		this.lineSeparatorMarked = false;
+		this.currentPosition = new Position(1, 1);
+		this.currentChar = readChar();
 	}
 
 	@Override
@@ -265,6 +263,11 @@ public class LexerImpl implements Lexer {
 	}
 
 	private char nextChar() {
+		movePosition();
+		return readChar();
+	}
+
+	private char readChar() {
 		int character;
 		boolean isLineSeparator;
 		try {
@@ -274,8 +277,6 @@ public class LexerImpl implements Lexer {
 			throw new RuntimeException(e);
 		}
 		if (isLineSeparator) {
-			movePosition();
-			markLineSeparator();
 			this.currentChar = LINE_SEPARATOR;
 			return this.currentChar;
 		}
@@ -284,7 +285,6 @@ public class LexerImpl implements Lexer {
 		} else {
 			this.currentChar = (char) character;
 		}
-		movePosition();
 		return this.currentChar;
 	}
 
@@ -308,14 +308,9 @@ public class LexerImpl implements Lexer {
 		return false;
 	}
 
-	private void markLineSeparator() {
-		lineSeparatorMarked = true;
-	}
-
 	private void movePosition() {
-		if (lineSeparatorMarked) {
+		if (currentChar == LINE_SEPARATOR) {
 			this.currentPosition.nextLine();
-			lineSeparatorMarked = false;
 		} else {
 			this.currentPosition.nextChar();
 		}
