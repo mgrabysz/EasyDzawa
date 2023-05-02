@@ -225,7 +225,7 @@ definition              = function-definition | class-definition
 
 function-definition     = identifier, "(", [parameters-list], ")", block;
 
-class-definition        = "klasa", identifier, class-body;
+class-definition        = class-keyword, identifier, class-body;
 
 class-body              = "{", {function-definition}, "}";
 
@@ -242,17 +242,17 @@ title                   = identifier, ["(", arguments-list, ")"];
 
 assignment              = ("=" | "+=" | "-="), expression;
 
-if-statement            = "jeżeli", "(", expression, ")", block, ["inaczej", block];
+if-statement            = if-keyword, "(", expression, ")", block, ["inaczej", block];
 
-for-statement           = "dla", identifier, "w", object-access, block;
+for-statement           = for-keyword, identifier, in-keyword, object-access, block;
 
-return-statement        = "zwróć", [expression], ";";
+return-statement        = return-keyword, [expression], ";";
 
 expression              = or-expression;
 
-or-expression           = and-expression, {'lub', and-expression};
+or-expression           = and-expression, {or-keyword, and-expression};
 
-and-expression          = relative-expression, {'oraz', relative-expression};
+and-expression          = relative-expression, {and-keyword, relative-expression};
 
 relative-expression     = arithmetic-expression, {relative-operator, arithmetic-expression};
 
@@ -277,13 +277,13 @@ integer                 = "0" | (non-zero-digit, {digit});
 
 float                   = integer, ".", digit, {digit};
 
-bool                    = "prawda" | "fałsz";
+bool                    = true-keyword | false-keyword;
 
 text                    = '"', {char}, '"';
 
 char                    = ({letter} | {digit} | {special-symbol}), {char},
 
-negation                = "nie" | "-";
+negation                = not-keyword | "-";
 
 relative-operator       = "==" | "!=" | "<" | ">" | ">=" | "<=";
 
@@ -294,6 +294,26 @@ non-zero-digit          = "1" | "2" | "3" | ... | "9";
 digit                   = "0" | non-zero-digit;
 
 special-symbol          = " " | "\" | "!" | "@" | ...
+
+class-keyword           = "klasa";
+
+if-keyword              = "jeżeli";
+
+for-keyword             = "dla";
+
+in-keyword              = "w";
+
+return-keyword          = "zwróć";
+
+or-keyword              = "lub";
+
+and-keyword             = "oraz";
+
+not-keyword             = "nie";
+
+true-keyword            = "prawda";
+
+false-keyword           = "fałsz";
 ```
 
 ## Sposób uruchamiania
