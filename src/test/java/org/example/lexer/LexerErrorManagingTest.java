@@ -27,6 +27,7 @@ public class LexerErrorManagingTest {
 				Arguments.of("123abc", "Undefined expression: 123abc at line 1 position 1"),
 				Arguments.of("123abc+", "Undefined expression: 123abc at line 1 position 1"),
 				Arguments.of("123.abc", "Undefined expression: 123.abc at line 1 position 1"),
+				Arguments.of("123.0abc", "Undefined expression: 123.0abc at line 1 position 1"),
 				Arguments.of("123.456abc", "Undefined expression: 123.456abc at line 1 position 1"),
 				Arguments.of("@$abc", "Undefined expression: @$abc at line 1 position 1"),
 				Arguments.of("!+", "Undefined expression: !+ at line 1 position 1"),

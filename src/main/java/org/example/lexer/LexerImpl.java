@@ -66,7 +66,8 @@ public class LexerImpl implements Lexer {
 		if (token.isPresent()) {
 			return token.get();
 		}
-		buildErrorMessageAndHandleError(Character.toString(currentChar));
+		String undefinedSequence = parseUndefinedSequence(Character.toString(currentChar));
+		handleError(ErrorType.UNDEFINED_TOKEN, tokenPosition, undefinedSequence);
 		return new TokenUndefined(tokenPosition);
 	}
 
@@ -81,29 +82,37 @@ public class LexerImpl implements Lexer {
 		}
 
 		if (currentChar == DOT) {
+			// don't allow alpha symbols to follow numbers
+			if (Character.isLetter(nextChar())) {
+				String undefinedSequence = parseUndefinedSequence(StringUtils.join(decimalPart, DOT, currentChar));
+				handleError(ErrorType.UNDEFINED_TOKEN, tokenPosition, undefinedSequence);
+				return Optional.of(new TokenUndefined(tokenPosition));
+			}
 			return parseFloat(decimalPart);
 		}
 
-		// don't allow alpha symbols follow integers
+		// don't allow alpha symbols follow numbers
 		if (Character.isLetter(currentChar)) {
-			buildErrorMessageAndHandleError(StringUtils.join(decimalPart, currentChar));
+			String undefinedSequence = parseUndefinedSequence(StringUtils.join(decimalPart, currentChar));
+			handleError(ErrorType.UNDEFINED_TOKEN, tokenPosition, undefinedSequence);
 			return Optional.of(new TokenUndefined(tokenPosition));
 		}
 		return Optional.of(new TokenInteger(tokenPosition, decimalPart));
 	}
 
 	private Optional<Token> parseFloat(Integer decimalPart) {
-		Double fractionPart = parseFractionPart(decimalPart);
+		if (!Character.isDigit(currentChar)) {
+			return Optional.of(new TokenFloat(tokenPosition, Double.valueOf(decimalPart)));
+		}
+		int fraction = Character.getNumericValue(currentChar);
+		Double fractionPart = parseFractionPart(decimalPart, fraction);
 		if (fractionPart == null) {
 			return Optional.of(new TokenUndefined(tokenPosition));
 		}
 		// don't allow alpha symbols follow floats
 		if (Character.isLetter(currentChar)) {
-			if (fractionPart == 0) {
-				buildErrorMessageAndHandleError(StringUtils.join(decimalPart, DOT, currentChar));
-			} else {
-				buildErrorMessageAndHandleError(StringUtils.join(decimalPart + fractionPart, currentChar));
-			}
+			String undefinedSequence = parseUndefinedSequence(StringUtils.join(decimalPart + fractionPart, currentChar));
+			handleError(ErrorType.UNDEFINED_TOKEN, tokenPosition, undefinedSequence);
 			return Optional.of(new TokenUndefined(tokenPosition));
 		}
 		return Optional.of(new TokenFloat(tokenPosition, decimalPart + fractionPart));
@@ -123,9 +132,8 @@ public class LexerImpl implements Lexer {
 		return value;
 	}
 
-	private Double parseFractionPart(int decimalPart) {
-		int num_of_digits = 0;
-		int fraction = 0;
+	private Double parseFractionPart(int decimalPart, int fraction) {
+		int num_of_digits = 1;
 		int digit;
 		while (Character.isDigit(nextChar())) {
 			digit = Character.getNumericValue(currentChar);
@@ -192,7 +200,8 @@ public class LexerImpl implements Lexer {
 					nextChar();
 					return Optional.of(new TokenSymbol(TokenType.NOT_EQUAL, tokenPosition));
 				} else {
-					buildErrorMessageAndHandleError("!" + currentChar);
+					String undefinedSequence = parseUndefinedSequence("!" + currentChar);
+					handleError(ErrorType.UNDEFINED_TOKEN, tokenPosition, undefinedSequence);
 					return Optional.of(new TokenUndefined(tokenPosition));
 				}
 			}
@@ -271,13 +280,13 @@ public class LexerImpl implements Lexer {
 		return Optional.of(new TokenEOF(tokenPosition));
 	}
 
-	private void buildErrorMessageAndHandleError(String initialString) {
+	private String parseUndefinedSequence(String initialString) {
 		final var builder = new StringBuilder(initialString);
 		while (isUndefinedTokenChar(nextChar())
 				&& builder.length() < Configuration.getIdentifierMaxLength()) {
 			builder.append(currentChar);
 		}
-		handleError(ErrorType.UNDEFINED_TOKEN, tokenPosition, builder.toString());
+		return builder.toString();
 	}
 
 	private char nextChar() {
