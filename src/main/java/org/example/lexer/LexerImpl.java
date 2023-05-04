@@ -66,8 +66,7 @@ public class LexerImpl implements Lexer {
 		if (token.isPresent()) {
 			return token.get();
 		}
-		String undefinedSequence = parseUndefinedSequence(Character.toString(currentChar));
-		handleError(ErrorType.UNDEFINED_TOKEN, tokenPosition, undefinedSequence);
+		handleError(ErrorType.UNDEFINED_TOKEN, tokenPosition, parseUndefinedSequence(Character.toString(currentChar)));
 		return new TokenUndefined(tokenPosition);
 	}
 
@@ -82,25 +81,25 @@ public class LexerImpl implements Lexer {
 		}
 
 		if (currentChar == DOT) {
-			// don't allow alpha symbols to follow numbers
-			if (Character.isLetter(nextChar())) {
-				String undefinedSequence = parseUndefinedSequence(StringUtils.join(decimalPart, DOT, currentChar));
-				handleError(ErrorType.UNDEFINED_TOKEN, tokenPosition, undefinedSequence);
-				return Optional.of(new TokenUndefined(tokenPosition));
-			}
+			nextChar();
 			return parseFloat(decimalPart);
 		}
 
 		// don't allow alpha symbols follow numbers
 		if (Character.isLetter(currentChar)) {
-			String undefinedSequence = parseUndefinedSequence(StringUtils.join(decimalPart, currentChar));
-			handleError(ErrorType.UNDEFINED_TOKEN, tokenPosition, undefinedSequence);
+			handleError(ErrorType.UNDEFINED_TOKEN, tokenPosition, parseUndefinedSequence(
+					StringUtils.join(decimalPart, currentChar)));
 			return Optional.of(new TokenUndefined(tokenPosition));
 		}
 		return Optional.of(new TokenInteger(tokenPosition, decimalPart));
 	}
 
 	private Optional<Token> parseFloat(Integer decimalPart) {
+		if (Character.isLetter(currentChar)) {
+			handleError(ErrorType.UNDEFINED_TOKEN, tokenPosition, parseUndefinedSequence(
+					StringUtils.join(decimalPart, DOT, currentChar)));
+			return Optional.of(new TokenUndefined(tokenPosition));
+		}
 		if (!Character.isDigit(currentChar)) {
 			return Optional.of(new TokenFloat(tokenPosition, Double.valueOf(decimalPart)));
 		}
@@ -111,8 +110,8 @@ public class LexerImpl implements Lexer {
 		}
 		// don't allow alpha symbols follow floats
 		if (Character.isLetter(currentChar)) {
-			String undefinedSequence = parseUndefinedSequence(StringUtils.join(decimalPart + fractionPart, currentChar));
-			handleError(ErrorType.UNDEFINED_TOKEN, tokenPosition, undefinedSequence);
+			handleError(ErrorType.UNDEFINED_TOKEN, tokenPosition, parseUndefinedSequence(
+					StringUtils.join(decimalPart + fractionPart, currentChar)));
 			return Optional.of(new TokenUndefined(tokenPosition));
 		}
 		return Optional.of(new TokenFloat(tokenPosition, decimalPart + fractionPart));
@@ -200,8 +199,7 @@ public class LexerImpl implements Lexer {
 					nextChar();
 					return Optional.of(new TokenSymbol(TokenType.NOT_EQUAL, tokenPosition));
 				} else {
-					String undefinedSequence = parseUndefinedSequence("!" + currentChar);
-					handleError(ErrorType.UNDEFINED_TOKEN, tokenPosition, undefinedSequence);
+					handleError(ErrorType.UNDEFINED_TOKEN, tokenPosition, parseUndefinedSequence("!" + currentChar));
 					return Optional.of(new TokenUndefined(tokenPosition));
 				}
 			}
