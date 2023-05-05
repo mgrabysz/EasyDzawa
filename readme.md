@@ -236,7 +236,7 @@ statement               = object-access, [assignment], ";"
                         | for-statement
                         | return-statement
                       
-object-access           = title, {".", title};
+object-access           = (title | this-keyword), {".", title};
                         
 title                   = identifier, ["(", arguments-list, ")"];
 
@@ -306,6 +306,8 @@ for-keyword             = "dla";
 in-keyword              = "w";
 
 return-keyword          = "zwróć";
+
+this-keyword            = "tenże";
 
 or-keyword              = "lub";
 
