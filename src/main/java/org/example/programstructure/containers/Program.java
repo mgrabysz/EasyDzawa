@@ -1,14 +1,13 @@
-package org.example.parser;
+package org.example.programstructure.containers;
 
 import lombok.RequiredArgsConstructor;
 
 import java.util.HashMap;
 
 @RequiredArgsConstructor
-public class Program extends Node {
+public class Program {
 
 	private final HashMap<String, FunctionDefinition> functionDefinitions;
 	private final HashMap<String, ClassDefinition> classDefinitions;
-
 
 }

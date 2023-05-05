@@ -1,9 +1,11 @@
 package org.example.token;
 
 import lombok.experimental.UtilityClass;
+import org.example.programstructure.expression.enums.AdditiveType;
+import org.example.programstructure.expression.enums.MultiplicativeType;
+import org.example.programstructure.expression.enums.RelativeType;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static org.example.token.TokenType.*;
@@ -27,6 +29,7 @@ public class TokenGroups {
 		Stream.of(TRUE, FALSE)
 				.forEach(tokenType -> BOOL_LITERALS.put(tokenType.getKeyword(), tokenType));
 	}
+
     public static final Map<String, TokenType> SYMBOLS = new HashMap<>();
     static {
         Stream.of(
@@ -37,5 +40,24 @@ public class TokenGroups {
 				ADD, SUBTRACT, MULTIPLY, DIVIDE)									// math
 				.forEach(tokenType -> SYMBOLS.put(tokenType.getKeyword(), tokenType));
     }
+
+	public static final Map<TokenType, RelativeType> RELATIVE_OPERATORS = Map.of(
+			EQUAL, RelativeType.EQUAL,
+			NOT_EQUAL, RelativeType.NOT_EQUAL,
+			GREATER, RelativeType.GREATER,
+			LESS, RelativeType.LESS,
+			GREATER_OR_EQUAL, RelativeType.GREATER_OR_EQUAL,
+			LESS_OR_EQUAL, RelativeType.LESS_OR_EQUAL
+	);
+
+	public static final Map<TokenType, AdditiveType> ADDITIVE_OPERATORS = Map.of(
+			ADD, AdditiveType.ADD,
+			SUBTRACT, AdditiveType.SUBTRACT
+	);
+
+	public static final Map<TokenType, MultiplicativeType> MULTIPLICATIVE_OPERATORS = Map.of(
+			MULTIPLY, MultiplicativeType.MULTIPLY,
+			DIVIDE, MultiplicativeType.DIVIDE
+	);
 
 }
