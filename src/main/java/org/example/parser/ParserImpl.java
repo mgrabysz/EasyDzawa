@@ -35,12 +35,14 @@ public class ParserImpl implements Parser {
 
 	@Override
 	public Program parse() {
-		nextToken();
 		HashMap<String, FunctionDefinition> functions = new HashMap<>();
 		HashMap<String, ClassDefinition> classes = new HashMap<>();
 
 		while(true) {
 			if (!parseFunctionDefinition(functions) && !parseClassDefinition(classes)) break;
+		}
+		if (currentToken.getType() != TokenType.END_OF_FILE) {
+			handleError();
 		}
 		return new Program(functions, classes);
 	}
@@ -452,17 +454,20 @@ public class ParserImpl implements Parser {
 		Expression expression = null;
 		if (currentToken.getType() == TokenType.INTEGER) {
 			expression = new LiteralInteger(currentToken.getValue(), currentToken.getPosition());
+			nextToken();
 		}
 		if (currentToken.getType() == TokenType.FLOAT) {
 			expression = new LiteralFloat(currentToken.getValue(), currentToken.getPosition());
+			nextToken();
 		}
 		if (currentToken.getType() == TokenType.BOOL) {
 			expression = new LiteralBool(currentToken.getValue(), currentToken.getPosition());
+			nextToken();
 		}
 		if (currentToken.getType() == TokenType.TEXT) {
 			expression = new LiteralText(currentToken.getValue(), currentToken.getPosition());
+			nextToken();
 		}
-		nextToken();
 		return expression;
 	}
 
@@ -546,12 +551,11 @@ public class ParserImpl implements Parser {
 		return arguments;
 	}
 
-	private Token nextToken() {
+	private void nextToken() {
 		this.currentToken = lexer.next();
 		while (this.currentToken.getType() == TokenType.COMMENT) {
 			this.currentToken = lexer.next();
 		}
-		return this.currentToken;
 	}
 
 	private boolean consumeIf(TokenType tokenType) {

@@ -1,13 +1,16 @@
 package org.example.programstructure.containers;
 
-import lombok.RequiredArgsConstructor;
+import org.example.Visitable;
+import org.example.Visitor;
 
 import java.util.HashMap;
 
-@RequiredArgsConstructor
-public class Program {
+public record Program(HashMap<String, FunctionDefinition> functionDefinitions,
+					  HashMap<String, ClassDefinition> classDefinitions) implements Visitable {
 
-	private final HashMap<String, FunctionDefinition> functionDefinitions;
-	private final HashMap<String, ClassDefinition> classDefinitions;
+	@Override
+	public void accept(Visitor visitor) {
+		visitor.accept(this);
+	}
 
 }

@@ -1,4 +1,6 @@
 package org.example.programstructure.statement;
 
-public interface Statement {
+import org.example.Visitable;
+
+public interface Statement extends Visitable {
 }

@@ -1,4 +1,13 @@
 package org.example.programstructure.containers;
 
-public record Parameter(String name) {
+import org.example.Visitable;
+import org.example.Visitor;
+
+public record Parameter(String name) implements Visitable {
+
+	@Override
+	public void accept(Visitor visitor) {
+		visitor.accept(this);
+	}
+
 }
