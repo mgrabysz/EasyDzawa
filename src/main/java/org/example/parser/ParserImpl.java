@@ -1,11 +1,12 @@
 package org.example.parser;
 
 import lombok.SneakyThrows;
+import org.apache.commons.lang3.StringUtils;
 import org.example.Position;
 import org.example.error.ErrorHandler;
 import org.example.error.ErrorParserDetails;
 import org.example.error.enums.ErrorType;
-import org.example.error.exception.SyntacticalException;
+import org.example.error.exception.SyntacticException;
 import org.example.lexer.Lexer;
 import org.example.programstructure.containers.*;
 import org.example.programstructure.expression.*;
@@ -20,16 +21,19 @@ import org.example.token.TokenType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ParserImpl implements Parser {
 
 	private final Lexer lexer;
 	private final ErrorHandler errorHandler;
 	private Token currentToken;
+	private String statementDraft;
 
 	public ParserImpl(Lexer lexer, ErrorHandler errorHandler) {
 		this.lexer = lexer;
 		this.errorHandler = errorHandler;
+		resetStatementDraft();
 		nextToken();
 	}
 
@@ -38,11 +42,11 @@ public class ParserImpl implements Parser {
 		HashMap<String, FunctionDefinition> functions = new HashMap<>();
 		HashMap<String, ClassDefinition> classes = new HashMap<>();
 
-		while(true) {
+		while (true) {
 			if (!parseFunctionDefinition(functions) && !parseClassDefinition(classes)) break;
 		}
 		if (currentToken.getType() != TokenType.END_OF_FILE) {
-			handleError();
+			handleLightError(ErrorType.END_OF_FILE_NOT_PRESENT, null, null);
 		}
 		return new Program(functions, classes);
 	}
@@ -55,20 +59,23 @@ public class ParserImpl implements Parser {
 			return false;
 		}
 		final String name = currentToken.getValue();
+		final Position position = currentToken.getPosition();
 		nextToken();
 		if (!consumeIf(TokenType.OPEN_PARENTHESIS)) {
-			handleError();
+			handleError(ErrorType.OPENING_PARENTHESIS_MISSING, position, name);
 		}
 		final List<Parameter> parameters = parseParameters();
 		if (!consumeIf(TokenType.CLOSE_PARENTHESIS)) {
-			handleError();
+			handleError(ErrorType.CLOSING_PARENTHESIS_MISSING, position,
+					buildFunctionHeaderMessage(name, parameters, false));
 		}
-		final Block block = parseBlock();
+		final String functionHeader = buildFunctionHeaderMessage(name, parameters, true);
+		final Block block = parseBlock(functionHeader);
 		if (block == null) {
-			handleError();
+			handleError(ErrorType.FUNCTION_BODY_MISSING, position, functionHeader);
 		}
 		if (functions.containsKey(name)) {
-			handleError();
+			handleError(ErrorType.FUNCTION_NAME_NOT_UNIQUE, position, name);
 		}
 		functions.put(name, new FunctionDefinition(name, parameters, block));
 		return true;
@@ -78,20 +85,21 @@ public class ParserImpl implements Parser {
 	 * class-definition = class-keyword, identifier, class-body;
 	 */
 	private boolean parseClassDefinition(HashMap<String, ClassDefinition> classes) {
+		final Position position = currentToken.getPosition();
 		if (!consumeIf(TokenType.CLASS)) {
 			return false;
 		}
 		if (currentToken.getType() != TokenType.IDENTIFIER) {
-			handleError();
+			handleError(ErrorType.CLASS_NAME_MISSING, position, TokenType.CLASS.getKeyword());
 		}
 		final String name = currentToken.getValue();
 		nextToken();
-		final ClassBody classBody = parseClassBody();
+		final ClassBody classBody = parseClassBody(name, position);
 		if (classBody == null) {
-			handleError();
+			handleError(ErrorType.CLASS_BODY_MISSING, position, name);
 		}
 		if (classes.containsKey(name)) {
-			handleError();
+			handleError(ErrorType.CLASS_NAME_NOT_UNIQUE, position, name);
 		}
 		classes.put(name, new ClassDefinition(name, classBody.methods()));
 		return true;
@@ -100,7 +108,7 @@ public class ParserImpl implements Parser {
 	/**
 	 * class-body = "{", {function-definition}, "}";
 	 */
-	private ClassBody parseClassBody() {
+	private ClassBody parseClassBody(String className, Position position) {
 		if (!consumeIf(TokenType.OPEN_BRACKET)) {
 			return null;
 		}
@@ -109,7 +117,8 @@ public class ParserImpl implements Parser {
 			if (!parseFunctionDefinition(methods)) break;
 		}
 		if (!consumeIf(TokenType.CLOSE_BRACKET)) {
-			handleError();
+			handleError(ErrorType.CLOSING_BRACKET_MISSING, position,
+					StringUtils.join("klasa ", className, " {"));
 		}
 		return new ClassBody(methods);
 	}
@@ -117,10 +126,12 @@ public class ParserImpl implements Parser {
 	/**
 	 * block = "{", {statement}, "}";
 	 */
-	private Block parseBlock() {
+	private Block parseBlock(String preceding) {
+		Position position = currentToken.getPosition();
 		if (!consumeIf(TokenType.OPEN_BRACKET)) {
 			return null;
 		}
+		preceding = preceding.concat("{");
 		final List<Statement> statements = new ArrayList<>();
 		Statement statement = parseStatement();
 		while (statement != null) {
@@ -128,7 +139,7 @@ public class ParserImpl implements Parser {
 			statement = parseStatement();
 		}
 		if (!consumeIf(TokenType.CLOSE_BRACKET)) {
-			handleError();
+			handleError(ErrorType.CLOSING_BRACKET_MISSING, position, preceding);
 		}
 		return new Block(statements);
 	}
@@ -140,6 +151,7 @@ public class ParserImpl implements Parser {
 	 *           | return-statement
 	 */
 	private Statement parseStatement() {
+		resetStatementDraft();
 		Statement statement = parseObjectAccessOrAssignment();
 		if (statement != null) {
 			return statement;
@@ -157,17 +169,15 @@ public class ParserImpl implements Parser {
 	}
 
 	/**
-	 * object-access = title, {".", title};
-	 * title         = identifier, ["(", arguments-list, ")"];
-	 * assignment    = ("=" | "+=" | "-="), expression;
-	 * Note that term "object access" is not exhausting, as it may refer to
-	 * object field, object method call, function call or a single variable
+	 * statement  = object-access, [assignment], ";"
+	 * assignment = ("=" | "+=" | "-="), expression;
 	 */
 	private Statement parseObjectAccessOrAssignment() {
 		Expression objectAccess = parseObjectAccess();
 		if (objectAccess == null) {
 			return null;
 		}
+		Position position = objectAccess.position();
 		Statement statement = (Statement) objectAccess;
 		if (consumeIf(TokenType.ASSIGN)) {
 			statement = parseAssignmentStatement(objectAccess);
@@ -177,7 +187,7 @@ public class ParserImpl implements Parser {
 			statement = parseSubtractAndAssignStatement(objectAccess);
 		}
 		if (!consumeIf(TokenType.SEMICOLON)) {
-			handleError();
+			handleLightError(ErrorType.SEMICOLON_MISSING, position, statementDraft);
 		}
 		return statement;
 	}
@@ -185,7 +195,7 @@ public class ParserImpl implements Parser {
 	private AssignmentStatement parseAssignmentStatement(Expression objectAccess) {
 		Expression expression = parseExpression();
 		if (expression == null) {
-			handleError();
+			handleError(ErrorType.ASSIGNMENT_MISSING_EXPRESSION, objectAccess.position(), statementDraft);
 		}
 		return new AssignmentStatement(objectAccess, expression);
 	}
@@ -193,7 +203,7 @@ public class ParserImpl implements Parser {
 	private AddAndAssignStatement parseAddAndAssignStatement(Expression objectAccess) {
 		Expression expression = parseExpression();
 		if (expression == null) {
-			handleError();
+			handleError(ErrorType.ASSIGNMENT_MISSING_EXPRESSION, objectAccess.position(), statementDraft);
 		}
 		return new AddAndAssignStatement(objectAccess, expression);
 	}
@@ -201,53 +211,99 @@ public class ParserImpl implements Parser {
 	private SubtractAndAssignStatement parseSubtractAndAssignStatement(Expression objectAccess) {
 		Expression expression = parseExpression();
 		if (expression == null) {
-			handleError();
+			handleError(ErrorType.ASSIGNMENT_MISSING_EXPRESSION, objectAccess.position(), statementDraft);
 		}
 		return new SubtractAndAssignStatement(objectAccess, expression);
 	}
 
+	/**
+	 * object-access = (title | this-keyword), {".", title};
+	 * title         = identifier, ["(", arguments-list, ")"];
+	 * Note that term "object access" is not exhausting, as it may refer to
+	 * object field, object method call, function call or a single variable
+	 */
 	private Expression parseObjectAccess() {
-		Expression left = parseIdentifierOrFunCall();
+		Expression left = parseSelfAccess();
+		if (left == null) {
+			left = parseIdentifierOrFunCall();
+		}
 		if (left == null) {
 			return null;
 		}
 		while (consumeIf(TokenType.DOT)) {
 			Expression right = parseIdentifierOrFunCall();
 			if (right == null) {
-				handleError();
+				handleError(ErrorType.IDENTIFIER_EXPECTED, left.position(), statementDraft);
 			}
 			left = new ObjectAccess(left, right);
 		}
 		return left;
 	}
 
+	private Expression parseSelfAccess() {
+		final Position position = currentToken.getPosition();
+		if (!consumeIf(TokenType.THIS)) {
+			return null;
+		}
+		return new SelfAccess(position);
+	}
+
+	/**
+	 * title = identifier, ["(", arguments-list, ")"];
+	 */
+	private Expression parseIdentifierOrFunCall() {
+		if (currentToken.getType() != TokenType.IDENTIFIER) {
+			return null;
+		}
+		final String name = currentToken.getValue();
+		final Position position = currentToken.getPosition();
+		nextToken();
+		final Expression expression = parseRestOfFunCall(name, position);
+		if (expression == null) {
+			return new IdentifierExpression(name, position);
+		}
+		return expression;
+	}
+
+	private Expression parseRestOfFunCall(String name, Position position) {
+		if (!consumeIf(TokenType.OPEN_PARENTHESIS)) {
+			return null;
+		}
+		List<Expression> arguments = parseArguments();
+		if (!consumeIf(TokenType.CLOSE_PARENTHESIS)) {
+			handleError();
+		}
+		return new FunctionCallExpression(name, arguments, position);
+	}
+
 	/**
 	 * if-statement = if-keyword, "(", expression, ")", block, [else-keyword, block];
 	 */
 	private IfStatement parseIfStatement() {
+		final Position position = currentToken.getPosition();
 		if (!consumeIf(TokenType.IF)) {
 			return null;
 		}
 		if (!consumeIf(TokenType.OPEN_PARENTHESIS)) {
-			handleLightError();
+			handleLightError(ErrorType.OPENING_PARENTHESIS_MISSING, position, statementDraft);
 		}
 		Expression condition = parseOrExpression();
 		if (condition == null) {
-			handleError();
+			handleError(ErrorType.CONDITION_MISSING, position, statementDraft);
 		}
 		if (!consumeIf(TokenType.CLOSE_PARENTHESIS)) {
-			handleLightError();
+			handleLightError(ErrorType.CLOSING_PARENTHESIS_MISSING, position, statementDraft);
 		}
-		Block blockIfTrue = parseBlock();
+		Block blockIfTrue = parseBlock(statementDraft);
 		if (blockIfTrue == null) {
-			handleError();
+			handleError(ErrorType.CONDITIONAL_STATEMENT_BODY_MISSING, position, statementDraft);
 		}
 		if (!consumeIf(TokenType.ELSE)) {
 			return new IfStatement(condition, blockIfTrue, null);
 		}
-		Block elseBlock = parseBlock();
+		Block elseBlock = parseBlock(statementDraft);
 		if (elseBlock == null) {
-			handleError();
+			handleError(ErrorType.CONDITIONAL_STATEMENT_BODY_MISSING, position, statementDraft);
 		}
 		return new IfStatement(condition, blockIfTrue, elseBlock);
 	}
@@ -256,24 +312,25 @@ public class ParserImpl implements Parser {
 	 * for-statement = for-keyword, identifier, in-keyword, object-access, block;
 	 */
 	private ForStatement parseForStatement() {
+		final Position position = currentToken.getPosition();
 		if (!consumeIf(TokenType.FOR)) {
 			return null;
 		}
 		if (currentToken.getType() != TokenType.IDENTIFIER) {
-			handleError();
+			handleError(ErrorType.ITERATOR_MISSING, position, statementDraft);
 		}
 		final String iteratorName = currentToken.getValue();
 		nextToken();
 		if (!consumeIf(TokenType.IN)) {
-			handleError();
+			handleLightError(ErrorType.IN_KEYWORD_MISSING, position, statementDraft);
 		}
 		Expression range = parseObjectAccess();
 		if (range == null) {
-			handleError();
+			handleError(ErrorType.LOOP_RANGE_MISSING, position, statementDraft);
 		}
-		Block block = parseBlock();
+		Block block = parseBlock(statementDraft);
 		if (block == null) {
-			handleError();
+			handleError(ErrorType.CONDITIONAL_STATEMENT_BODY_MISSING, position, statementDraft);
 		}
 		return new ForStatement(iteratorName, range, block);
 	}
@@ -282,15 +339,16 @@ public class ParserImpl implements Parser {
 	 * return-statement = return-keyword, [expression], ";";
 	 */
 	private ReturnStatement parseReturnStatement() {
+		final Position position = currentToken.getPosition();
 		if (!consumeIf(TokenType.RETURN)) {
 			return null;
 		}
 		Expression expression = parseExpression();
 		if (expression == null) {
-			handleError();
+			handleError(ErrorType.RETURN_MISSING_EXPRESSION, position, statementDraft);
 		}
 		if (!consumeIf(TokenType.SEMICOLON)) {
-			handleLightError();
+			handleLightError(ErrorType.SEMICOLON_MISSING, position, statementDraft);
 		}
 		return new ReturnStatement(expression);
 	}
@@ -506,31 +564,6 @@ public class ParserImpl implements Parser {
 		return new Parameter(name);
 	}
 
-	private Expression parseIdentifierOrFunCall() {
-		if (currentToken.getType() != TokenType.IDENTIFIER) {
-			return null;
-		}
-		final String name = currentToken.getValue();
-		final Position position = currentToken.getPosition();
-		nextToken();
-		final Expression expression = parseRestOfFunCall(name, position);
-		if (expression == null) {
-			return new IdentifierExpression(name, position);
-		}
-		return expression;
-	}
-
-	private Expression parseRestOfFunCall(String name, Position position) {
-		if (!consumeIf(TokenType.OPEN_PARENTHESIS)) {
-			return null;
-		}
-		List<Expression> arguments = parseArguments();
-		if (!consumeIf(TokenType.CLOSE_PARENTHESIS)) {
-			handleError();
-		}
-		return new FunctionCallExpression(name, arguments, position);
-	}
-
 	/**
 	 * arguments-list = expression, {",", expression};
 	 */
@@ -560,23 +593,51 @@ public class ParserImpl implements Parser {
 
 	private boolean consumeIf(TokenType tokenType) {
 		if (this.currentToken.getType() == tokenType) {
+			updateStatementDraft();
 			nextToken();
 			return true;
 		}
 		return false;
 	}
 
+	private void updateStatementDraft() {
+		if (currentToken.getType() == TokenType.DOT && statementDraft.length() > 0) {
+			statementDraft = statementDraft.substring(0, statementDraft.length()-1)
+					.concat(".");
+		} else {
+			statementDraft = statementDraft.concat(currentToken.getValue() + " ");
+		}
+	}
+	private void resetStatementDraft() {
+		this.statementDraft = StringUtils.EMPTY;
+	}
+
+	private String buildFunctionHeaderMessage(String functionName, List<Parameter> parameters, boolean closed) {
+		String parametersString = parameters.stream()
+				.map(Parameter::name)
+				.collect(Collectors.joining(","));
+		String functionHeader = StringUtils.join(functionName, "(", parametersString);
+		if (closed) {
+			functionHeader = functionHeader.concat(")");
+		}
+		return functionHeader;
+	}
+
 	@SneakyThrows
 	private void handleError(ErrorType errorType, Position position, String expression) {
 		ErrorParserDetails errorDetails = new ErrorParserDetails(errorType, position, expression);
 		errorHandler.handleError(errorDetails);
-		throw new SyntacticalException("Syntax error");
+		throw new SyntacticException("Syntax error");
 	}
 
 	@SneakyThrows
 	private void handleError() {
-		throw new SyntacticalException("Syntax error");
+		throw new SyntacticException("Syntax error");
 	}
 
-	private void handleLightError() {}
+	@SneakyThrows
+	private void handleLightError(ErrorType errorType, Position position, String expression) {
+		ErrorParserDetails errorDetails = new ErrorParserDetails(errorType, position, expression);
+		errorHandler.handleError(errorDetails);
+	}
 }

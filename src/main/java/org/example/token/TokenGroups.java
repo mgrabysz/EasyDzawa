@@ -18,7 +18,7 @@ public class TokenGroups {
     * e.g. "klasa": CLASS (polish config)
     *      "zwróć": RETURN
     */
-    public static Map<String, TokenType> KEYWORDS = new HashMap<>();
+    public static final Map<String, TokenType> KEYWORDS = new HashMap<>();
     static {
         Stream.of(RETURN, FOR, IN, IF, ELSE, CLASS, THIS, AND, OR, NOT)
 				.forEach(tokenType -> KEYWORDS.put(tokenType.getKeyword(), tokenType));

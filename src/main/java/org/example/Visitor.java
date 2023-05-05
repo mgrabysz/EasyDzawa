@@ -27,6 +27,7 @@ public interface Visitor {
 	void accept(LiteralFloat expression);
 	void accept(LiteralInteger expression);
 	void accept(LiteralText expression);
+	void accept(SelfAccess expression);
 
 	// statements
 	void accept(AddAndAssignStatement statement);

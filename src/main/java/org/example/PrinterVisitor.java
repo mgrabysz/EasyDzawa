@@ -148,6 +148,11 @@ public class PrinterVisitor implements Visitor {
 	}
 
 	@Override
+	public void accept(SelfAccess expression) {
+		System.out.println(space() + expression);
+	}
+
+	@Override
 	public void accept(AddAndAssignStatement statement) {
 		System.out.println(space() + statement);
 		spaces += 2;

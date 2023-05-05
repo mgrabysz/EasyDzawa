@@ -4,6 +4,7 @@ import org.example.Configuration;
 import org.example.error.ErrorDetails;
 import org.example.error.enums.ErrorLevel;
 import org.example.error.exception.LexicalException;
+import org.example.error.exception.SyntacticException;
 
 public class ErrorManager {
 
@@ -14,11 +15,14 @@ public class ErrorManager {
 	private static final String COMMENT_LENGTH_EXCEEDED_MESSAGE = "Comment: %s starting at line %d position %d exceeds maximal length";
 	private static final String END_OF_FILE_REACHED_MESSAGE = "End of file reached while parsing text: %s starting at line %d position %d";
 	private static final String GENERIC_LEXICAL_ERROR_MESSAGE = "Lexical error at line %d position %d";
+	private static final String GENERIC_SYNTACTIC_ERROR_MESSAGE = "While parsing statement << %s >> starting at line %d position %d given problem was found: %s";
 
 	public static void handleError(ErrorDetails errorDetails) throws Exception {
 
 		if (errorDetails.level() == ErrorLevel.LEXICAL) {
 			handleLexicalError(errorDetails);
+		} else if (errorDetails.level() == ErrorLevel.SYNTACTICAL) {
+			handleSyntacticError(errorDetails);
 		}
 	}
 
@@ -55,6 +59,13 @@ public class ErrorManager {
 			}
 		}
 		throw new LexicalException(errorMessage);
+	}
+
+	private static void handleSyntacticError(ErrorDetails errorDetails) throws SyntacticException {
+		final String errorMessage = GENERIC_SYNTACTIC_ERROR_MESSAGE.formatted(errorDetails.expression(),
+				errorDetails.position().getLineNumber(), errorDetails.position().getCharacterNumber(),
+				errorDetails.type());
+		throw new SyntacticException(errorMessage);
 	}
 
 	private static String trimExpression(String expression) {
