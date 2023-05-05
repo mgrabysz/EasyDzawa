@@ -242,7 +242,7 @@ title                   = identifier, ["(", arguments-list, ")"];
 
 assignment              = ("=" | "+=" | "-="), expression;
 
-if-statement            = if-keyword, "(", expression, ")", block, ["inaczej", block];
+if-statement            = if-keyword, "(", expression, ")", block, [else-keyword, block];
 
 for-statement           = for-keyword, identifier, in-keyword, object-access, block;
 
@@ -254,7 +254,7 @@ or-expression           = and-expression, {or-keyword, and-expression};
 
 and-expression          = relative-expression, {and-keyword, relative-expression};
 
-relative-expression     = arithmetic-expression, {relative-operator, arithmetic-expression};
+relative-expression     = arithmetic-expression, [relative-operator, arithmetic-expression];
 
 arithmetic-expression   = multiplicative-expression, {("+" | "-"), multiplicative-expression};
 
@@ -298,6 +298,8 @@ special-symbol          = " " | "\" | "!" | "@" | ...
 class-keyword           = "klasa";
 
 if-keyword              = "jeżeli";
+
+else-keyword            = "inaczej";
 
 for-keyword             = "dla";
 
