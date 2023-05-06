@@ -13,7 +13,7 @@ import java.io.IOException;
 public class Main {
 	public static void main(String[] args) throws IOException {
 
-		try (FileReader fileReader = new FileReader("src/main/resources/input.txt")) {
+		try (FileReader fileReader = new FileReader("src/main/resources/definitions.txt")) {
 			var file = new BufferedReader(fileReader);
 			var lexer = new LexerImpl(file, ErrorManager::handleError);
 			final Parser parser = new ParserImpl(lexer, ErrorManager::handleError);

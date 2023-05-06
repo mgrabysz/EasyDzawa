@@ -142,7 +142,7 @@ klasa Ułamek {
 main() {
   x = Ułamek(1, 2);
   jeżeli (x.jestWłaściwy) {
-    napisz("Zdefiniowano właśnie ułamek właściwy \n");
+    napisz("Zdefiniowano właśnie ułamek właściwy");
   }
   x.rozszerz(2);
   napisz(y.licznik);      // 2

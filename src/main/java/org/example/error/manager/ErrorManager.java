@@ -26,7 +26,7 @@ public class ErrorManager {
 	private static final String INCORRECT_STATEMENT_MESSAGE = "While parsing statement << %s >> at line %d position %d given problem was found: %s";
 	private static final String INCORRECT_DEFINITION_MESSAGE = "While parsing class or function definition << %s >> at line %d position %d given problem was found: %s";
 	private static final String MISSING_PARENTHESIS_MESSAGE = "While parsing statement << %s >> at line %d position %d given problem was found: %s";
-	private static final String END_OF_FILE_NOT_PRESENT_MESSAGE = "END_OF_FILE token is not present in the parsed stream of tokens";
+	private static final String GENERIC_SYNTACTIC_ERROR_MESSAGE = "Syntactic error of type: %s";
 
 	private static final List<ErrorType> incorrectStatementErrors = new ArrayList<>(Arrays.asList(
 			SEMICOLON_EXPECTED,
@@ -46,7 +46,6 @@ public class ErrorManager {
 			FUNCTION_NAME_NOT_UNIQUE,
 			CLASS_NAME_NOT_UNIQUE,
 			PARAMETER_NAME_NOT_UNIQUE,
-			METHOD_NAME_NOT_UNIQUE,
 			CLASS_NAME_MISSING,
 			CLASS_BODY_MISSING,
 			FUNCTION_BODY_MISSING
@@ -88,22 +87,20 @@ public class ErrorManager {
 	}
 
 	private static void handleSyntacticError(ErrorDetails errorDetails) throws SyntacticException {
-		String errorMessage = null;
+		String errorMessage;
 		ErrorType errorType = errorDetails.type();
-		if (errorType == END_OF_FILE_NOT_PRESENT) {
-			errorMessage = END_OF_FILE_NOT_PRESENT_MESSAGE;
-			throw new SyntacticException(errorMessage);
-		} else if (incorrectStatementErrors.contains(errorType)) {
+		if (incorrectStatementErrors.contains(errorType)) {
 			errorMessage = INCORRECT_STATEMENT_MESSAGE;
 		} else if (incorrectDefinitionErrors.contains(errorType)) {
 			errorMessage = INCORRECT_DEFINITION_MESSAGE;
 		} else if (missingParenthesisErrors.contains(errorType)) {
 			errorMessage = MISSING_PARENTHESIS_MESSAGE;
+		} else {
+			throw new SyntacticException(GENERIC_SYNTACTIC_ERROR_MESSAGE.formatted(errorType));
 		}
-		errorMessage = errorMessage.formatted(trimExpression(errorDetails.expression()),
-				errorDetails.position().getLineNumber(), errorDetails.position().getCharacterNumber(),
-				errorDetails.type());
-		throw new SyntacticException(errorMessage);
+		throw new SyntacticException(errorMessage.formatted(
+						trimExpression(errorDetails.expression()), errorDetails.position().getLineNumber(),
+						errorDetails.position().getCharacterNumber(), errorDetails.type()));
 	}
 
 	private static String trimExpression(String expression) {

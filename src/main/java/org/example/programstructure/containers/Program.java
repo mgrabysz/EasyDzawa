@@ -3,10 +3,10 @@ package org.example.programstructure.containers;
 import org.example.Visitable;
 import org.example.Visitor;
 
-import java.util.HashMap;
+import java.util.Map;
 
-public record Program(HashMap<String, FunctionDefinition> functionDefinitions,
-					  HashMap<String, ClassDefinition> classDefinitions) implements Visitable {
+public record Program(Map<String, FunctionDefinition> functionDefinitions,
+					  Map<String, ClassDefinition> classDefinitions) implements Visitable {
 
 	@Override
 	public void accept(Visitor visitor) {

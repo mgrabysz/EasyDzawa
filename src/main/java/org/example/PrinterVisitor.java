@@ -1,5 +1,6 @@
 package org.example;
 
+import org.apache.commons.lang3.StringUtils;
 import org.example.programstructure.containers.*;
 import org.example.programstructure.expression.*;
 import org.example.programstructure.statement.*;
@@ -10,7 +11,7 @@ public class PrinterVisitor implements Visitor {
 
 	@Override
 	public void accept(Program program) {
-		System.out.println(space() + program);
+		print(program);
 		spaces += 2;
 		for (FunctionDefinition functionDefinition : program.functionDefinitions().values()) {
 			functionDefinition.accept(this);
@@ -23,7 +24,7 @@ public class PrinterVisitor implements Visitor {
 
 	@Override
 	public void accept(FunctionDefinition functionDefinition) {
-		System.out.println(space() + functionDefinition);
+		print(functionDefinition);
 		spaces += 2;
 		for (Parameter parameter : functionDefinition.parameters()) {
 			parameter.accept(this);
@@ -34,7 +35,7 @@ public class PrinterVisitor implements Visitor {
 
 	@Override
 	public void accept(ClassDefinition classDefinition) {
-		System.out.println(space() + classDefinition);
+		print(classDefinition);
 		spaces += 2;
 		for (FunctionDefinition functionDefinition : classDefinition.methods().values()) {
 			functionDefinition.accept(this);
@@ -44,7 +45,7 @@ public class PrinterVisitor implements Visitor {
 
 	@Override
 	public void accept(Block block) {
-		System.out.println(space() + block);
+		print(block);
 		spaces += 2;
 		for (Statement statement : block.statements()) {
 			statement.accept(this);
@@ -54,17 +55,17 @@ public class PrinterVisitor implements Visitor {
 
 	@Override
 	public void accept(ClassBody classBody) {
-		System.out.println(space() + classBody);
+		print(classBody);
 	}
 
 	@Override
 	public void accept(Parameter parameter) {
-		System.out.println(space() + parameter);
+		print(parameter);
 	}
 
 	@Override
 	public void accept(OrExpression expression) {
-		System.out.println(space() + expression);
+		print(expression);
 		spaces += 2;
 		expression.left().accept(this);
 		expression.right().accept(this);
@@ -73,7 +74,7 @@ public class PrinterVisitor implements Visitor {
 
 	@Override
 	public void accept(AndExpression expression) {
-		System.out.println(space() + expression);
+		print(expression);
 		spaces += 2;
 		expression.left().accept(this);
 		expression.right().accept(this);
@@ -82,7 +83,7 @@ public class PrinterVisitor implements Visitor {
 
 	@Override
 	public void accept(RelativeExpression expression) {
-		System.out.println(space() + expression);
+		print(expression);
 		spaces += 2;
 		expression.left().accept(this);
 		expression.right().accept(this);
@@ -91,7 +92,7 @@ public class PrinterVisitor implements Visitor {
 
 	@Override
 	public void accept(ArithmeticExpression expression) {
-		System.out.println(space() + expression);
+		print(expression);
 		spaces += 2;
 		expression.left().accept(this);
 		expression.right().accept(this);
@@ -100,7 +101,7 @@ public class PrinterVisitor implements Visitor {
 
 	@Override
 	public void accept(MultiplicativeExpression expression) {
-		System.out.println(space() + expression);
+		print(expression);
 		spaces += 2;
 		expression.left().accept(this);
 		expression.right().accept(this);
@@ -109,7 +110,7 @@ public class PrinterVisitor implements Visitor {
 
 	@Override
 	public void accept(FunctionCallExpression expression) {
-		System.out.println(space() + expression);
+		print(expression);
 		spaces += 2;
 		for (Expression argument : expression.arguments()) {
 			argument.accept(this);
@@ -119,42 +120,42 @@ public class PrinterVisitor implements Visitor {
 
 	@Override
 	public void accept(IdentifierExpression expression) {
-		System.out.println(space() + expression);
+		print(expression);
 	}
 
 	@Override
 	public void accept(NegatedExpression expression) {
-		System.out.println(space() + expression);
+		print(expression);
 	}
 
 	@Override
 	public void accept(LiteralBool expression) {
-		System.out.println(space() + expression);
+		print(expression);
 	}
 
 	@Override
 	public void accept(LiteralFloat expression) {
-		System.out.println(space() + expression);
+		print(expression);
 	}
 
 	@Override
 	public void accept(LiteralInteger expression) {
-		System.out.println(space() + expression);
+		print(expression);
 	}
 
 	@Override
 	public void accept(LiteralText expression) {
-		System.out.println(space() + expression);
+		print(expression);
 	}
 
 	@Override
 	public void accept(SelfAccess expression) {
-		System.out.println(space() + expression);
+		print(expression);
 	}
 
 	@Override
 	public void accept(AddAndAssignStatement statement) {
-		System.out.println(space() + statement);
+		print(statement);
 		spaces += 2;
 		statement.objectAccess().accept(this);
 		statement.expression().accept(this);
@@ -163,7 +164,7 @@ public class PrinterVisitor implements Visitor {
 
 	@Override
 	public void accept(AssignmentStatement statement) {
-		System.out.println(space() + statement);
+		print(statement);
 		spaces += 2;
 		statement.objectAccess().accept(this);
 		statement.expression().accept(this);
@@ -172,7 +173,7 @@ public class PrinterVisitor implements Visitor {
 
 	@Override
 	public void accept(ForStatement statement) {
-		System.out.println(space() + statement);
+		print(statement);
 		spaces += 2;
 		statement.range().accept(this);
 		statement.block().accept(this);
@@ -181,17 +182,19 @@ public class PrinterVisitor implements Visitor {
 
 	@Override
 	public void accept(IfStatement statement) {
-		System.out.println(space() + statement);
+		print(statement);
 		spaces += 2;
 		statement.condition().accept(this);
 		statement.blockIfTrue().accept(this);
-		statement.elseBlock().accept(this);
+		if (statement.elseBlock() != null) {
+			statement.elseBlock().accept(this);
+		}
 		spaces -= 2;
 	}
 
 	@Override
 	public void accept(ObjectAccess statement) {
-		System.out.println(space() + statement);
+		print(statement);
 		spaces += 2;
 		statement.left().accept(this);
 		statement.right().accept(this);
@@ -200,14 +203,14 @@ public class PrinterVisitor implements Visitor {
 
 	@Override
 	public void accept(ReturnStatement statement) {
-		System.out.println(space() + statement);
+		print(statement);
 		spaces += 2;
 		statement.expression().accept(this);
 	}
 
 	@Override
 	public void accept(SubtractAndAssignStatement statement) {
-		System.out.println(space() + statement);
+		print(statement);
 		spaces += 2;
 		statement.objectAccess().accept(this);
 		statement.expression().accept(this);
@@ -217,4 +220,9 @@ public class PrinterVisitor implements Visitor {
 	private String space() {
 		return "-".repeat(spaces);
 	}
+
+	private void print(Object object) {
+		System.out.println(StringUtils.left(space() + object.toString(), 300));
+	}
+
 }
