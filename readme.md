@@ -378,9 +378,9 @@ klasy `Node` (węzeł). Każdy z węzłów posiada "dzieci" (children) (uszerego
 
 Przykład drzewa dla wyrażenia arytmetycznego:
 
-`a = (60 + 4) / 9 + 4` 
+`a = (60 + 4) / 9 + 4`
 
-![tree.png](pictures%2Ftree.png)
+![tree.png](pictures/tree.png)
 
 Niemożliwość utworzenia poprawnego drzewa skutkuje podniesieniem wyjątku 
 (patrz: [Niepoprawne konstrukcje i komunikaty wyjątków na poziomie składniowym](#na-poziomie-składniowym))
