@@ -28,11 +28,14 @@ public class ParserImpl implements Parser {
 	private final Lexer lexer;
 	private final ErrorHandler errorHandler;
 	private Token currentToken;
+	private Token previousToken;
 	private String statementDraft;
 
 	public ParserImpl(Lexer lexer, ErrorHandler errorHandler) {
 		this.lexer = lexer;
 		this.errorHandler = errorHandler;
+		this.previousToken = null;
+		this.currentToken = null;
 		resetStatementDraft();
 		nextToken();
 	}
@@ -55,12 +58,11 @@ public class ParserImpl implements Parser {
 	 * function-definition = identifier, "(", [parameters-list], ")", block;
 	 */
 	private boolean parseFunctionDefinition(HashMap<String, FunctionDefinition> functions) {
-		if (currentToken.getType() != TokenType.IDENTIFIER) {
+		if (!consumeIf(TokenType.IDENTIFIER)) {
 			return false;
 		}
-		final String name = currentToken.getValue();
-		final Position position = currentToken.getPosition();
-		nextToken();
+		final String name = previousToken.getValue();
+		final Position position = previousToken.getPosition();
 		if (!consumeIf(TokenType.OPEN_PARENTHESIS)) {
 			handleCriticalError(ErrorType.OPENING_PARENTHESIS_MISSING, position, name);
 		}
@@ -89,11 +91,10 @@ public class ParserImpl implements Parser {
 		if (!consumeIf(TokenType.CLASS)) {
 			return false;
 		}
-		if (currentToken.getType() != TokenType.IDENTIFIER) {
+		if (!consumeIf(TokenType.IDENTIFIER)) {
 			handleCriticalError(ErrorType.CLASS_NAME_MISSING, position, TokenType.CLASS.getKeyword());
 		}
-		final String name = currentToken.getValue();
-		nextToken();
+		final String name = previousToken.getValue();
 		final ClassBody classBody = parseClassBody(name, position);
 		if (classBody == null) {
 			handleCriticalError(ErrorType.CLASS_BODY_MISSING, position, name);
@@ -252,12 +253,11 @@ public class ParserImpl implements Parser {
 	 * title = identifier, ["(", arguments-list, ")"];
 	 */
 	private Expression parseIdentifierOrFunCall() {
-		if (currentToken.getType() != TokenType.IDENTIFIER) {
+		if (!consumeIf(TokenType.IDENTIFIER)) {
 			return null;
 		}
-		final String name = currentToken.getValue();
-		final Position position = currentToken.getPosition();
-		nextToken();
+		final String name = previousToken.getValue();
+		final Position position = previousToken.getPosition();
 		final Expression expression = parseRestOfFunCall(name, position);
 		if (expression == null) {
 			return new IdentifierExpression(name, position);
@@ -316,11 +316,10 @@ public class ParserImpl implements Parser {
 		if (!consumeIf(TokenType.FOR)) {
 			return null;
 		}
-		if (currentToken.getType() != TokenType.IDENTIFIER) {
+		if (!consumeIf(TokenType.IDENTIFIER)) {
 			handleCriticalError(ErrorType.ITERATOR_EXPECTED, position, statementDraft);
 		}
-		final String iteratorName = currentToken.getValue();
-		nextToken();
+		final String iteratorName = previousToken.getValue();
 		if (!consumeIf(TokenType.IN)) {
 			handleNonCriticalError(ErrorType.IN_KEYWORD_EXPECTED, position, statementDraft);
 		}
@@ -407,7 +406,7 @@ public class ParserImpl implements Parser {
 		TokenType tokenType = currentToken.getType();
 		RelativeType relativeType = TokenGroups.RELATIVE_OPERATORS.get(tokenType);
 		if (relativeType != null) {
-			nextToken();
+			consumeCurrent();
 			Expression right = parseArithmeticExpression();
 			if (right == null) {
 				handleCriticalError(ErrorType.EXPRESSION_EXPECTED, left.position(), statementDraft);
@@ -429,7 +428,7 @@ public class ParserImpl implements Parser {
 		TokenType tokenType = currentToken.getType();
 		AdditiveType additiveType = TokenGroups.ADDITIVE_OPERATORS.get(tokenType);
 		while (additiveType != null) {
-			nextToken();
+			consumeCurrent();
 			Expression right = parseMultiplicativeExpression();
 			if (right == null) {
 				handleCriticalError(ErrorType.EXPRESSION_EXPECTED, left.position(), statementDraft);
@@ -452,7 +451,7 @@ public class ParserImpl implements Parser {
 		TokenType tokenType = currentToken.getType();
 		MultiplicativeType multiplicativeType = TokenGroups.MULTIPLICATIVE_OPERATORS.get(tokenType);
 		while (multiplicativeType != null) {
-			nextToken();
+			consumeCurrent();
 			Expression right = parseNegatedFactor();
 			if (right == null) {
 				handleCriticalError(ErrorType.EXPRESSION_EXPECTED, left.position(), statementDraft);
@@ -468,9 +467,8 @@ public class ParserImpl implements Parser {
 	private Expression parseNegatedFactor() {
 		boolean negated = false;
 		Position position = currentToken.getPosition();
-		if (currentToken.getType() == TokenType.SUBTRACT || currentToken.getType() == TokenType.NOT) {
+		if (consumeIf(TokenType.NOT) || consumeIf(TokenType.SUBTRACT)) {
 			negated = true;
-			nextToken();
 		}
 		Expression expression = parseFactor();
 		if (negated && expression == null) {
@@ -509,21 +507,17 @@ public class ParserImpl implements Parser {
 	 */
 	private Expression parseLiteral() {
 		Expression expression = null;
-		if (currentToken.getType() == TokenType.INTEGER) {
-			expression = new LiteralInteger(currentToken.getValue(), currentToken.getPosition());
-			nextToken();
+		if (consumeIf(TokenType.INTEGER)) {
+			expression = new LiteralInteger(previousToken.getValue(), previousToken.getPosition());
 		}
-		if (currentToken.getType() == TokenType.FLOAT) {
-			expression = new LiteralFloat(currentToken.getValue(), currentToken.getPosition());
-			nextToken();
+		if (consumeIf(TokenType.FLOAT)) {
+			expression = new LiteralFloat(previousToken.getValue(), previousToken.getPosition());
 		}
-		if (currentToken.getType() == TokenType.BOOL) {
-			expression = new LiteralBool(currentToken.getValue(), currentToken.getPosition());
-			nextToken();
+		if (consumeIf(TokenType.BOOL)) {
+			expression = new LiteralBool(previousToken.getValue(), previousToken.getPosition());
 		}
-		if (currentToken.getType() == TokenType.TEXT) {
-			expression = new LiteralText(currentToken.getValue(), currentToken.getPosition());
-			nextToken();
+		if (consumeIf(TokenType.TEXT)) {
+			expression = new LiteralText(previousToken.getValue(), previousToken.getPosition());
 		}
 		return expression;
 	}
@@ -556,11 +550,10 @@ public class ParserImpl implements Parser {
 	}
 
 	private Parameter parseParameter() {
-		if (currentToken.getType() != TokenType.IDENTIFIER) {
+		if (!consumeIf(TokenType.IDENTIFIER)) {
 			return null;
 		}
-		String name = currentToken.getValue();
-		nextToken();
+		String name = previousToken.getValue();
 		return new Parameter(name);
 	}
 
@@ -585,6 +578,7 @@ public class ParserImpl implements Parser {
 	}
 
 	private void nextToken() {
+		this.previousToken = this.currentToken;
 		this.currentToken = lexer.next();
 		while (this.currentToken.getType() == TokenType.COMMENT) {
 			this.currentToken = lexer.next();
@@ -598,6 +592,11 @@ public class ParserImpl implements Parser {
 			return true;
 		}
 		return false;
+	}
+
+	private void consumeCurrent() {
+		updateStatementDraft();
+		nextToken();
 	}
 
 	private void updateStatementDraft() {
