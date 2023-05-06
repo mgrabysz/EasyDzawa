@@ -3,7 +3,7 @@ package org.example.token;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
-import org.example.Position;
+import org.example.commons.Position;
 
 @Getter
 @AllArgsConstructor

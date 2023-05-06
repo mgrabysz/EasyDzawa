@@ -1,6 +1,6 @@
 package org.example.programstructure.statement;
 
-import org.example.Visitor;
+import org.example.visitor.Visitor;
 import org.example.programstructure.expression.Expression;
 
 public record AddAndAssignStatement(Expression objectAccess, Expression expression) implements Statement {

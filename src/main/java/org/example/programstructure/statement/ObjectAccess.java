@@ -1,7 +1,7 @@
 package org.example.programstructure.statement;
 
-import org.example.Position;
-import org.example.Visitor;
+import org.example.commons.Position;
+import org.example.visitor.Visitor;
 import org.example.programstructure.expression.Expression;
 
 public record ObjectAccess(Expression left, Expression right) implements Expression, Statement {

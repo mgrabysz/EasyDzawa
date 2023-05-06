@@ -1,6 +1,6 @@
-package org.example.error;
+package org.example.error.details;
 
-import org.example.Position;
+import org.example.commons.Position;
 import org.example.error.enums.ErrorLevel;
 import org.example.error.enums.ErrorType;
 

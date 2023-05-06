@@ -3,10 +3,10 @@ package org.example.lexer;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
 import org.example.Configuration;
-import org.example.EscapeUtils;
-import org.example.Position;
+import org.example.commons.EscapeUtils;
+import org.example.commons.Position;
 import org.example.error.ErrorHandler;
-import org.example.error.ErrorLexerDetails;
+import org.example.error.details.ErrorLexerDetails;
 import org.example.error.enums.ErrorType;
 import org.example.token.*;
 

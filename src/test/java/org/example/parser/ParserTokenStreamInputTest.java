@@ -1,6 +1,6 @@
 package org.example.parser;
 
-import org.example.Position;
+import org.example.commons.Position;
 import org.example.error.manager.ErrorManager;
 import org.example.lexer.Lexer;
 import org.example.lexer.LexerMock;

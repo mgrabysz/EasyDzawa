@@ -1,7 +1,7 @@
 package org.example.error.manager;
 
 import org.example.Configuration;
-import org.example.error.ErrorDetails;
+import org.example.error.details.ErrorDetails;
 import org.example.error.enums.ErrorLevel;
 import org.example.error.enums.ErrorType;
 import org.example.error.exception.LexicalException;

@@ -2,9 +2,10 @@ package org.example.parser;
 
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
-import org.example.Position;
+import org.example.commons.ErrorContext;
+import org.example.commons.Position;
 import org.example.error.ErrorHandler;
-import org.example.error.ErrorParserDetails;
+import org.example.error.details.ErrorParserDetails;
 import org.example.error.enums.ErrorType;
 import org.example.error.exception.SyntacticException;
 import org.example.lexer.Lexer;

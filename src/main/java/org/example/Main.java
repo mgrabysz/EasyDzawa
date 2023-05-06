@@ -5,6 +5,8 @@ import org.example.lexer.LexerImpl;
 import org.example.parser.Parser;
 import org.example.parser.ParserImpl;
 import org.example.programstructure.containers.Program;
+import org.example.visitor.PrinterVisitor;
+import org.example.visitor.Visitor;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

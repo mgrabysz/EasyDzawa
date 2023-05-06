@@ -1,4 +1,4 @@
-package org.example;
+package org.example.visitor;
 
 import org.example.programstructure.containers.*;
 import org.example.programstructure.expression.*;

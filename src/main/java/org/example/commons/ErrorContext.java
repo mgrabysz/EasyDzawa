@@ -1,9 +1,9 @@
-package org.example.parser;
+package org.example.commons;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import org.example.Position;
+import org.example.commons.Position;
 
 @AllArgsConstructor
 @Getter

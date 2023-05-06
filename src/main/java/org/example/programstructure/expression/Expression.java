@@ -1,7 +1,7 @@
 package org.example.programstructure.expression;
 
-import org.example.Position;
-import org.example.Visitable;
+import org.example.commons.Position;
+import org.example.visitor.Visitable;
 
 public interface Expression extends Visitable {
 

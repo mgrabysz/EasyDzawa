@@ -1,6 +1,6 @@
 package org.example.token;
 
-import org.example.Position;
+import org.example.commons.Position;
 
 public interface Token {
 

@@ -1,7 +1,7 @@
 package org.example.programstructure.containers;
 
-import org.example.Visitable;
-import org.example.Visitor;
+import org.example.visitor.Visitable;
+import org.example.visitor.Visitor;
 
 public record Parameter(String name) implements Visitable {
 

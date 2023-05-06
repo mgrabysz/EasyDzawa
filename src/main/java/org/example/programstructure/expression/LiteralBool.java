@@ -1,7 +1,7 @@
 package org.example.programstructure.expression;
 
-import org.example.Position;
-import org.example.Visitor;
+import org.example.commons.Position;
+import org.example.visitor.Visitor;
 
 public record LiteralBool(Boolean value, Position position) implements Expression {
 
