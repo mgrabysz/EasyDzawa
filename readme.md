@@ -140,7 +140,7 @@ klasa Ułamek {
 
 
 main() {
-  x = nowy Ułamek(1, 2);
+  x = Ułamek(1, 2);
   jeżeli (x.jestWłaściwy) {
     napisz("Zdefiniowano właśnie ułamek właściwy \n");
   }
