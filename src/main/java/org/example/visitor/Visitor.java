@@ -11,7 +11,6 @@ public interface Visitor {
 	void accept(FunctionDefinition functionDefinition);
 	void accept(ClassDefinition classDefinition);
 	void accept(Block block);
-	void accept(ClassBody classBody);
 	void accept(Parameter parameter);
 
 	// expressions

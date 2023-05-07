@@ -54,11 +54,6 @@ public class PrinterVisitor implements Visitor {
 	}
 
 	@Override
-	public void accept(ClassBody classBody) {
-		print(classBody);
-	}
-
-	@Override
 	public void accept(Parameter parameter) {
 		print(parameter);
 	}

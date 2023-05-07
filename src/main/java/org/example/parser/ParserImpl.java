@@ -135,11 +135,11 @@ public class ParserImpl implements Parser {
 		if (classes.containsKey(className)) {
 			handleCriticalError(ErrorType.CLASS_NAME_NOT_UNIQUE, errorContext.getPosition(), className);
 		}
-		final ClassBody classBody = parseClassBody(className);
-		if (classBody == null) {
+		final Map<String, FunctionDefinition> methods = parseClassBody(className);
+		if (methods == null) {
 			handleCriticalError(ErrorType.CLASS_BODY_MISSING, errorContext.getPosition(), errorContext.getContext());
 		} else {
-			classes.put(className, new ClassDefinition(className, classBody.methods()));
+			classes.put(className, new ClassDefinition(className, methods));
 		}
 		return true;
 	}
@@ -147,7 +147,7 @@ public class ParserImpl implements Parser {
 	/**
 	 * class-body = "{", {function-definition}, "}";
 	 */
-	private ClassBody parseClassBody(String className) {
+	private Map<String, FunctionDefinition> parseClassBody(String className) {
 		if (!consumeIf(TokenType.OPEN_BRACKET)) {
 			return null;
 		}
@@ -159,7 +159,7 @@ public class ParserImpl implements Parser {
 			handleCriticalError(ErrorType.CLOSING_BRACKET_MISSING, errorContext.getPosition(),
 					String.join(StringUtils.SPACE, TokenType.CLASS.getKeyword(), className, "{"));
 		}
-		return new ClassBody(methods);
+		return methods;
 	}
 
 	/**
