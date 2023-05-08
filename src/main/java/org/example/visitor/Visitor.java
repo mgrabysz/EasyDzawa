@@ -29,11 +29,10 @@ public interface Visitor {
 	void accept(SelfAccess expression);
 
 	// statements
-	void accept(AddAndAssignStatement statement);
+	void accept(ModifyAndAssignStatement statement);
 	void accept(AssignmentStatement statement);
 	void accept(ForStatement statement);
 	void accept(IfStatement statement);
 	void accept(ObjectAccess statement);
 	void accept(ReturnStatement statement);
-	void accept(SubtractAndAssignStatement statement);
 }

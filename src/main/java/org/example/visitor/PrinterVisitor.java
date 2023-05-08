@@ -149,7 +149,7 @@ public class PrinterVisitor implements Visitor {
 	}
 
 	@Override
-	public void accept(AddAndAssignStatement statement) {
+	public void accept(ModifyAndAssignStatement statement) {
 		print(statement);
 		spaces += 2;
 		statement.objectAccess().accept(this);
@@ -203,14 +203,6 @@ public class PrinterVisitor implements Visitor {
 		statement.expression().accept(this);
 	}
 
-	@Override
-	public void accept(SubtractAndAssignStatement statement) {
-		print(statement);
-		spaces += 2;
-		statement.objectAccess().accept(this);
-		statement.expression().accept(this);
-		spaces -= 2;
-	}
 
 	private String space() {
 		return "-".repeat(spaces);

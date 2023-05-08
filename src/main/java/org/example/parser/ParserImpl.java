@@ -36,21 +36,22 @@ public class ParserImpl implements Parser {
 		this.errorHandler = errorHandler;
 		this.previousToken = null;
 		this.currentToken = null;
-		this.errorContext = new ErrorContext(new Position(), StringUtils.EMPTY);
+		this.errorContext = new ErrorContext(new Position(), new StringBuilder());
 		nextToken();
 	}
 
 	/**
 	 * program    = {definition};
 	 * definition = function-definition | class-definition
+	 *
 	 * @return Program
 	 */
 	@Override
 	public Program parse() {
 		Map<String, FunctionDefinition> functions = new HashMap<>();
 		Map<String, ClassDefinition> classes = new HashMap<>();
-		while (true) {
-			if (!parseFunctionDefinition(functions) && !parseClassDefinition(classes)) break;
+		while (parseFunctionDefinition(functions) || parseClassDefinition(classes)) {
+			errorContext.reset();
 		}
 		if (currentToken.getType() != TokenType.END_OF_FILE) {
 			handleCriticalError(ErrorType.EXPRESSION_OUTSIDE_DEFINITION, currentToken.getPosition(),
@@ -63,7 +64,6 @@ public class ParserImpl implements Parser {
 	 * function-definition = identifier, "(", [parameters-list], ")", block;
 	 */
 	private boolean parseFunctionDefinition(Map<String, FunctionDefinition> functions) {
-		resetErrorContext();
 		if (!consumeIf(TokenType.IDENTIFIER)) {
 			return false;
 		}
@@ -124,7 +124,6 @@ public class ParserImpl implements Parser {
 	 * class-definition = class-keyword, identifier, class-body;
 	 */
 	private boolean parseClassDefinition(Map<String, ClassDefinition> classes) {
-		resetErrorContext();
 		if (!consumeIf(TokenType.CLASS)) {
 			return false;
 		}
@@ -189,7 +188,7 @@ public class ParserImpl implements Parser {
 	 * 			 | return-statement
 	 */
 	private Statement parseStatement() {
-		resetErrorContext();
+		errorContext.reset();
 		Statement statement = parseObjectAccessOrAssignment();
 		if (statement != null) {
 			return statement;
@@ -215,13 +214,15 @@ public class ParserImpl implements Parser {
 		if (objectAccess == null) {
 			return null;
 		}
-		Statement statement = (Statement) objectAccess;
+		Statement statement;
 		if (consumeIf(TokenType.ASSIGN)) {
 			statement = parseAssignmentStatement(objectAccess);
 		} else if (consumeIf(TokenType.ADD_AND_ASSIGN)) {
-			statement = parseAddAndAssignStatement(objectAccess);
+			statement = parseModifyAndAssignStatement(objectAccess, AdditiveType.ADD);
 		} else if (consumeIf(TokenType.SUBTRACT_AND_ASSIGN)) {
-			statement = parseSubtractAndAssignStatement(objectAccess);
+			statement = parseModifyAndAssignStatement(objectAccess, AdditiveType.SUBTRACT);
+		} else {
+			statement = (Statement) objectAccess;
 		}
 		if (!consumeIf(TokenType.SEMICOLON)) {
 			handleNonCriticalError(ErrorType.SEMICOLON_EXPECTED, errorContext.getPosition(), errorContext.getContext());
@@ -237,20 +238,12 @@ public class ParserImpl implements Parser {
 		return new AssignmentStatement(objectAccess, expression);
 	}
 
-	private AddAndAssignStatement parseAddAndAssignStatement(Expression objectAccess) {
+	private ModifyAndAssignStatement parseModifyAndAssignStatement(Expression objectAccess, AdditiveType additiveType) {
 		Expression expression = parseExpression();
 		if (expression == null) {
 			handleCriticalError(ErrorType.ASSIGNMENT_EXPRESSION_EXPECTED, errorContext.getPosition(), errorContext.getContext());
 		}
-		return new AddAndAssignStatement(objectAccess, expression);
-	}
-
-	private SubtractAndAssignStatement parseSubtractAndAssignStatement(Expression objectAccess) {
-		Expression expression = parseExpression();
-		if (expression == null) {
-			handleCriticalError(ErrorType.ASSIGNMENT_EXPRESSION_EXPECTED, errorContext.getPosition(), errorContext.getContext());
-		}
-		return new SubtractAndAssignStatement(objectAccess, expression);
+		return new ModifyAndAssignStatement(additiveType, objectAccess, expression);
 	}
 
 	/**
@@ -457,9 +450,8 @@ public class ParserImpl implements Parser {
 		if (left == null) {
 			return null;
 		}
-		TokenType tokenType = currentToken.getType();
-		RelativeType relativeType = TokenGroups.RELATIVE_OPERATORS.get(tokenType);
-		if (relativeType != null) {
+		RelativeType relativeType;
+		if ((relativeType = TokenGroups.RELATIVE_OPERATORS.get(currentToken.getType())) != null) {
 			consumeCurrent();
 			Expression right = parseArithmeticExpression();
 			if (right == null) {
@@ -479,17 +471,14 @@ public class ParserImpl implements Parser {
 		if (left == null) {
 			return null;
 		}
-		TokenType tokenType = currentToken.getType();
-		AdditiveType additiveType = TokenGroups.ADDITIVE_OPERATORS.get(tokenType);
-		while (additiveType != null) {
+		AdditiveType additiveType;
+		while ((additiveType = TokenGroups.ADDITIVE_OPERATORS.get(currentToken.getType())) != null) {
 			consumeCurrent();
 			Expression right = parseMultiplicativeExpression();
 			if (right == null) {
 				handleCriticalError(ErrorType.EXPRESSION_EXPECTED, errorContext.getPosition(), errorContext.getContext());
 			}
 			left = new ArithmeticExpression(additiveType, left, right);
-			tokenType = currentToken.getType();
-			additiveType = TokenGroups.ADDITIVE_OPERATORS.get(tokenType);
 		}
 		return left;
 	}
@@ -502,17 +491,14 @@ public class ParserImpl implements Parser {
 		if (left == null) {
 			return null;
 		}
-		TokenType tokenType = currentToken.getType();
-		MultiplicativeType multiplicativeType = TokenGroups.MULTIPLICATIVE_OPERATORS.get(tokenType);
-		while (multiplicativeType != null) {
+		MultiplicativeType multiplicativeType;
+		while ((multiplicativeType = TokenGroups.MULTIPLICATIVE_OPERATORS.get(currentToken.getType())) != null) {
 			consumeCurrent();
 			Expression right = parseNegatedFactor();
 			if (right == null) {
 				handleCriticalError(ErrorType.EXPRESSION_EXPECTED, errorContext.getPosition(), errorContext.getContext());
 			}
 			left = new MultiplicativeExpression(multiplicativeType, left, right);
-			tokenType = currentToken.getType();
-			multiplicativeType = TokenGroups.MULTIPLICATIVE_OPERATORS.get(tokenType);
 		}
 		return left;
 	}
@@ -586,7 +572,7 @@ public class ParserImpl implements Parser {
 
 	private boolean consumeIf(TokenType tokenType) {
 		if (this.currentToken.getType() == tokenType) {
-			updateErrorContext(this.currentToken);
+			errorContext.update(this.currentToken);
 			nextToken();
 			return true;
 		}
@@ -594,24 +580,8 @@ public class ParserImpl implements Parser {
 	}
 
 	private void consumeCurrent() {
-		updateErrorContext(this.currentToken);
+		errorContext.update(this.currentToken);
 		nextToken();
-	}
-
-	private void updateErrorContext(Token token) {
-		String context = errorContext.getContext();
-		if (token.getType() == TokenType.DOT) {
-			context = context.stripTrailing().concat(".");
-		} else {
-			context = context.concat(token.getValue() + StringUtils.SPACE);
-		}
-		errorContext.setContext(context);
-		errorContext.setPosition(token.getPosition());
-	}
-
-	private void resetErrorContext() {
-		this.errorContext.setPosition(currentToken.getPosition());
-		this.errorContext.setContext(StringUtils.EMPTY);
 	}
 
 	@SneakyThrows

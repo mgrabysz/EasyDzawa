@@ -19,8 +19,12 @@ klasa Ułamek {
   }
 }
 
-
 main() {
+  l = 2;
+  l += 2;
+  dla i w zakres(2) {
+    l += i;
+  }
   x = Ułamek(1, 2);
   jeżeli (x.jestWłaściwy) {
     napisz("Zdefiniowano właśnie ułamek właściwy \n");

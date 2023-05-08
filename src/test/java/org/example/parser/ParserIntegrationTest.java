@@ -7,10 +7,9 @@ import org.example.programstructure.containers.ClassDefinition;
 import org.example.programstructure.containers.FunctionDefinition;
 import org.example.programstructure.containers.Program;
 import org.example.programstructure.expression.*;
+import org.example.programstructure.expression.enums.AdditiveType;
 import org.example.programstructure.expression.enums.RelativeType;
-import org.example.programstructure.statement.AssignmentStatement;
-import org.example.programstructure.statement.IfStatement;
-import org.example.programstructure.statement.ObjectAccess;
+import org.example.programstructure.statement.*;
 import org.junit.jupiter.api.Test;
 
 import java.io.BufferedReader;
@@ -87,6 +86,24 @@ public class ParserIntegrationTest {
 		assertEquals(1, blockIfTrue4.statements().size());
 		assertEquals(1, elseBlock.statements().size());
 		assertTrue(elseBlock.statements().get(0) instanceof AssignmentStatement);
+
+		// main function
+		final FunctionDefinition main = program.functionDefinitions().get("main");
+		assertEquals("main", main.name());
+		// modify and assign
+		final ModifyAndAssignStatement modifyAndAssignStatement = (ModifyAndAssignStatement) main.block().statements().get(1);
+		final IdentifierExpression identifierExpression5 = (IdentifierExpression) modifyAndAssignStatement.objectAccess();
+		final AdditiveType additiveType = modifyAndAssignStatement.additiveType();
+		final LiteralInteger literalInteger5 = (LiteralInteger) modifyAndAssignStatement.expression();
+		assertEquals("l", identifierExpression5.name());
+		assertEquals(AdditiveType.ADD, additiveType);
+		assertEquals(2, literalInteger5.value());
+		// for statement
+		final ForStatement forStatement = (ForStatement) main.block().statements().get(2);
+		final FunctionCallExpression functionCallExpression = (FunctionCallExpression) forStatement.range();
+		assertEquals("i", forStatement.iteratorName());
+		assertEquals("zakres", functionCallExpression.name());
+		assertEquals(1, forStatement.block().statements().size());
 	}
 
 	private static Program readFromFile(String path) {
