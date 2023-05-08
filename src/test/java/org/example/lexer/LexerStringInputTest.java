@@ -1,6 +1,6 @@
 package org.example.lexer;
 
-import org.example.Position;
+import org.example.commons.Position;
 import org.example.error.manager.ErrorManager;
 import org.example.token.*;
 import org.junit.jupiter.params.ParameterizedTest;

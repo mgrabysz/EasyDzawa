@@ -1,4 +1,4 @@
-package org.example;
+package org.example.commons;
 
 import lombok.experimental.UtilityClass;
 

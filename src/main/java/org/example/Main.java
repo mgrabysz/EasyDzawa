@@ -1,16 +1,27 @@
 package org.example;
 
-import org.example.token.Token;
+import org.example.error.manager.ErrorManager;
+import org.example.lexer.LexerImpl;
+import org.example.parser.Parser;
+import org.example.parser.ParserImpl;
+import org.example.programstructure.containers.Program;
+import org.example.visitor.PrinterVisitor;
+import org.example.visitor.Visitor;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
-import java.util.List;
 
 public class Main {
 	public static void main(String[] args) throws IOException {
-		final var interpreter = new Interpreter();
-		List<Token> tokens = interpreter.readTokens("src/main/resources/input.txt");
-		for (Token token : tokens) {
-			System.out.println(token);
+
+		try (FileReader fileReader = new FileReader("src/main/resources/definitions.txt")) {
+			var file = new BufferedReader(fileReader);
+			var lexer = new LexerImpl(file, ErrorManager::handleError);
+			final Parser parser = new ParserImpl(lexer, ErrorManager::handleError);
+			final Program program = parser.parse();
+			final Visitor visitor = new PrinterVisitor();
+			program.accept(visitor);
 		}
 	}
 

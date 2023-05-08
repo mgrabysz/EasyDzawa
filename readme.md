@@ -140,9 +140,9 @@ klasa Ułamek {
 
 
 main() {
-  x = nowy Ułamek(1, 2);
+  x = Ułamek(1, 2);
   jeżeli (x.jestWłaściwy) {
-    napisz("Zdefiniowano właśnie ułamek właściwy \n");
+    napisz("Zdefiniowano właśnie ułamek właściwy");
   }
   x.rozszerz(2);
   napisz(y.licznik);      // 2
@@ -186,14 +186,22 @@ Comment: aaaaaaaaaaaaaaaaaaaaaaaa starting at line x position y exceeds maximal 
 ```
 #### na poziomie składniowym
 ```
-jeżeli (a > b {
-  a = b;
+mult (a,b { 
+    return a*b; 
+} 
+While parsing statement << mult ( a , b >> at line 1 position 9 given problem was found: CLOSING_PARENTHESIS_MISSING
+```
+```
+main() { 
+    jeżeli (a==2) 
 }
-While parsing statement starting at line x position y {{ jeżeli (a > b ... }} closing parenthesis not found
+While parsing statement << jeżeli ( a == 2 ) >> at line 1 position 22 given problem was found: CONDITIONAL_STATEMENT_BODY_EXPECTED
 ```
 ```
-var = 2 + 2 8
-Unexpected token starting at line x position y
+main() { 
+    a = b 
+}
+While parsing statement << a = b >> at line 1 position 14 given problem was found: SEMICOLON_EXPECTED
 ```
 #### na poziomie semantycznym
 ```
@@ -236,13 +244,13 @@ statement               = object-access, [assignment], ";"
                         | for-statement
                         | return-statement
                       
-object-access           = title, {".", title};
+object-access           = (title | this-keyword), {".", title};
                         
 title                   = identifier, ["(", arguments-list, ")"];
 
 assignment              = ("=" | "+=" | "-="), expression;
 
-if-statement            = if-keyword, "(", expression, ")", block, ["inaczej", block];
+if-statement            = if-keyword, "(", expression, ")", block, [else-keyword, block];
 
 for-statement           = for-keyword, identifier, in-keyword, object-access, block;
 
@@ -254,7 +262,7 @@ or-expression           = and-expression, {or-keyword, and-expression};
 
 and-expression          = relative-expression, {and-keyword, relative-expression};
 
-relative-expression     = arithmetic-expression, {relative-operator, arithmetic-expression};
+relative-expression     = arithmetic-expression, [relative-operator, arithmetic-expression];
 
 arithmetic-expression   = multiplicative-expression, {("+" | "-"), multiplicative-expression};
 
@@ -299,11 +307,15 @@ class-keyword           = "klasa";
 
 if-keyword              = "jeżeli";
 
+else-keyword            = "inaczej";
+
 for-keyword             = "dla";
 
 in-keyword              = "w";
 
 return-keyword          = "zwróć";
+
+this-keyword            = "tenże";
 
 or-keyword              = "lub";
 
@@ -365,18 +377,19 @@ Rozpoznawane typy tokenów to:
 * wartości liczbowe i logiczne: INTEGER, FLOAT, BOOL, TEXT
 * IDENTIFIER
 
-Token typu `COMMENT` nie jest dołączany do listy wygenerowanych tokenów.
-
 #### Analizator składniowy
-Analizator składniowy (parser) jest modułem odpowiedzialnym za przetworzenie strumienia tokenów na drzewo rozbioru 
-składniowego. Analiza odbywa się w sposób rekursywnie zstępujący. Drzewo jest zaimplementowane jako zbiór obiektów 
-klasy `Node` (węzeł). Każdy z węzłów posiada "dzieci" (children) (uszeregowane) oraz "rodzica" (parent). 
+Analizator składniowy (parser) jest modułem odpowiedzialnym za przetworzenie strumienia tokenów na drzewo rozbioru
+składniowego. Analiza odbywa się w sposób rekursywnie zstępujący. Drzewo jest zaimplementowane jako zbiór powiązanych
+ze sobą rekordów, z których najwyższy w hierarchii `Program` przechowuje mapy `functions` i `classes` mapujące nazwę
+na odpowiednio funkcje i klasy programu.
+
+Token typu `COMMENT` jest ignorowany przez parser.
 
 Przykład drzewa dla wyrażenia arytmetycznego:
 
-`a = (60 + 4) / 9 + 4` 
+`a = (60 + 4) / 9 + 4`
 
-![tree.png](pictures%2Ftree.png)
+![tree.png](pictures/tree.png)
 
 Niemożliwość utworzenia poprawnego drzewa skutkuje podniesieniem wyjątku 
 (patrz: [Niepoprawne konstrukcje i komunikaty wyjątków na poziomie składniowym](#na-poziomie-składniowym))

@@ -1,0 +1,35 @@
+klasa Ułamek {
+
+  Ułamek(l, m) {            // konstruktor
+    tenże.licznik = l;
+    tenże.mianownik = m;
+    jeżeli (m == 0) {
+        kończWaść();
+    }
+    jeżeli (l < m) {
+        tenże.jestWłaściwy = prawda;    // ułamek właściwy to taki, który jest mniejszy od 1
+    } inaczej {
+        tenże.jestWłaściwy = fałsz;
+    }
+  }
+
+  rozszerz(i) {
+    tenże.licznik = tenże.licznik * i;
+    tenże.mianownik = tenże.mianownik * i;
+  }
+}
+
+main() {
+  l = 2;
+  l += 2;
+  dla i w zakres(2) {
+    l += i;
+  }
+  x = Ułamek(1, 2);
+  jeżeli (x.jestWłaściwy) {
+    napisz("Zdefiniowano właśnie ułamek właściwy \n");
+  }
+  x.rozszerz(2);
+  napisz(y.licznik);      // 2
+  napisz(y.mianownik);    // 4
+}

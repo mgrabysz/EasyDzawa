@@ -1,20 +1,25 @@
 package org.example.lexer;
 
-import org.example.Interpreter;
-import org.example.Position;
-import org.example.token.*;
+import org.example.commons.Position;
+import org.example.error.manager.ErrorManager;
+import org.example.token.Token;
+import org.example.token.TokenEOF;
+import org.example.token.TokenText;
+import org.example.token.TokenType;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import static org.example.token.TokenType.*;
 
+import static org.example.token.TokenType.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class LexerFileInputTest {
@@ -145,10 +150,16 @@ public class LexerFileInputTest {
 	}
 
 	private static List<Token> readFromFile(String path) {
-		List<Token> tokens;
-		final var interpreter = new Interpreter();
-		try {
-			tokens = interpreter.readTokens(path);
+		List<Token> tokens = new ArrayList<>();
+		try (FileReader fileReader = new FileReader(path)) {
+			var file = new BufferedReader(fileReader);
+			var lexer = new LexerImpl(file, ErrorManager::handleError);
+			Token token = lexer.next();
+			while (token.getType() != TokenType.END_OF_FILE) {
+				tokens.add(token);
+				token = lexer.next();
+			}
+			tokens.add(token);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
