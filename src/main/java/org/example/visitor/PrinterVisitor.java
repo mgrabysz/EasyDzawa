@@ -77,7 +77,7 @@ public class PrinterVisitor implements Visitor {
 	}
 
 	@Override
-	public void visit(RelativeExpression expression) {
+	public void visit(RelationalExpression expression) {
 		print(expression);
 		spaces += 2;
 		expression.left().accept(this);

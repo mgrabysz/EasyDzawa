@@ -13,7 +13,7 @@ import org.example.programstructure.containers.*;
 import org.example.programstructure.expression.*;
 import org.example.programstructure.expression.enums.AdditiveType;
 import org.example.programstructure.expression.enums.MultiplicativeType;
-import org.example.programstructure.expression.enums.RelativeType;
+import org.example.programstructure.expression.enums.RelationalType;
 import org.example.programstructure.statement.*;
 import org.example.token.Token;
 import org.example.commons.TokenGroups;
@@ -425,15 +425,15 @@ public class ParserImpl implements Parser {
 	}
 
 	/**
-	 * and-expression = relative-expression, {and-keyword, relative-expression};
+	 * and-expression = relational-expression, {and-keyword, relational-expression};
 	 */
 	private Expression parseAndExpression() {
-		Expression left = parseRelativeExpression();
+		Expression left = parseRelationalExpression();
 		if (left == null) {
 			return null;
 		}
 		while (consumeIf(TokenType.AND)) {
-			Expression right = parseRelativeExpression();
+			Expression right = parseRelationalExpression();
 			if (right == null) {
 				handleCriticalError(ErrorType.EXPRESSION_EXPECTED, errorContext.getPosition(), errorContext.getContext());
 			}
@@ -443,21 +443,21 @@ public class ParserImpl implements Parser {
 	}
 
 	/**
-	 * relative-expression = arithmetic-expression, [relative-operator, arithmetic-expression];
+	 * relational-expression = arithmetic-expression, [relational-operator, arithmetic-expression];
 	 */
-	private Expression parseRelativeExpression() {
+	private Expression parseRelationalExpression() {
 		Expression left = parseArithmeticExpression();
 		if (left == null) {
 			return null;
 		}
-		RelativeType relativeType;
-		if ((relativeType = TokenGroups.RELATIVE_OPERATORS.get(currentToken.getType())) != null) {
+		RelationalType relationalType;
+		if ((relationalType = TokenGroups.RELATIONAL_OPERATORS.get(currentToken.getType())) != null) {
 			consumeCurrent();
 			Expression right = parseArithmeticExpression();
 			if (right == null) {
 				handleCriticalError(ErrorType.EXPRESSION_EXPECTED, errorContext.getPosition(), errorContext.getContext());
 			}
-			left = new RelativeExpression(relativeType, left, right);
+			left = new RelationalExpression(relationalType, left, right);
 		}
 		return left;
 	}

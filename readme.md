@@ -260,9 +260,9 @@ expression              = or-expression;
 
 or-expression           = and-expression, {or-keyword, and-expression};
 
-and-expression          = relative-expression, {and-keyword, relative-expression};
+and-expression          = relational-expression, {and-keyword, relational-expression};
 
-relative-expression     = arithmetic-expression, [relative-operator, arithmetic-expression];
+relational-expression     = arithmetic-expression, [relational-operator, arithmetic-expression];
 
 arithmetic-expression   = multiplicative-expression, {("+" | "-"), multiplicative-expression};
 
@@ -293,7 +293,7 @@ char                    = ({letter} | {digit} | {special-symbol}), {char},
 
 negation                = not-keyword | "-";
 
-relative-operator       = "==" | "!=" | "<" | ">" | ">=" | "<=";
+relational-operator       = "==" | "!=" | "<" | ">" | ">=" | "<=";
 
 letter                  = "A" | "B" | "C" | ... | "Z" | "a" | "b" | "c" | ... | "z" | "_";
 

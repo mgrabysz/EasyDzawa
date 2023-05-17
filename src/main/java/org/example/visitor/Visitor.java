@@ -16,7 +16,7 @@ public interface Visitor {
 	// expressions
 	void visit(OrExpression expression);
 	void visit(AndExpression expression);
-	void visit(RelativeExpression expression);
+	void visit(RelationalExpression expression);
 	void visit(ArithmeticExpression expression);
 	void visit(MultiplicativeExpression expression);
 	void visit(FunctionCallExpression expression);
