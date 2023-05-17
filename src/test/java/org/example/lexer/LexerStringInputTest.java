@@ -26,7 +26,7 @@ public class LexerStringInputTest {
     */
     private static Stream<Arguments> testReadingIntegers() throws IOException {
         String input = "22 348 \t 9 9999  \n 102456 2147483647";
-        List<Token> expectedTokens = new ArrayList<>(Arrays.asList(
+        List<Token> expectedTokens = Arrays.asList(
             new TokenInteger(new Position(), 22),
             new TokenInteger(new Position(), 348),
             new TokenInteger(new Position(), 9),
@@ -34,7 +34,7 @@ public class LexerStringInputTest {
             new TokenInteger(new Position(), 102456),
             new TokenInteger(new Position(), Integer.MAX_VALUE),
             new TokenEOF(new Position(0, 22))
-        ));
+        );
         List<Token> actualTokens = readFromString(input);
         return IntStream.range(0, actualTokens.size())
                 .mapToObj(i -> Arguments.of(expectedTokens.get(i), actualTokens.get(i)));
@@ -49,7 +49,7 @@ public class LexerStringInputTest {
 
     private static Stream<Arguments> testReadingIdentifiers() throws IOException {
         String input = "zwróć dla w jeżeli \n inaczej klasa \t tenże oraz lub nie prawda fałsz moja_lista12 orazlub";
-        List<Token> expectedTokens = new ArrayList<>(Arrays.asList(
+        List<Token> expectedTokens = Arrays.asList(
                 new TokenKeyword(TokenType.RETURN, new Position()),
                 new TokenKeyword(TokenType.FOR, new Position()),
                 new TokenKeyword(TokenType.IN, new Position()),
@@ -65,7 +65,7 @@ public class LexerStringInputTest {
                 new TokenIdentifier(new Position(), "moja_lista12"),
                 new TokenIdentifier(new Position(), "orazlub"),
                 new TokenEOF(new Position())
-        ));
+        );
         List<Token> actualTokens = readFromString(input);
         return IntStream.range(0, actualTokens.size())
                 .mapToObj(i -> Arguments.of(expectedTokens.get(i), actualTokens.get(i)));
@@ -80,14 +80,14 @@ public class LexerStringInputTest {
 
     private static Stream<Arguments> testReadingFloats() throws IOException {
         String input = "22.22 348.098473 \t 9. 9999.12342423  \n 0.102456";
-        List<Token> expectedTokens = new ArrayList<>(Arrays.asList(
+        List<Token> expectedTokens = Arrays.asList(
                 new TokenFloat(new Position(), 22.22),
                 new TokenFloat(new Position(), 348.098473),
                 new TokenFloat(new Position(), 9.0),
                 new TokenFloat(new Position(), 9999.12342423),
                 new TokenFloat(new Position(), 0.102456),
                 new TokenEOF(new Position())
-        ));
+        );
         List<Token> actualTokens = readFromString(input);
         return IntStream.range(0, actualTokens.size())
                 .mapToObj(i -> Arguments.of(expectedTokens.get(i), actualTokens.get(i)));
@@ -102,7 +102,7 @@ public class LexerStringInputTest {
 
     private static Stream<Arguments> testReadingSymbols() throws IOException {
         String input = "{}();,=+=-===!=><\n>=<=+-*/ //comment\n;.";
-        List<Token> expectedTokens = new ArrayList<>(Arrays.asList(
+        List<Token> expectedTokens = Arrays.asList(
             new TokenSymbol(TokenType.OPEN_BRACKET, new Position()),
             new TokenSymbol(TokenType.CLOSE_BRACKET, new Position()),
             new TokenSymbol(TokenType.OPEN_PARENTHESIS, new Position()),
@@ -126,7 +126,7 @@ public class LexerStringInputTest {
             new TokenSymbol(TokenType.SEMICOLON, new Position()),
             new TokenSymbol(TokenType.DOT, new Position()),
             new TokenEOF(new Position())
-        ));
+        );
         List<Token> actualTokens = readFromString(input);
         return IntStream.range(0, actualTokens.size())
                 .mapToObj(i -> Arguments.of(expectedTokens.get(i), actualTokens.get(i)));
@@ -141,11 +141,11 @@ public class LexerStringInputTest {
 
     private static Stream<Arguments> testReadingTexts() throws IOException {
         String input = "  \t \"Hello, it's me - I was wandering...\n\" \"this is plus:+;\"";
-        List<Token> expectedTokens = new ArrayList<>(Arrays.asList(
+        List<Token> expectedTokens = Arrays.asList(
                 new TokenText(new Position(), "Hello, it's me - I was wandering...\n"),
                 new TokenText(new Position(), "this is plus:+;"),
                 new TokenEOF(new Position())
-        ));
+        );
         List<Token> actualTokens = readFromString(input);
         return IntStream.range(0, actualTokens.size())
                 .mapToObj(i -> Arguments.of(expectedTokens.get(i), actualTokens.get(i)));
@@ -160,11 +160,11 @@ public class LexerStringInputTest {
 
     private static Stream<Arguments> testParsingNewLineUnix() throws IOException {
         String input = " //Hello Unix user\n//Nice to meet you";
-        List<Token> expectedTokens = new ArrayList<>(Arrays.asList(
+        List<Token> expectedTokens = Arrays.asList(
                 new TokenComment(new Position(), "Hello Unix user"),
                 new TokenComment(new Position(), "Nice to meet you"),
                 new TokenEOF(new Position())
-        ));
+        );
         List<Token> actualTokens = readFromString(input);
         return IntStream.range(0, actualTokens.size())
                 .mapToObj(i -> Arguments.of(expectedTokens.get(i), actualTokens.get(i)));
@@ -179,11 +179,11 @@ public class LexerStringInputTest {
 
     private static Stream<Arguments> testParsingNewLineWindows() throws IOException {
         String input = " //Hello Windows user\r\n//Nice to meet you";
-        List<Token> expectedTokens = new ArrayList<>(Arrays.asList(
+        List<Token> expectedTokens = Arrays.asList(
                 new TokenComment(new Position(), "Hello Windows user"),
                 new TokenComment(new Position(), "Nice to meet you"),
                 new TokenEOF(new Position())
-        ));
+        );
         List<Token> actualTokens = readFromString(input);
         return IntStream.range(0, actualTokens.size())
                 .mapToObj(i -> Arguments.of(expectedTokens.get(i), actualTokens.get(i)));
@@ -198,11 +198,11 @@ public class LexerStringInputTest {
 
     private static Stream<Arguments> testParsingNewLineMac() throws IOException {
         String input = " //Hello Mac user\r//Nice to meet you";
-        List<Token> expectedTokens = new ArrayList<>(Arrays.asList(
+        List<Token> expectedTokens = Arrays.asList(
                 new TokenComment(new Position(), "Hello Mac user"),
                 new TokenComment(new Position(), "Nice to meet you"),
                 new TokenEOF(new Position())
-        ));
+        );
         List<Token> actualTokens = readFromString(input);
         return IntStream.range(0, actualTokens.size())
                 .mapToObj(i -> Arguments.of(expectedTokens.get(i), actualTokens.get(i)));
