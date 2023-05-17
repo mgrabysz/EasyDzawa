@@ -1,9 +1,10 @@
-package org.example.token;
+package org.example.commons;
 
 import lombok.experimental.UtilityClass;
 import org.example.programstructure.expression.enums.AdditiveType;
 import org.example.programstructure.expression.enums.MultiplicativeType;
 import org.example.programstructure.expression.enums.RelativeType;
+import org.example.token.TokenType;
 
 import java.util.*;
 import java.util.stream.Stream;

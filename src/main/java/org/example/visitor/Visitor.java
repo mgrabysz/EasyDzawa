@@ -7,32 +7,32 @@ import org.example.programstructure.statement.*;
 public interface Visitor {
 
 	// containers
-	void accept(Program program);
-	void accept(FunctionDefinition functionDefinition);
-	void accept(ClassDefinition classDefinition);
-	void accept(Block block);
-	void accept(Parameter parameter);
+	void visit(Program program);
+	void visit(FunctionDefinition functionDefinition);
+	void visit(ClassDefinition classDefinition);
+	void visit(Block block);
+	void visit(Parameter parameter);
 
 	// expressions
-	void accept(OrExpression expression);
-	void accept(AndExpression expression);
-	void accept(RelativeExpression expression);
-	void accept(ArithmeticExpression expression);
-	void accept(MultiplicativeExpression expression);
-	void accept(FunctionCallExpression expression);
-	void accept(IdentifierExpression expression);
-	void accept(NegatedExpression expression);
-	void accept(LiteralBool expression);
-	void accept(LiteralFloat expression);
-	void accept(LiteralInteger expression);
-	void accept(LiteralText expression);
-	void accept(SelfAccess expression);
+	void visit(OrExpression expression);
+	void visit(AndExpression expression);
+	void visit(RelativeExpression expression);
+	void visit(ArithmeticExpression expression);
+	void visit(MultiplicativeExpression expression);
+	void visit(FunctionCallExpression expression);
+	void visit(IdentifierExpression expression);
+	void visit(NegatedExpression expression);
+	void visit(LiteralBool expression);
+	void visit(LiteralFloat expression);
+	void visit(LiteralInteger expression);
+	void visit(LiteralText expression);
+	void visit(SelfAccess expression);
 
 	// statements
-	void accept(ModifyAndAssignStatement statement);
-	void accept(AssignmentStatement statement);
-	void accept(ForStatement statement);
-	void accept(IfStatement statement);
-	void accept(ObjectAccess statement);
-	void accept(ReturnStatement statement);
+	void visit(ModifyAndAssignStatement statement);
+	void visit(AssignmentStatement statement);
+	void visit(ForStatement statement);
+	void visit(IfStatement statement);
+	void visit(ObjectAccess statement);
+	void visit(ReturnStatement statement);
 }

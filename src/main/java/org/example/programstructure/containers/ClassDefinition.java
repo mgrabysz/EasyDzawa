@@ -9,7 +9,7 @@ public record ClassDefinition(String name, Map<String, FunctionDefinition> metho
 
 	@Override
 	public void accept(Visitor visitor) {
-		visitor.accept(this);
+		visitor.visit(this);
 	}
 
 }

@@ -13,7 +13,7 @@ public record ArithmeticExpression(AdditiveType additiveType, Expression left, E
 
 	@Override
 	public void accept(Visitor visitor) {
-		visitor.accept(this);
+		visitor.visit(this);
 	}
 
 }

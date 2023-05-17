@@ -13,7 +13,7 @@ public record RelativeExpression(RelativeType relativeType, Expression left, Exp
 
 	@Override
 	public void accept(Visitor visitor) {
-		visitor.accept(this);
+		visitor.visit(this);
 	}
 
 }

@@ -7,7 +7,7 @@ public record LiteralInteger(Integer value, Position position) implements Expres
 
 	@Override
 	public void accept(Visitor visitor) {
-		visitor.accept(this);
+		visitor.visit(this);
 	}
 
 }

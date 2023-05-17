@@ -16,7 +16,7 @@ import org.example.programstructure.expression.enums.MultiplicativeType;
 import org.example.programstructure.expression.enums.RelativeType;
 import org.example.programstructure.statement.*;
 import org.example.token.Token;
-import org.example.token.TokenGroups;
+import org.example.commons.TokenGroups;
 import org.example.token.TokenType;
 
 import java.util.ArrayList;

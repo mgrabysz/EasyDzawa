@@ -12,7 +12,7 @@ public record AndExpression(Expression left, Expression right) implements Expres
 
 	@Override
 	public void accept(Visitor visitor) {
-		visitor.accept(this);
+		visitor.visit(this);
 	}
 
 }

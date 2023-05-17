@@ -7,7 +7,7 @@ public record LiteralBool(Boolean value, Position position) implements Expressio
 
 	@Override
 	public void accept(Visitor visitor) {
-		visitor.accept(this);
+		visitor.visit(this);
 	}
 
 }

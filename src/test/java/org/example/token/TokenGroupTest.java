@@ -1,5 +1,6 @@
 package org.example.token;
 
+import org.example.commons.TokenGroups;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

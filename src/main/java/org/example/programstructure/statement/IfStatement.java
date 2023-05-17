@@ -8,7 +8,7 @@ public record IfStatement(Expression condition, Block blockIfTrue, Block elseBlo
 
 	@Override
 	public void accept(Visitor visitor) {
-		visitor.accept(this);
+		visitor.visit(this);
 	}
 
 }

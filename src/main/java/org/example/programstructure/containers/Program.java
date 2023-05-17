@@ -10,7 +10,7 @@ public record Program(Map<String, FunctionDefinition> functionDefinitions,
 
 	@Override
 	public void accept(Visitor visitor) {
-		visitor.accept(this);
+		visitor.visit(this);
 	}
 
 }

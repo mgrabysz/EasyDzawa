@@ -10,7 +10,7 @@ public record FunctionCallExpression(String name, List<Expression> arguments, Po
 
 	@Override
 	public void accept(Visitor visitor) {
-		visitor.accept(this);
+		visitor.visit(this);
 	}
 
 }

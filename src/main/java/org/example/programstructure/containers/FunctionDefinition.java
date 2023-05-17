@@ -9,7 +9,7 @@ public record FunctionDefinition(String name, List<Parameter> parameters, Block 
 
 	@Override
 	public void accept(Visitor visitor) {
-		visitor.accept(this);
+		visitor.visit(this);
 	}
 
 }

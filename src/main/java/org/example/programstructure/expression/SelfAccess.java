@@ -7,7 +7,7 @@ public record SelfAccess(Position position) implements Expression {
 
 	@Override
 	public void accept(Visitor visitor) {
-		visitor.accept(this);
+		visitor.visit(this);
 	}
 
 }

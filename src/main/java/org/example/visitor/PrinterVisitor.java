@@ -10,7 +10,7 @@ public class PrinterVisitor implements Visitor {
 	private int spaces = 0;
 
 	@Override
-	public void accept(Program program) {
+	public void visit(Program program) {
 		print(program);
 		spaces += 2;
 		for (FunctionDefinition functionDefinition : program.functionDefinitions().values()) {
@@ -23,7 +23,7 @@ public class PrinterVisitor implements Visitor {
 	}
 
 	@Override
-	public void accept(FunctionDefinition functionDefinition) {
+	public void visit(FunctionDefinition functionDefinition) {
 		print(functionDefinition);
 		spaces += 2;
 		for (Parameter parameter : functionDefinition.parameters()) {
@@ -34,7 +34,7 @@ public class PrinterVisitor implements Visitor {
 	}
 
 	@Override
-	public void accept(ClassDefinition classDefinition) {
+	public void visit(ClassDefinition classDefinition) {
 		print(classDefinition);
 		spaces += 2;
 		for (FunctionDefinition functionDefinition : classDefinition.methods().values()) {
@@ -44,7 +44,7 @@ public class PrinterVisitor implements Visitor {
 	}
 
 	@Override
-	public void accept(Block block) {
+	public void visit(Block block) {
 		print(block);
 		spaces += 2;
 		for (Statement statement : block.statements()) {
@@ -54,12 +54,12 @@ public class PrinterVisitor implements Visitor {
 	}
 
 	@Override
-	public void accept(Parameter parameter) {
+	public void visit(Parameter parameter) {
 		print(parameter);
 	}
 
 	@Override
-	public void accept(OrExpression expression) {
+	public void visit(OrExpression expression) {
 		print(expression);
 		spaces += 2;
 		expression.left().accept(this);
@@ -68,7 +68,7 @@ public class PrinterVisitor implements Visitor {
 	}
 
 	@Override
-	public void accept(AndExpression expression) {
+	public void visit(AndExpression expression) {
 		print(expression);
 		spaces += 2;
 		expression.left().accept(this);
@@ -77,7 +77,7 @@ public class PrinterVisitor implements Visitor {
 	}
 
 	@Override
-	public void accept(RelativeExpression expression) {
+	public void visit(RelativeExpression expression) {
 		print(expression);
 		spaces += 2;
 		expression.left().accept(this);
@@ -86,7 +86,7 @@ public class PrinterVisitor implements Visitor {
 	}
 
 	@Override
-	public void accept(ArithmeticExpression expression) {
+	public void visit(ArithmeticExpression expression) {
 		print(expression);
 		spaces += 2;
 		expression.left().accept(this);
@@ -95,7 +95,7 @@ public class PrinterVisitor implements Visitor {
 	}
 
 	@Override
-	public void accept(MultiplicativeExpression expression) {
+	public void visit(MultiplicativeExpression expression) {
 		print(expression);
 		spaces += 2;
 		expression.left().accept(this);
@@ -104,7 +104,7 @@ public class PrinterVisitor implements Visitor {
 	}
 
 	@Override
-	public void accept(FunctionCallExpression expression) {
+	public void visit(FunctionCallExpression expression) {
 		print(expression);
 		spaces += 2;
 		for (Expression argument : expression.arguments()) {
@@ -114,42 +114,42 @@ public class PrinterVisitor implements Visitor {
 	}
 
 	@Override
-	public void accept(IdentifierExpression expression) {
+	public void visit(IdentifierExpression expression) {
 		print(expression);
 	}
 
 	@Override
-	public void accept(NegatedExpression expression) {
+	public void visit(NegatedExpression expression) {
 		print(expression);
 	}
 
 	@Override
-	public void accept(LiteralBool expression) {
+	public void visit(LiteralBool expression) {
 		print(expression);
 	}
 
 	@Override
-	public void accept(LiteralFloat expression) {
+	public void visit(LiteralFloat expression) {
 		print(expression);
 	}
 
 	@Override
-	public void accept(LiteralInteger expression) {
+	public void visit(LiteralInteger expression) {
 		print(expression);
 	}
 
 	@Override
-	public void accept(LiteralText expression) {
+	public void visit(LiteralText expression) {
 		print(expression);
 	}
 
 	@Override
-	public void accept(SelfAccess expression) {
+	public void visit(SelfAccess expression) {
 		print(expression);
 	}
 
 	@Override
-	public void accept(ModifyAndAssignStatement statement) {
+	public void visit(ModifyAndAssignStatement statement) {
 		print(statement);
 		spaces += 2;
 		statement.objectAccess().accept(this);
@@ -158,7 +158,7 @@ public class PrinterVisitor implements Visitor {
 	}
 
 	@Override
-	public void accept(AssignmentStatement statement) {
+	public void visit(AssignmentStatement statement) {
 		print(statement);
 		spaces += 2;
 		statement.objectAccess().accept(this);
@@ -167,7 +167,7 @@ public class PrinterVisitor implements Visitor {
 	}
 
 	@Override
-	public void accept(ForStatement statement) {
+	public void visit(ForStatement statement) {
 		print(statement);
 		spaces += 2;
 		statement.range().accept(this);
@@ -176,7 +176,7 @@ public class PrinterVisitor implements Visitor {
 	}
 
 	@Override
-	public void accept(IfStatement statement) {
+	public void visit(IfStatement statement) {
 		print(statement);
 		spaces += 2;
 		statement.condition().accept(this);
@@ -188,7 +188,7 @@ public class PrinterVisitor implements Visitor {
 	}
 
 	@Override
-	public void accept(ObjectAccess statement) {
+	public void visit(ObjectAccess statement) {
 		print(statement);
 		spaces += 2;
 		statement.left().accept(this);
@@ -197,7 +197,7 @@ public class PrinterVisitor implements Visitor {
 	}
 
 	@Override
-	public void accept(ReturnStatement statement) {
+	public void visit(ReturnStatement statement) {
 		print(statement);
 		spaces += 2;
 		statement.expression().accept(this);

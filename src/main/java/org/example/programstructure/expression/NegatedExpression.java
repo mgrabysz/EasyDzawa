@@ -7,7 +7,7 @@ public record NegatedExpression(Expression expression, Position position) implem
 
 	@Override
 	public void accept(Visitor visitor) {
-		visitor.accept(this);
+		visitor.visit(this);
 	}
 
 }

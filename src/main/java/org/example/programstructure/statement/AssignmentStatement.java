@@ -7,7 +7,7 @@ public record AssignmentStatement(Expression objectAccess, Expression expression
 
 	@Override
 	public void accept(Visitor visitor) {
-		visitor.accept(this);
+		visitor.visit(this);
 	}
 
 }

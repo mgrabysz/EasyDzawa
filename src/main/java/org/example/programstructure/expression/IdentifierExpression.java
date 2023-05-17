@@ -8,7 +8,7 @@ public record IdentifierExpression(String name, Position position) implements Ex
 
 	@Override
 	public void accept(Visitor visitor) {
-		visitor.accept(this);
+		visitor.visit(this);
 	}
 
 }

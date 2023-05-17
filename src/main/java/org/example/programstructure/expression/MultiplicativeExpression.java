@@ -13,7 +13,7 @@ public record MultiplicativeExpression(MultiplicativeType multiplicativeType, Ex
 
 	@Override
 	public void accept(Visitor visitor) {
-		visitor.accept(this);
+		visitor.visit(this);
 	}
 
 }
