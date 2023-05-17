@@ -1,0 +1,11 @@
+silnia(numer) {
+    jeżeli (numer == 1) {
+        zwróć 1;
+    } inaczej {
+        zwróć silnia(numer - 1);
+    }
+}
+
+główna() {
+    silnia(3);
+}
