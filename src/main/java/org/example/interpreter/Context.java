@@ -8,9 +8,14 @@ import java.util.Stack;
 public class Context {
 
 	private final Stack<FunctionCallContext> functionCallContexts = new Stack<>();
+	private final Stack<UserObject> userObjectContexts = new Stack<>();
 
 	public void enterFunctionCall() {
 		functionCallContexts.push(new FunctionCallContext());
+	}
+
+	public void exitFunctionCall() {
+		functionCallContexts.pop();
 	}
 
 	public void enterScope() {
@@ -28,13 +33,31 @@ public class Context {
 		currentContext.store(key, value);
 	}
 
-	public void find(String key) {
+	public Object find(String key) {
 		FunctionCallContext currentContext = functionCallContexts.peek();
-		currentContext.find(key);
+		return currentContext.find(key);
 	}
 
-	public void exitFunctionCall() {
-		functionCallContexts.pop();
+	public void enterObjectScope(UserObject userObject) {
+		userObjectContexts.push(userObject);
+	}
+
+	public void exitObjectScope() {
+		userObjectContexts.pop();
+	}
+
+	public boolean isInsideObjectScope() {
+		return !userObjectContexts.empty();
+	}
+
+	public Object findAttribute(String key) {
+		UserObject userObject = userObjectContexts.peek();
+		return userObject.findAttribute(key);
+	}
+
+	public void storeAttribute(String key, Object value) {
+		UserObject userObject = userObjectContexts.peek();
+		userObject.storeAttribute(key, value);
 	}
 
 }
