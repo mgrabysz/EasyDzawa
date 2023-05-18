@@ -1,27 +1,19 @@
-package org.example.interpreter;
+package org.example.interpreter.computers;
 
+import lombok.experimental.UtilityClass;
+import org.example.interpreter.enums.MathematicalOperation;
+
+@UtilityClass
 public class MathematicalComputer {
 
 	public static Object compute(Object left, Object right, MathematicalOperation operation) {
-		Object result;
-		switch (left) {
-			case Integer leftInt -> {
-				switch (right) {
-					case Integer rightInt -> result = computeIntegers(leftInt, rightInt, operation);
-					case Double rightDouble -> result = computeDoubles(Double.valueOf(leftInt), rightDouble, operation);
-					default -> result = null;
-				}
-			}
-			case Double leftDouble -> {
-				if (right instanceof Number rightInt) {
-					result = computeDoubles(leftDouble, rightInt.doubleValue(), operation);
-				} else {
-					result = null;
-				}
-			}
-			default -> result = null;
+		if (!(left instanceof Number leftNum && right instanceof Number rightNum)) {
+			return null;
 		}
-		return result;
+		if (left instanceof Integer leftInt && right instanceof Integer rightInt) {
+			return computeIntegers(leftInt, rightInt, operation);
+		}
+		return computeDoubles(leftNum.doubleValue(), rightNum.doubleValue(), operation);
 	}
 
 	private static Integer computeIntegers(Integer left, Integer right, MathematicalOperation operation) {

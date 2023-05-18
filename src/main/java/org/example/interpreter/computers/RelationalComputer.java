@@ -1,7 +1,11 @@
-package org.example.interpreter;
+package org.example.interpreter.computers;
+
+import lombok.experimental.UtilityClass;
+import org.example.interpreter.enums.RelationalOperation;
 
 import java.util.Objects;
 
+@UtilityClass
 public class RelationalComputer {
 
 	public static Object compute(Object left, Object right, RelationalOperation operation) {
