@@ -1,4 +1,4 @@
-package org.example.interpreter;
+package org.example.interpreter.environment;
 
 import java.util.*;
 

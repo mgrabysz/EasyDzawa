@@ -3,29 +3,49 @@ package org.example.interpreter;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import org.example.LanguageProperties;
+import org.example.error.enums.ErrorType;
 import org.example.error.exception.SemanticException;
 import org.example.interpreter.computers.LogicalComputer;
 import org.example.interpreter.computers.MathematicalComputer;
 import org.example.interpreter.computers.NegationComputer;
 import org.example.interpreter.computers.RelationalComputer;
 import org.example.interpreter.enums.LogicalOperation;
+import org.example.interpreter.environment.Environment;
 import org.example.programstructure.containers.*;
 import org.example.programstructure.expression.*;
 import org.example.programstructure.statement.*;
 import org.example.visitor.Visitor;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @NoArgsConstructor
 public class Interpreter implements Visitor {
 
 	private static final String MAIN = LanguageProperties.get("MAIN");
-	private final Context context = new Context();
+	private static final String PRINT = LanguageProperties.get("PRINT");
+	private static final String ABORT = LanguageProperties.get("ABORT");
+
+	private final Environment environment = new Environment();
 
 	private Program program;
 	private Object lastValue;
-	private boolean returning;
+	private Map<String, FunctionDefinition> constructors = new HashMap<>();
+	private boolean returning = false;
+	private boolean isMethodCalled = false;
+	private boolean testingMode = false;
+	private StringBuilder outputBuffer = null;
+
+	public Interpreter(boolean testingMode) {
+		this.testingMode = testingMode;
+		if (testingMode) {
+			outputBuffer = new StringBuilder();
+		}
+	}
+
+	public String getOutput() {
+		return outputBuffer.toString();
+	}
 
 	public void execute(Program program) {
 		this.program = program;
@@ -35,23 +55,44 @@ public class Interpreter implements Visitor {
 	@SneakyThrows
 	@Override
 	public void visit(Program program) {
+		// extracting all constructors
+		for (ClassDefinition classDefinition : program.classDefinitions().values()) {
+			classDefinition.accept(this);
+		}
+		// visiting main function
 		FunctionDefinition main = program.functionDefinitions().get(MAIN);
 		if (main == null) {
-			handleError();
+			handleError(ErrorType.MAIN_FUNCTION_MISSING);
 		} else {
-			context.enterFunctionCall();
+			environment.enterFunctionCall();
 			main.accept(this);
 		}
 	}
 
 	@Override
-	public void visit(FunctionDefinition functionDefinition) {
-		functionDefinition.block().accept(this);
+	@SneakyThrows
+	public void visit(ClassDefinition classDefinition) {
+		Optional<FunctionDefinition> optionalConstructor = classDefinition.methods()
+				.values()
+				.stream()
+				.filter(method -> method.name().equals(classDefinition.name()))
+				.findFirst();
+		if (optionalConstructor.isEmpty()) {
+			handleError(ErrorType.CONSTRUCTOR_MISSING);
+		}
+		boolean hasReturnStatement = optionalConstructor.stream()
+				.flatMap(f -> f.block().statements().stream())
+				.anyMatch(s -> s instanceof ReturnStatement);
+		if (hasReturnStatement) {
+			handleError(ErrorType.CONSTRUCTOR_CONTAINS_RETURN);
+		}
+		FunctionDefinition constructor = optionalConstructor.get();
+		constructors.put(constructor.name(), constructor);
 	}
 
 	@Override
-	public void visit(ClassDefinition classDefinition) {
-
+	public void visit(FunctionDefinition functionDefinition) {
+		functionDefinition.block().accept(this);
 	}
 
 	@Override
@@ -62,26 +103,20 @@ public class Interpreter implements Visitor {
 				break;
 			}
 		}
-
-	}
-
-	@Override
-	public void visit(Parameter parameter) {
-
 	}
 
 	@SneakyThrows
 	@Override
 	public void visit(OrExpression expression) {
 		expression.left().accept(this);
-		Object left = clearLastValue();
+		Object left = consumeEvaluatedLastValue();
 		expression.right().accept(this);
-		Object right = clearLastValue();
+		Object right = consumeEvaluatedLastValue();
 		Object result = LogicalComputer.compute(left, right, LogicalOperation.OR);
 		if (result != null) {
 			lastValue = result;
 		} else {
-			handleError();
+			handleError(ErrorType.OPERATION_NOT_SUPPORTED);
 		}
 	}
 
@@ -89,14 +124,14 @@ public class Interpreter implements Visitor {
 	@Override
 	public void visit(AndExpression expression) {
 		expression.left().accept(this);
-		Object left = clearLastValue();
+		Object left = consumeEvaluatedLastValue();
 		expression.right().accept(this);
-		Object right = clearLastValue();
+		Object right = consumeEvaluatedLastValue();
 		Object result = LogicalComputer.compute(left, right, LogicalOperation.AND);
 		if (result != null) {
 			lastValue = result;
 		} else {
-			handleError();
+			handleError(ErrorType.OPERATION_NOT_SUPPORTED);
 		}
 	}
 
@@ -104,14 +139,14 @@ public class Interpreter implements Visitor {
 	@Override
 	public void visit(RelationalExpression expression) {
 		expression.left().accept(this);
-		Object left = clearLastValue();
+		Object left = consumeEvaluatedLastValue();
 		expression.right().accept(this);
-		Object right = clearLastValue();
+		Object right = consumeEvaluatedLastValue();
 		Object result = RelationalComputer.compute(left, right, OperationMapper.map(expression.relationalType()));
 		if (result != null) {
 			lastValue = result;
 		} else {
-			handleError();
+			handleError(ErrorType.OPERATION_NOT_SUPPORTED);
 		}
 	}
 
@@ -119,14 +154,14 @@ public class Interpreter implements Visitor {
 	@Override
 	public void visit(ArithmeticExpression expression) {
 		expression.left().accept(this);
-		Object left = clearLastValue();
+		Object left = consumeEvaluatedLastValue();
 		expression.right().accept(this);
-		Object right = clearLastValue();
+		Object right = consumeEvaluatedLastValue();
 		Object result = MathematicalComputer.compute(left, right, OperationMapper.map(expression.additiveType()));
 		if (result != null) {
 			lastValue = result;
 		} else {
-			handleError();
+			handleError(ErrorType.OPERATION_NOT_SUPPORTED);
 		}
 	}
 
@@ -134,47 +169,107 @@ public class Interpreter implements Visitor {
 	@Override
 	public void visit(MultiplicativeExpression expression) {
 		expression.left().accept(this);
-		Object left = clearLastValue();
+		Object left = consumeEvaluatedLastValue();
 		expression.right().accept(this);
-		Object right = clearLastValue();
+		Object right = consumeEvaluatedLastValue();
 		Object result = MathematicalComputer.compute(left, right, OperationMapper.map(expression.multiplicativeType()));
 		if (result != null) {
 			lastValue = result;
 		} else {
-			handleError();
+			handleError(ErrorType.OPERATION_NOT_SUPPORTED);
 		}
 	}
 
 	@Override
-	public void visit(FunctionCallExpression expression) {
-		// TODO
-		List<Object> arguments = new ArrayList<>();
-		for (int i = 0; i < expression.arguments().size(); ++i) {
-			arguments.add(new Object());
-		}
-		// ==============
-		FunctionDefinition functionDefinition = program.functionDefinitions().get(expression.name());
-		List<Parameter> parameters = functionDefinition.parameters();
-		assertEqualSize(parameters, arguments);
-		context.enterFunctionCall();
-		for (int i = 0; i < arguments.size(); i++) {
-			context.store(parameters.get(i).name(), arguments.get(i));
-		}
-		functionDefinition.accept(this);
-		context.exitFunctionCall();
-		if (returning) {
-			System.out.println("returned" + lastValue);
+	public void visit(FunctionCallExpression functionCallExpression) {
+		if (isMethodCalled) {
+			callMethod(functionCallExpression);
+		} else if (constructors.containsKey(functionCallExpression.name())) {
+			callConstructor(functionCallExpression);
+		} else {
+			callFunction(functionCallExpression);
 		}
 	}
 
 	@SneakyThrows
+	private void callFunction(FunctionCallExpression functionCallExpression) {
+		// TODO ================================
+		if (functionCallExpression.name().equals(PRINT)) {
+			List<Object> arguments = resolveArguments(functionCallExpression);
+			String toPrint = arguments.stream().map(Object::toString).collect(Collectors.joining());
+			if (testingMode) {
+				outputBuffer.append(toPrint).append("\n");;
+			} else {
+				System.out.println(toPrint);
+			}
+			return;
+		}
+		if (functionCallExpression.name().equals(ABORT)) {
+			handleError(ErrorType.ABORTED);
+		}
+		// =====================================
+
+		FunctionDefinition functionDefinition = program.functionDefinitions().get(functionCallExpression.name());
+		List<Parameter> parameters = functionDefinition.parameters();
+		List<Object> arguments = resolveArguments(functionCallExpression);
+		assertEqualSize(parameters, arguments);
+		environment.enterFunctionCall();
+		for (int i = 0; i < arguments.size(); ++i) {
+			environment.store(parameters.get(i).name(), arguments.get(i));
+		}
+		functionDefinition.accept(this);
+		environment.exitCurrentCall();
+		returning = false;
+	}
+
+	private void callConstructor(FunctionCallExpression functionCallExpression) {
+		FunctionDefinition functionDefinition = constructors.get(functionCallExpression.name());
+		List<Parameter> parameters = functionDefinition.parameters();
+		List<Object> arguments = resolveArguments(functionCallExpression);
+		assertEqualSize(parameters, arguments);
+		environment.enterConstructorCall(program.classDefinitions().get(functionDefinition.name()));
+		for (int i = 0; i < arguments.size(); ++i) {
+			environment.store(parameters.get(i).name(), arguments.get(i));
+		}
+		functionDefinition.accept(this);
+		lastValue = environment.getSelfObject();
+		environment.exitCurrentCall();
+	}
+
+	private void callMethod(FunctionCallExpression functionCallExpression) {
+		isMethodCalled = false;
+		UserObject accessedObject = (UserObject) consumeLastValue();
+		FunctionDefinition methodDefinition = accessedObject.getMethodDefinition(functionCallExpression.name());
+		List<Parameter> parameters = methodDefinition.parameters();
+		List<Object> arguments = resolveArguments(functionCallExpression);
+		assertEqualSize(parameters, arguments);
+		environment.enterMethodCall(accessedObject);
+		for (int i = 0; i < arguments.size(); ++i) {
+			environment.store(parameters.get(i).name(), arguments.get(i));
+		}
+		methodDefinition.accept(this);
+		environment.exitCurrentCall();
+		returning = false;
+	}
+
+	private List<Object> resolveArguments(FunctionCallExpression functionCallExpression) {
+		List<Object> arguments = new ArrayList<>();
+		for (Expression argument : functionCallExpression.arguments()) {
+			argument.accept(this);
+			arguments.add(consumeEvaluatedLastValue());
+		}
+		return arguments;
+	}
+
+
+	@SneakyThrows
 	@Override
 	public void visit(IdentifierExpression expression) {
-		Object result = context.find(expression.name());
+		Object result = environment.find(expression.name());
 		if (result != null) {
 			lastValue = result;
 		} else {
-			handleError();
+			handleError(ErrorType.VARIABLE_NOT_DEFINED_IN_SCOPE);
 		}
 	}
 
@@ -182,12 +277,12 @@ public class Interpreter implements Visitor {
 	@Override
 	public void visit(NegatedExpression expression) {
 		expression.accept(this);
-		Object object = clearLastValue();
+		Object object = consumeLastValue();
 		Object result = NegationComputer.compute(object);
 		if (result != null) {
 			lastValue = result;
 		} else {
-			handleError();
+			handleError(ErrorType.OPERATION_NOT_SUPPORTED);
 		}
 	}
 
@@ -224,16 +319,33 @@ public class Interpreter implements Visitor {
 	@SneakyThrows
 	@Override
 	public void visit(AssignmentStatement statement) {
-		statement.objectAccess().accept(this);
-		Object left = clearLastValue();
+		// right side
 		statement.expression().accept(this);
-		Object right = clearLastValue();
-		switch (left) {
-			case IdentifierExpression identifierExpression -> context.store(identifierExpression.name(), right);
-			case Accessible accessible -> accessible.setTo(right);
-			default -> handleError();
+		Object right = consumeEvaluatedLastValue();
+		// left side
+		Expression objectAccess = statement.objectAccess();
+		if (objectAccess instanceof IdentifierExpression identifierExpression) {
+			environment.store(identifierExpression.name(), right);
+			return;
 		}
+		objectAccess.accept(this);
+		Object left = consumeLastValue();
+		if (left instanceof Accessible accessible) {
+			if (isAttributeAccess(objectAccess)) {
+				environment.storeAttribute(accessible.getAttributeName(), right);
+			} else {
+				accessible.setTo(right);
+			}
+		} else {
+			handleError(ErrorType.ASSIGNMENT_INCORRECT);
+		}
+	}
 
+	private boolean isAttributeAccess(Expression expression) {
+		if (expression instanceof ObjectAccess objectAccess) {
+			return objectAccess.left() instanceof SelfAccess && objectAccess.right() instanceof IdentifierExpression;
+		}
+		return false;
 	}
 
 	@Override
@@ -241,11 +353,16 @@ public class Interpreter implements Visitor {
 
 	}
 
+	@SneakyThrows
 	@Override
 	public void visit(IfStatement statement) {
 		statement.condition().accept(this);
-		context.enterScope();
-		if (((Boolean) clearLastValue())) {
+		Object condition = consumeEvaluatedLastValue();
+		if (!(condition instanceof Boolean)) {
+			handleError(ErrorType.CONDITION_NOT_BOOLEAN);
+		}
+		environment.enterScope();
+		if ((Boolean) condition) {
 			statement.blockIfTrue().accept(this);
 		} else {
 			Block block;
@@ -256,83 +373,101 @@ public class Interpreter implements Visitor {
 		if (returning) {
 			return;
 		}
-		context.exitScope();
-
+		environment.exitScope();
 	}
 
 	@SneakyThrows
 	@Override
 	public void visit(ObjectAccess objectAccess) {
 		// left side
-		objectAccess.left().accept(this);
-		Object left = clearLastValue();
 		UserObject accessedObject = null;
+		Expression left = objectAccess.left();
 		switch (left) {
 			case IdentifierExpression identifierLeft -> accessedObject = findUserObject(identifierLeft);
-			case UserObject userObject -> accessedObject = userObject;
-			case default -> handleError(); // not a valid access
+			case SelfAccess selfAccess -> accessedObject = environment.getSelfObject();
+			case ObjectAccess nestedObjectAccess -> accessedObject = extractAccessedObject(left);
+			case FunctionCallExpression nestedFunctionCall -> accessedObject = extractAccessedObject(left);
+			case default -> {}	// situation not allowed by grammar
 		}
 		// right side
-		objectAccess.right().accept(this);
-		Object right = clearLastValue();
-		switch (right) {
+		switch (objectAccess.right()) {
 			case FunctionCallExpression functionCall -> handleMethodCall(accessedObject, functionCall);
 			case IdentifierExpression identifierRight -> handleAttributeAccess(accessedObject, identifierRight);
-			default -> handleError(); // not a valid access
+			default -> {}	// situation not allowed by grammar
 		}
 	}
 
-	private void handleAttributeAccess(UserObject accessedObject, IdentifierExpression identifierRight) throws SemanticException {
-		if (accessedObject.hasAttribute(identifierRight.name())) {
-			lastValue = new Accessible(accessedObject, identifierRight.name());
+	private UserObject extractAccessedObject(Expression expression) throws SemanticException {
+		expression.accept(this);
+		Object nestedObject = consumeEvaluatedLastValue();
+		UserObject accessedObject = null;
+		if (nestedObject instanceof UserObject nestedUserObject) {
+			accessedObject = nestedUserObject;
 		} else {
-			handleError();	// class does not have this attribute
+			handleError(ErrorType.ACCESS_NOT_ALLOWED);    // not a valid access
 		}
+		return accessedObject;
+	}
+
+	private void handleAttributeAccess(UserObject accessedObject, IdentifierExpression identifierRight) throws SemanticException {
+		lastValue = new Accessible(accessedObject, identifierRight.name());
 	}
 
 	private void handleMethodCall(UserObject accessedObject, FunctionCallExpression functionCall) throws SemanticException {
 		if (accessedObject.hasMethod(functionCall.name())) {
-			context.enterObjectScope(accessedObject);
+			isMethodCalled = true;
+			lastValue = accessedObject;
 			functionCall.accept(this);
-			context.exitObjectScope();
 		} else {
-			handleError();
+			handleError(ErrorType.METHOD_NOT_DEFINED);
 		}
 	}
 
 	private UserObject findUserObject(IdentifierExpression identifier) throws SemanticException {
-		Object object = context.find(identifier.name());
+		Object object = environment.find(identifier.name());
 		UserObject userObject = null;
 		switch (object) {
 			case UserObject instance -> userObject = instance;
-			case null -> handleError(); // not in scope
-			default -> handleError(); // not a valid access
+			case null -> handleError(ErrorType.VARIABLE_NOT_DEFINED_IN_SCOPE); // not in scope
+			default -> handleError(ErrorType.ACCESS_NOT_ALLOWED); // not a valid access
 		}
 		return userObject;
 	}
 
 	@Override
 	public void visit(ReturnStatement statement) {
-		// todo
-		Object mockValue = 10;
-		lastValue = mockValue;
+		statement.expression().accept(this);
+		if (lastValue instanceof Accessible accessible) {
+			lastValue = accessible.get();
+		}
 		returning = true;
 	}
+
+	@Override
+	public void visit(Parameter parameter) { }
 
 	@SneakyThrows
 	private void assertEqualSize(List<Parameter> a, List<Object> b) {
 		if (a.size() != b.size()) {
-			handleError();
+			handleError(ErrorType.INCORRECT_NUMBER_OF_ARGUMENTS);
 		}
 	}
 
-	private Object clearLastValue() {
+	private Object consumeEvaluatedLastValue() {
+		Object last = consumeLastValue();
+		if (last instanceof Accessible accessible) {
+			last = accessible.get();
+		}
+		return last;
+	}
+
+	private Object consumeLastValue() {
 		Object temp = lastValue;
 		lastValue = null;
 		return temp;
 	}
 
-	private void handleError() throws SemanticException {
-		throw new SemanticException("");
+	private void handleError(ErrorType errorType) throws SemanticException {
+		throw new SemanticException(errorType.toString());
 	}
 }

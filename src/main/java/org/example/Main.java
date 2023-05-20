@@ -12,7 +12,8 @@ import java.io.IOException;
 public class Main {
 	public static void main(String[] args) throws IOException {
 
-		String path = "src/main/resources/factorial.txt";
+//		String path = "src/main/resources/factorial.txt";
+		String path = "src/main/resources/definitions.txt";
 		try (FileReader fileReader = new FileReader(path)) {
 			var file = new BufferedReader(fileReader);
 			var lexer = new LexerImpl(file, ErrorManager::handleError);

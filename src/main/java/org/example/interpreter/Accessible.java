@@ -1,19 +1,21 @@
 package org.example.interpreter;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 @AllArgsConstructor
 public class Accessible {
 
 	private UserObject userObject;
-	private String name;
+	@Getter
+	private String attributeName;
 
 	public void setTo(Object value) {
-		userObject.storeAttribute(name, value);
+		userObject.storeAttribute(attributeName, value);
 	}
 
 	public Object get() {
-		return userObject.findAttribute(name);
+		return userObject.findAttribute(attributeName);
 	}
 
 }

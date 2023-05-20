@@ -3,6 +3,7 @@ package org.example.interpreter;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.example.programstructure.containers.ClassDefinition;
+import org.example.programstructure.containers.FunctionDefinition;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,4 +34,7 @@ public class UserObject {
 		attributes.put(name, value);
 	}
 
+	public FunctionDefinition getMethodDefinition(String name) {
+		return classDefinition.methods().get(name);
+	}
 }
