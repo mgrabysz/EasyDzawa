@@ -33,11 +33,11 @@ public class Interpreter implements Visitor {
     private static final String ABORT = LanguageProperties.get("ABORT");
 
     private final Environment environment = new Environment();
+    private final Map<String, FunctionDefinition> constructors = new HashMap<>();
     private final ErrorHandler errorHandler;
 
     private Program program;
     private Object lastValue;
-    private Map<String, FunctionDefinition> constructors = new HashMap<>();
     private boolean returning = false;
     private boolean isMethodCalled = false;
     private boolean testingMode = false;
@@ -211,7 +211,6 @@ public class Interpreter implements Visitor {
             String toPrint = arguments.stream().map(Object::toString).collect(Collectors.joining());
             if (testingMode) {
                 outputBuffer.append(toPrint).append("\n");
-                ;
             } else {
                 System.out.println(toPrint);
             }
@@ -397,9 +396,9 @@ public class Interpreter implements Visitor {
         Expression left = objectAccess.left();
         switch (left) {
             case IdentifierExpression identifierLeft -> accessedObject = findUserObject(identifierLeft);
-            case SelfAccess selfAccess -> accessedObject = environment.getSelfObject();
-            case ObjectAccess nestedObjectAccess -> accessedObject = extractAccessedObject(left);
-            case FunctionCallExpression nestedFunctionCall -> accessedObject = extractAccessedObject(left);
+            case SelfAccess ignored -> accessedObject = environment.getSelfObject();
+            case ObjectAccess ignored -> accessedObject = extractAccessedObject(left);
+            case FunctionCallExpression ignored -> accessedObject = extractAccessedObject(left);
             case default -> {
             }    // situation not allowed by grammar
         }
@@ -424,7 +423,7 @@ public class Interpreter implements Visitor {
         return accessedObject;
     }
 
-    private void handleAttributeAccess(UserObject accessedObject, IdentifierExpression identifierRight) throws SemanticException {
+    private void handleAttributeAccess(UserObject accessedObject, IdentifierExpression identifierRight) {
         lastValue = new Accessible(accessedObject, identifierRight.name());
     }
 

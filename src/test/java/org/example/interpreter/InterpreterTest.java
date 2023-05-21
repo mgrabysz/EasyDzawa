@@ -25,12 +25,14 @@ public class InterpreterTest {
 	@Test
 	void testInterpretDefinitions() {
 		String path = "src/test/resources/interpreter/definitions.txt";
-		String expectedOutput = "Zdefiniowano właśnie ułamek właściwy\n" +
-				"licznik: 1 mianownik: 2\n" +
-				"rozszerzony licznik: 2 rozszerzony mianownik: 4\n" +
-				"Zdefiniowano właśnie ułamek niewłaściwy\n" +
-				"licznik: 3 mianownik: 2\n" +
-				"rozszerzony licznik: 6 rozszerzony mianownik: 4\n";
+		String expectedOutput = """
+                Zdefiniowano właśnie ułamek właściwy
+                licznik: 1 mianownik: 2
+                rozszerzony licznik: 2 rozszerzony mianownik: 4
+                Zdefiniowano właśnie ułamek niewłaściwy
+                licznik: 3 mianownik: 2
+                rozszerzony licznik: 6 rozszerzony mianownik: 4
+                """;
 		String actualOutput = readFromFile(path);
 		assertEquals(expectedOutput, actualOutput);
 
@@ -45,8 +47,7 @@ public class InterpreterTest {
 			boolean testingMode = true;
 			Interpreter interpreter = new Interpreter(ErrorManager::handleError, testingMode);
 			interpreter.execute(program);
-			String output = interpreter.getOutput();
-			return output;
+			return interpreter.getOutput();
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

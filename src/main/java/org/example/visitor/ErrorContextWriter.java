@@ -16,7 +16,7 @@ import java.util.Iterator;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ErrorContextWriter implements Visitor {
 
-    private StringBuilder contextBuilder = new StringBuilder();
+    private final StringBuilder contextBuilder = new StringBuilder();
 
     public static String buildContext(Expression expression) {
         ErrorContextWriter errorContextWriter = new ErrorContextWriter();
@@ -118,10 +118,10 @@ public class ErrorContextWriter implements Visitor {
     public void visit(NegatedExpression expression) {
         String minus = "-";
         String symbol = switch (expression.expression()) {
-            case LiteralInteger li -> minus;
-            case LiteralFloat lf -> minus;
-            case ArithmeticExpression ae -> minus;
-            case MultiplicativeExpression ae -> minus;
+            case LiteralInteger ignored -> minus;
+            case LiteralFloat ignored -> minus;
+            case ArithmeticExpression ignored -> minus;
+            case MultiplicativeExpression ignored -> minus;
             default -> LanguageProperties.get("NOT");
         };
         contextBuilder.append(symbol)
