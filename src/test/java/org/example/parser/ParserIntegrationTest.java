@@ -41,7 +41,7 @@ public class ParserIntegrationTest {
 		final AssignmentStatement assignmentStatement1 = (AssignmentStatement) constructorBlock.statements().get(0);
 		final ObjectAccess objectAccess1 = (ObjectAccess) assignmentStatement1.left();
 		final IdentifierExpression identifierExpression10 = (IdentifierExpression) objectAccess1.right();
-		final IdentifierExpression identifierExpression11 = (IdentifierExpression) assignmentStatement1.expression();
+		final IdentifierExpression identifierExpression11 = (IdentifierExpression) assignmentStatement1.right();
 		assertTrue(objectAccess1.left() instanceof SelfAccess);
 		assertEquals("licznik", identifierExpression10.name());
 		assertEquals("l", identifierExpression11.name());
@@ -49,7 +49,7 @@ public class ParserIntegrationTest {
 		final AssignmentStatement assignmentStatement2 = (AssignmentStatement) constructorBlock.statements().get(1);
 		final ObjectAccess objectAccess2 = (ObjectAccess) assignmentStatement2.left();
 		final IdentifierExpression identifierExpression20 = (IdentifierExpression) objectAccess2.right();
-		final IdentifierExpression identifierExpression21 = (IdentifierExpression) assignmentStatement2.expression();
+		final IdentifierExpression identifierExpression21 = (IdentifierExpression) assignmentStatement2.right();
 		assertTrue(objectAccess2.left() instanceof SelfAccess);
 		assertEquals("mianownik", identifierExpression20.name());
 		assertEquals("m", identifierExpression21.name());
@@ -76,7 +76,7 @@ public class ParserIntegrationTest {
 		final AssignmentStatement assignmentStatement40 = (AssignmentStatement) blockIfTrue4.statements().get(0);
 		final ObjectAccess objectAccess40 = (ObjectAccess) assignmentStatement40.left();
 		final IdentifierExpression identifierExpression42 = (IdentifierExpression) objectAccess40.right();
-		final LiteralBool literalBool = (LiteralBool) assignmentStatement40.expression();
+		final LiteralBool literalBool = (LiteralBool) assignmentStatement40.right();
 		assertEquals(RelationalType.LESS, relationalExpression4.relationalType());
 		assertEquals("l", identifierExpression40.name());
 		assertEquals("m", identifierExpression41.name());
@@ -94,7 +94,7 @@ public class ParserIntegrationTest {
 		final ModifyAndAssignStatement modifyAndAssignStatement = (ModifyAndAssignStatement) main.block().statements().get(1);
 		final IdentifierExpression identifierExpression5 = (IdentifierExpression) modifyAndAssignStatement.left();
 		final AdditiveType additiveType = modifyAndAssignStatement.additiveType();
-		final LiteralInteger literalInteger5 = (LiteralInteger) modifyAndAssignStatement.expression();
+		final LiteralInteger literalInteger5 = (LiteralInteger) modifyAndAssignStatement.right();
 		assertEquals("l", identifierExpression5.name());
 		assertEquals(AdditiveType.ADD, additiveType);
 		assertEquals(2, literalInteger5.value());

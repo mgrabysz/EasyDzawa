@@ -320,7 +320,7 @@ public class Interpreter implements Visitor {
     @Override
     public void visit(ModifyAndAssignStatement statement) {
         // right side
-        statement.expression().accept(this);
+        statement.right().accept(this);
         Object right = consumeEvaluatedLastValue();
         // left side
         Expression leftExpression = statement.left();
@@ -348,7 +348,7 @@ public class Interpreter implements Visitor {
     @Override
     public void visit(AssignmentStatement statement) {
         // right side
-        statement.expression().accept(this);
+        statement.right().accept(this);
         Object right = consumeEvaluatedLastValue();
         // left side
         Expression leftExpression = statement.left();

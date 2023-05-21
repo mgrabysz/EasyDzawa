@@ -174,7 +174,7 @@ public class ErrorContextBuilder implements Visitor {
         contextBuilder.append(StringUtils.SPACE)
                 .append('=')
                 .append(StringUtils.SPACE);
-        statement.expression().accept(this);
+        statement.right().accept(this);
     }
 
     @Override

@@ -153,7 +153,7 @@ public class PrinterVisitor implements Visitor {
 		print(statement);
 		spaces += 2;
 		statement.left().accept(this);
-		statement.expression().accept(this);
+		statement.right().accept(this);
 		spaces -= 2;
 	}
 
@@ -162,7 +162,7 @@ public class PrinterVisitor implements Visitor {
 		print(statement);
 		spaces += 2;
 		statement.left().accept(this);
-		statement.expression().accept(this);
+		statement.right().accept(this);
 		spaces -= 2;
 	}
 
