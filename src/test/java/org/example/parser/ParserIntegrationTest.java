@@ -92,7 +92,7 @@ public class ParserIntegrationTest {
 		assertEquals("main", main.name());
 		// modify and assign
 		final ModifyAndAssignStatement modifyAndAssignStatement = (ModifyAndAssignStatement) main.block().statements().get(1);
-		final IdentifierExpression identifierExpression5 = (IdentifierExpression) modifyAndAssignStatement.objectAccess();
+		final IdentifierExpression identifierExpression5 = (IdentifierExpression) modifyAndAssignStatement.left();
 		final AdditiveType additiveType = modifyAndAssignStatement.additiveType();
 		final LiteralInteger literalInteger5 = (LiteralInteger) modifyAndAssignStatement.expression();
 		assertEquals("l", identifierExpression5.name());

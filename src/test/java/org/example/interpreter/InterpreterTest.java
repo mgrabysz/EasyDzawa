@@ -48,6 +48,17 @@ public class InterpreterTest {
         assertEquals(expectedOutput, actualOutput);
     }
 
+    @Test
+    void testInterpretCounter() {
+        String path = "src/test/resources/interpreter/counter.txt";
+        String expectedOutput = """
+                5
+                6
+                """;
+        String actualOutput = readFromFile(path);
+        assertEquals(expectedOutput, actualOutput);
+    }
+
 	private static String readFromFile(String path) {
 		try (FileReader fileReader = new FileReader(path)) {
 			var file = new BufferedReader(fileReader);

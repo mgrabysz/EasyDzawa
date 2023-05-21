@@ -152,7 +152,7 @@ public class PrinterVisitor implements Visitor {
 	public void visit(ModifyAndAssignStatement statement) {
 		print(statement);
 		spaces += 2;
-		statement.objectAccess().accept(this);
+		statement.left().accept(this);
 		statement.expression().accept(this);
 		spaces -= 2;
 	}

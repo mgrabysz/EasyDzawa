@@ -190,6 +190,7 @@ public class Interpreter implements Visitor {
         }
     }
 
+    @SneakyThrows
     @Override
     public void visit(FunctionCallExpression functionCallExpression) {
         if (isMethodCalled) {
@@ -201,8 +202,7 @@ public class Interpreter implements Visitor {
         }
     }
 
-    @SneakyThrows
-    private void callFunction(FunctionCallExpression functionCallExpression) {
+    private void callFunction(FunctionCallExpression functionCallExpression) throws Exception {
         // TODO
         if (functionCallExpression.name().equals(PRINT)) {
             List<Object> arguments = resolveArguments(functionCallExpression);
@@ -232,7 +232,7 @@ public class Interpreter implements Visitor {
         returning = false;
     }
 
-    private void callConstructor(FunctionCallExpression functionCallExpression) {
+    private void callConstructor(FunctionCallExpression functionCallExpression) throws Exception {
         FunctionDefinition functionDefinition = constructors.get(functionCallExpression.name());
         List<Parameter> parameters = functionDefinition.parameters();
         List<Object> arguments = resolveArguments(functionCallExpression);
@@ -246,7 +246,7 @@ public class Interpreter implements Visitor {
         environment.exitCurrentCall();
     }
 
-    private void callMethod(FunctionCallExpression functionCallExpression) {
+    private void callMethod(FunctionCallExpression functionCallExpression) throws Exception {
         isMethodCalled = false;
         UserObject accessedObject = (UserObject) consumeLastValue();
         FunctionDefinition methodDefinition = accessedObject.getMethodDefinition(functionCallExpression.name());
@@ -316,13 +316,31 @@ public class Interpreter implements Visitor {
         lastValue = expression.value();
     }
 
-    @Override
-    public void visit(SelfAccess expression) {
-
-    }
-
+    @SneakyThrows
     @Override
     public void visit(ModifyAndAssignStatement statement) {
+        // right side
+        statement.expression().accept(this);
+        Object right = consumeEvaluatedLastValue();
+        // left side
+        Expression leftExpression = statement.left();
+        if (leftExpression instanceof IdentifierExpression identifier) {
+            identifier.accept(this);
+            Object oldValue = consumeEvaluatedLastValue();
+            Object newValue = MathematicalComputer.compute(oldValue, right, OperationMapper.map(statement.additiveType()));
+            environment.store(identifier.name(), newValue);
+        } else {
+            leftExpression.accept(this);
+            Object leftAccess = consumeLastValue();
+            if (leftAccess instanceof Accessible accessible) {
+                Object oldValue = accessible.get();
+                Object newValue = MathematicalComputer.compute(oldValue, right, OperationMapper.map(statement.additiveType()));
+                accessible.setTo(newValue);
+            } else {
+                handleError(ErrorType.ASSIGNMENT_INCORRECT, leftExpression.position(),
+                        ErrorContextBuilder.buildContext(statement));
+            }
+        }
 
     }
 
@@ -346,7 +364,7 @@ public class Interpreter implements Visitor {
                 if (leftAccess instanceof Accessible accessible) {
                     accessible.setTo(right);
                 } else {
-                    handleError(ErrorType.ASSIGNMENT_INCORRECT, leftExpression.position(), 
+                    handleError(ErrorType.ASSIGNMENT_INCORRECT, leftExpression.position(),
                             ErrorContextBuilder.buildContext(statement));
                 }
             }
@@ -480,16 +498,19 @@ public class Interpreter implements Visitor {
         returning = true;
     }
 
-    @Override
-    public void visit(Parameter parameter) {
-    }
-
-    @SneakyThrows
-    private void validateArguments(List<Parameter> a, List<Object> b, FunctionCallExpression functionCallExpression) {
+    private void validateArguments(List<Parameter> a, List<Object> b, FunctionCallExpression functionCallExpression) throws Exception {
         if (a.size() != b.size()) {
             handleError(ErrorType.INCORRECT_NUMBER_OF_ARGUMENTS, functionCallExpression.position(),
                     ErrorContextBuilder.buildContext((Expression) functionCallExpression));
         }
+    }
+
+    @Override
+    public void visit(Parameter parameter) {
+    }
+
+    @Override
+    public void visit(SelfAccess expression) {
     }
 
     private Object consumeEvaluatedLastValue() {
