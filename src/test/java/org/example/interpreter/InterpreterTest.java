@@ -35,8 +35,18 @@ public class InterpreterTest {
                 """;
 		String actualOutput = readFromFile(path);
 		assertEquals(expectedOutput, actualOutput);
-
 	}
+
+    @Test
+    void testInterpretReference() {
+        String path = "src/test/resources/interpreter/reference.txt";
+        String expectedOutput = """
+                20
+                30
+                """;
+        String actualOutput = readFromFile(path);
+        assertEquals(expectedOutput, actualOutput);
+    }
 
 	private static String readFromFile(String path) {
 		try (FileReader fileReader = new FileReader(path)) {

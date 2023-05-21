@@ -3,19 +3,16 @@ package org.example.interpreter;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
-import org.example.LanguageProperties;
+import org.example.interpreter.computers.*;
+import org.example.properties.LanguageProperties;
 import org.example.commons.Position;
 import org.example.error.ErrorHandler;
 import org.example.error.details.ErrorDetails;
 import org.example.error.details.ErrorInterpreterDetails;
 import org.example.error.enums.ErrorType;
 import org.example.error.exception.SemanticException;
-import org.example.interpreter.computers.LogicalComputer;
-import org.example.interpreter.computers.MathematicalComputer;
-import org.example.interpreter.computers.NegationComputer;
-import org.example.interpreter.computers.RelationalComputer;
-import org.example.interpreter.enums.LogicalOperation;
-import org.example.interpreter.enums.MathematicalOperation;
+import org.example.interpreter.computers.enums.LogicalOperation;
+import org.example.interpreter.computers.enums.MathematicalOperation;
 import org.example.interpreter.environment.Environment;
 import org.example.programstructure.containers.*;
 import org.example.programstructure.expression.*;
@@ -347,10 +344,10 @@ public class Interpreter implements Visitor {
                 leftExpression.accept(this);
                 Object leftAccess = consumeLastValue();
                 if (leftAccess instanceof Accessible accessible) {
-                    storeAttributeIfValid(leftExpression, accessible.getAttributeName(), right);
+                    accessible.setTo(right);
                 } else {
                     handleError(ErrorType.ASSIGNMENT_INCORRECT, leftExpression.position(), 
-                            ErrorContextBuilder.buildContext(leftExpression));
+                            ErrorContextBuilder.buildContext(statement));
                 }
             }
         }
@@ -470,7 +467,7 @@ public class Interpreter implements Visitor {
             functionCall.accept(this);
         } else {
             handleError(ErrorType.METHOD_NOT_DEFINED, functionCall.position(),
-                    ErrorContextBuilder.buildContext((Expression) functionCall));
+                    StringUtils.join(accessedObject.getClassName(), ".", functionCall.name(), "()"));
         }
     }
 

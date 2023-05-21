@@ -2,7 +2,7 @@ package org.example.token;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.example.LanguageProperties;
+import org.example.properties.LanguageProperties;
 
 @Getter
 @AllArgsConstructor

@@ -1,8 +1,8 @@
-package org.example.interpreter;
+package org.example.interpreter.computers;
 
 import lombok.experimental.UtilityClass;
-import org.example.interpreter.enums.MathematicalOperation;
-import org.example.interpreter.enums.RelationalOperation;
+import org.example.interpreter.computers.enums.MathematicalOperation;
+import org.example.interpreter.computers.enums.RelationalOperation;
 import org.example.programstructure.expression.enums.AdditiveType;
 import org.example.programstructure.expression.enums.MultiplicativeType;
 import org.example.programstructure.expression.enums.RelationalType;

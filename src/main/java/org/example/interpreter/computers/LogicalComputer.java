@@ -1,7 +1,7 @@
 package org.example.interpreter.computers;
 
 import lombok.experimental.UtilityClass;
-import org.example.interpreter.enums.LogicalOperation;
+import org.example.interpreter.computers.enums.LogicalOperation;
 
 @UtilityClass
 public class LogicalComputer {

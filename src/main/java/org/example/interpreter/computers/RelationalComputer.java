@@ -1,7 +1,7 @@
 package org.example.interpreter.computers;
 
 import lombok.experimental.UtilityClass;
-import org.example.interpreter.enums.RelationalOperation;
+import org.example.interpreter.computers.enums.RelationalOperation;
 
 import java.util.Objects;
 

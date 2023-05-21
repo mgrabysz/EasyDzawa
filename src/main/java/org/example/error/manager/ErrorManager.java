@@ -1,6 +1,6 @@
 package org.example.error.manager;
 
-import org.example.Configuration;
+import org.example.properties.Configuration;
 import org.example.error.details.ErrorDetails;
 import org.example.error.enums.ErrorType;
 import org.example.error.exception.LexicalException;
@@ -29,6 +29,7 @@ public class ErrorManager {
 	private static final String GENERIC_SYNTACTIC_ERROR_MESSAGE = "Syntactic error of type: %s";
     private static final String GENERIC_SEMANTIC_ERROR_MESSAGE = "Semantic error of type: %s: << %s >> at line %d";
     private static final String MAIN_MISSING_ERROR_MESSAGE = "Main function is missing";
+    private static final String ABORTED_ERROR_MESSAGE = "Terminated the execution of the program at line %d";
 
 	private static final List<ErrorType> incorrectStatementErrors = new ArrayList<>(Arrays.asList(
 			SEMICOLON_EXPECTED,
@@ -109,6 +110,7 @@ public class ErrorManager {
     private static void handleSemanticError(ErrorDetails errorDetails) throws SemanticException {
         String errorMessage = switch (errorDetails.type()) {
             case MAIN_FUNCTION_MISSING -> MAIN_MISSING_ERROR_MESSAGE;
+            case ABORTED -> ABORTED_ERROR_MESSAGE.formatted(errorDetails.position().getLineNumber());
             default -> GENERIC_SEMANTIC_ERROR_MESSAGE.formatted(
                     errorDetails.type(),
                     trimExpression(errorDetails.expression()),

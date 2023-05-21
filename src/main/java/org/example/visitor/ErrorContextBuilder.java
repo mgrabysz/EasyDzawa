@@ -3,7 +3,7 @@ package org.example.visitor;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.example.LanguageProperties;
+import org.example.properties.LanguageProperties;
 import org.example.programstructure.containers.*;
 import org.example.programstructure.expression.*;
 import org.example.programstructure.expression.enums.AdditiveType;
@@ -170,7 +170,11 @@ public class ErrorContextBuilder implements Visitor {
 
     @Override
     public void visit(AssignmentStatement statement) {
-
+        statement.left().accept(this);
+        contextBuilder.append(StringUtils.SPACE)
+                .append('=')
+                .append(StringUtils.SPACE);
+        statement.expression().accept(this);
     }
 
     @Override

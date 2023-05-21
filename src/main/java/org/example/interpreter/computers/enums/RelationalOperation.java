@@ -1,4 +1,4 @@
-package org.example.interpreter.enums;
+package org.example.interpreter.computers.enums;
 
 public enum RelationalOperation {
 

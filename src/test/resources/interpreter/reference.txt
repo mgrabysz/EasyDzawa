@@ -1,0 +1,19 @@
+klasa Osoba {
+
+    Osoba(wiek) {
+        tenże.wiek = wiek;
+    }
+}
+zmień(osoba) {
+
+    osoba.wiek = 30;
+}
+
+główna() {
+
+    osoba = Osoba(20);
+    napisz(osoba.wiek);
+    zmień(osoba);
+    napisz(osoba.wiek);
+
+}
