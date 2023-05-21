@@ -335,19 +335,36 @@ public class Interpreter implements Visitor {
         statement.expression().accept(this);
         Object right = consumeEvaluatedLastValue();
         // left side
-        switch (statement.left()) {
+        Expression leftExpression = statement.left();
+        switch (leftExpression) {
             case IdentifierExpression identifier -> environment.store(identifier.name(), right);
             case ObjectAccess objectAccess
-                && objectAccess.left() instanceof SelfAccess
-                && objectAccess.right() instanceof IdentifierExpression attribute -> // defining attribute
-                    environment.storeAttribute(attribute.name(), right);
+                    && objectAccess.left() instanceof SelfAccess
+                    && objectAccess.right() instanceof IdentifierExpression attribute -> // defining attribute
+                    storeAttributeIfValid(objectAccess, attribute.name(), right);
             default -> {
-                statement.left().accept(this);
+                leftExpression.accept(this);
                 Object leftAccess = consumeLastValue();
                 if (leftAccess instanceof Accessible accessible) {
-                    environment.storeAttribute(accessible.getAttributeName(), right);
+                    storeAttributeIfValid(leftExpression, accessible.getAttributeName(), right);
                 } else {
-                    handleError(ErrorType.ASSIGNMENT_INCORRECT);
+                    handleError(ErrorType.ASSIGNMENT_INCORRECT, leftExpression.position(), 
+                            ErrorContextWriter.buildContext(leftExpression));
+                }
+            }
+        }
+    }
+
+    private void storeAttributeIfValid(Expression expression, String name, Object value) throws Exception {
+        switch (environment.getContextType()) {
+            case CONSTRUCTOR -> environment.storeAttribute(name, value);
+            case FUNCTION ->
+                    handleError(ErrorType.SELF_ACCESS_OUTSIDE_OF_CLASS, expression.position(), ErrorContextWriter.buildContext(expression));
+            case METHOD -> {
+                if (environment.findAttribute(name) != null) {
+                    environment.storeAttribute(name, value);
+                } else {
+                    handleError(ErrorType.ATTRIBUTE_NOT_DEFINED, expression.position(), ErrorContextWriter.buildContext(expression));
                 }
             }
         }
@@ -385,16 +402,14 @@ public class Interpreter implements Visitor {
     @Override
     public void visit(ObjectAccess objectAccess) {
         // left side
-        UserObject accessedObject = null;
         Expression left = objectAccess.left();
-        switch (left) {
-            case IdentifierExpression identifierLeft -> accessedObject = findUserObject(identifierLeft);
-            case SelfAccess ignored -> accessedObject = environment.getSelfObject();
-            case ObjectAccess ignored -> accessedObject = extractAccessedObject(left);
-            case FunctionCallExpression ignored -> accessedObject = extractAccessedObject(left);
-            case default -> {
-            }    // situation not allowed by grammar
-        }
+        UserObject accessedObject = switch (left) {
+            case IdentifierExpression identifierLeft -> findUserObject(identifierLeft);
+            case SelfAccess ignored -> extractSelfObject(objectAccess);
+            case ObjectAccess ignored -> extractAccessedObject(left);
+            case FunctionCallExpression ignored -> extractAccessedObject(left);
+            case default -> null;   // situation not allowed by grammar
+        };
         // right side
         switch (objectAccess.right()) {
             case FunctionCallExpression functionCall -> handleMethodCall(accessedObject, functionCall);
@@ -402,6 +417,15 @@ public class Interpreter implements Visitor {
             default -> {
             }    // situation not allowed by grammar
         }
+    }
+
+    private UserObject extractSelfObject(ObjectAccess objectAccess) throws Exception {
+        UserObject selfObject;
+        if ((selfObject = environment.getSelfObject()) == null) {
+            handleError(ErrorType.SELF_ACCESS_OUTSIDE_OF_CLASS, objectAccess.position(),
+                    ErrorContextWriter.buildContext(objectAccess));
+        }
+        return selfObject;
     }
 
     private UserObject extractAccessedObject(Expression expression) throws SemanticException {

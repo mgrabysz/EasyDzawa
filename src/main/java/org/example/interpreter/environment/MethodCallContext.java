@@ -1,14 +1,17 @@
 package org.example.interpreter.environment;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.example.interpreter.UserObject;
 
 @Getter
-@RequiredArgsConstructor
-public class MethodCallContext extends FunctionCallContext {
+public class MethodCallContext extends CallContext {
 
 	private final UserObject userObject;
+
+    public MethodCallContext(UserObject userObject) {
+        super();
+        this.userObject = userObject;
+    }
 
 	public boolean hasAttribute(String name) {
 		return userObject.hasAttribute(name);
@@ -25,5 +28,10 @@ public class MethodCallContext extends FunctionCallContext {
 	public Object findAttribute(String name) {
 		return userObject.findAttribute(name);
 	}
+
+    @Override
+    public ContextType getContextType() {
+        return ContextType.METHOD;
+    }
 
 }

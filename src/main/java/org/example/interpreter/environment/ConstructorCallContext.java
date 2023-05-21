@@ -5,11 +5,12 @@ import org.example.interpreter.UserObject;
 import org.example.programstructure.containers.ClassDefinition;
 
 @Getter
-public class ConstructorCallContext extends FunctionCallContext{
+public class ConstructorCallContext extends CallContext {
 
 	private final UserObject userObject;
 
 	ConstructorCallContext(ClassDefinition classDefinition) {
+        super();
 		userObject = new UserObject(classDefinition);
 	}
 
@@ -20,5 +21,10 @@ public class ConstructorCallContext extends FunctionCallContext{
 	public Object findAttribute(String name) {
 		return userObject.findAttribute(name);
 	}
+
+    @Override
+    public ContextType getContextType() {
+        return ContextType.CONSTRUCTOR;
+    }
 
 }
