@@ -1,0 +1,5 @@
+główna() {
+
+    var = prawda lub 2;
+
+}

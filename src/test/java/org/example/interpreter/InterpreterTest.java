@@ -1,7 +1,6 @@
-package org.example;
+package org.example.interpreter;
 
 import org.example.error.manager.ErrorManager;
-import org.example.interpreter.Interpreter;
 import org.example.lexer.LexerImpl;
 import org.example.parser.ParserImpl;
 import org.junit.jupiter.api.Test;
@@ -44,13 +43,12 @@ public class InterpreterTest {
 			var parser = new ParserImpl(lexer, ErrorManager::handleError);
 			var program = parser.parse();
 			boolean testingMode = true;
-			Interpreter interpreter = new Interpreter(testingMode);
+			Interpreter interpreter = new Interpreter(ErrorManager::handleError, testingMode);
 			interpreter.execute(program);
 			String output = interpreter.getOutput();
 			return output;
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-
 	}
 }

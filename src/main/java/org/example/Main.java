@@ -12,21 +12,22 @@ import java.io.IOException;
 public class Main {
 	public static void main(String[] args) throws IOException {
 
-//		String path = "src/main/resources/factorial.txt";
-		String path = "src/main/resources/definitions.txt";
+        System.out.println("Argument count: " + args.length);
+        if (args.length == 0) {
+            throw new IOException("Path missing");
+        }
+        String path = args[0];
+        System.out.println("Path: " + path + "\n");
 		try (FileReader fileReader = new FileReader(path)) {
 			var file = new BufferedReader(fileReader);
 			var lexer = new LexerImpl(file, ErrorManager::handleError);
 			var parser = new ParserImpl(lexer, ErrorManager::handleError);
 			var program = parser.parse();
-			Interpreter interpreter = new Interpreter();
+			Interpreter interpreter = new Interpreter(ErrorManager::handleError);
 			interpreter.execute(program);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-
-
-
 	}
 
 }

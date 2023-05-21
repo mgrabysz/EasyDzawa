@@ -32,3 +32,11 @@ tasks.withType(JavaCompile).each {
 tasks.withType(JavaExec) {
     jvmArgs += '--enable-preview'
 }
+
+jar {
+    manifest {
+        attributes(
+                'Main-Class': 'org.example.Main'
+        )
+    }
+}

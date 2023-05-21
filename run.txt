@@ -1,0 +1,1 @@
+java --enable-preview -jar build/libs/Viper-1.0-SNAPSHOT.jar src/main/resources/definitions.txt

@@ -2,9 +2,9 @@ package org.example.error.manager;
 
 import org.example.Configuration;
 import org.example.error.details.ErrorDetails;
-import org.example.error.enums.ErrorLevel;
 import org.example.error.enums.ErrorType;
 import org.example.error.exception.LexicalException;
+import org.example.error.exception.SemanticException;
 import org.example.error.exception.SyntacticException;
 
 import java.util.ArrayList;
@@ -27,6 +27,7 @@ public class ErrorManager {
 	private static final String INCORRECT_DEFINITION_MESSAGE = "While parsing class or function definition << %s >> at line %d position %d given problem was found: %s";
 	private static final String MISSING_PARENTHESIS_MESSAGE = "While parsing statement << %s >> at line %d position %d given problem was found: %s";
 	private static final String GENERIC_SYNTACTIC_ERROR_MESSAGE = "Syntactic error of type: %s";
+    private static final String GENERIC_SEMANTIC_ERROR_MESSAGE = "Semantic error of type: %s: << %s >> at line %d";
 
 	private static final List<ErrorType> incorrectStatementErrors = new ArrayList<>(Arrays.asList(
 			SEMICOLON_EXPECTED,
@@ -67,12 +68,11 @@ public class ErrorManager {
 	);
 
 	public static void handleError(ErrorDetails errorDetails) throws Exception {
-
-		if (errorDetails.level() == ErrorLevel.LEXICAL) {
-			handleLexicalError(errorDetails);
-		} else if (errorDetails.level() == ErrorLevel.SYNTACTICAL) {
-			handleSyntacticError(errorDetails);
-		}
+        switch (errorDetails.level()) {
+            case LEXICAL -> handleLexicalError(errorDetails);
+            case SYNTACTICAL -> handleSyntacticError(errorDetails);
+            case SEMANTIC -> handleSemanticError(errorDetails);
+        }
 	}
 
 	private static void handleLexicalError(ErrorDetails errorDetails) throws LexicalException {
@@ -99,9 +99,19 @@ public class ErrorManager {
 			throw new SyntacticException(GENERIC_SYNTACTIC_ERROR_MESSAGE.formatted(errorType));
 		}
 		throw new SyntacticException(errorMessage.formatted(
-						trimExpression(errorDetails.expression()), errorDetails.position().getLineNumber(),
-						errorDetails.position().getCharacterNumber(), errorDetails.type()));
+                trimExpression(errorDetails.expression()),
+                errorDetails.position().getLineNumber(),
+                errorDetails.position().getCharacterNumber(),
+                errorDetails.type()));
 	}
+
+    private static void handleSemanticError(ErrorDetails errorDetails) throws SemanticException {
+        throw new SemanticException(GENERIC_SEMANTIC_ERROR_MESSAGE.formatted(
+                errorDetails.type(),
+                trimExpression(errorDetails.expression()),
+                errorDetails.position().getLineNumber()
+        ));
+    }
 
 	private static String trimExpression(String expression) {
 		if (expression.length() > Configuration.getErrorMessageExpressionMaxLength()) {
