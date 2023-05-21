@@ -2,6 +2,7 @@ package org.example.interpreter;
 
 import org.example.commons.Position;
 import org.example.interpreter.environment.Environment;
+import org.example.interpreter.accessible.UserObject;
 import org.example.programstructure.containers.ClassDefinition;
 import org.junit.jupiter.api.Test;
 

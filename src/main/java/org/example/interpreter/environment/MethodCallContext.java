@@ -1,7 +1,7 @@
 package org.example.interpreter.environment;
 
 import lombok.Getter;
-import org.example.interpreter.UserObject;
+import org.example.interpreter.accessible.UserObject;
 
 @Getter
 public class MethodCallContext extends CallContext {

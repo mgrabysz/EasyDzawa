@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
 import org.example.interpreter.computers.*;
+import org.example.interpreter.accessible.Accessible;
+import org.example.interpreter.accessible.UserObject;
 import org.example.properties.LanguageProperties;
 import org.example.commons.Position;
 import org.example.error.ErrorHandler;

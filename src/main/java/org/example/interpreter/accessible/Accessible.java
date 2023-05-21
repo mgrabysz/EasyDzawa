@@ -1,4 +1,4 @@
-package org.example.interpreter;
+package org.example.interpreter.accessible;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

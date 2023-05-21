@@ -1,7 +1,7 @@
 package org.example.interpreter.environment;
 
 import lombok.NoArgsConstructor;
-import org.example.interpreter.UserObject;
+import org.example.interpreter.accessible.UserObject;
 import org.example.programstructure.containers.ClassDefinition;
 
 import java.util.Stack;
