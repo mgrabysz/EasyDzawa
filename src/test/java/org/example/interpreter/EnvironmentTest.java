@@ -1,5 +1,6 @@
 package org.example.interpreter;
 
+import org.example.commons.Position;
 import org.example.interpreter.environment.Environment;
 import org.example.programstructure.containers.ClassDefinition;
 import org.junit.jupiter.api.Test;
@@ -29,7 +30,7 @@ public class EnvironmentTest {
 
 	@Test
 	void testEnterMethodCall() {
-		ClassDefinition classDefinition = new ClassDefinition("class", null	);
+		ClassDefinition classDefinition = new ClassDefinition("class", null, new Position());
 		UserObject userObject = new UserObject(classDefinition);
 		userObject.storeAttribute("name", "Franek");
 		Environment environment = new Environment();

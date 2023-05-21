@@ -14,14 +14,20 @@ import org.example.programstructure.statement.*;
 import java.util.Iterator;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class ErrorContextWriter implements Visitor {
+public class ErrorContextBuilder implements Visitor {
 
     private final StringBuilder contextBuilder = new StringBuilder();
 
     public static String buildContext(Expression expression) {
-        ErrorContextWriter errorContextWriter = new ErrorContextWriter();
-        expression.accept(errorContextWriter);
-        return errorContextWriter.contextBuilder.toString();
+        ErrorContextBuilder errorContextBuilder = new ErrorContextBuilder();
+        expression.accept(errorContextBuilder);
+        return errorContextBuilder.contextBuilder.toString();
+    }
+
+    public static String buildContext(Statement statement) {
+        ErrorContextBuilder errorContextBuilder = new ErrorContextBuilder();
+        statement.accept(errorContextBuilder);
+        return errorContextBuilder.contextBuilder.toString();
     }
 
     @Override
@@ -174,7 +180,11 @@ public class ErrorContextWriter implements Visitor {
 
     @Override
     public void visit(IfStatement statement) {
-
+        contextBuilder.append(LanguageProperties.get("IF"))
+                .append(StringUtils.SPACE)
+                .append('(');
+        statement.condition().accept(this);
+        contextBuilder.append(')');
     }
 
     @Override

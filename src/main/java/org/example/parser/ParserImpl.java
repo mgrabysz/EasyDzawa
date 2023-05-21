@@ -131,6 +131,7 @@ public class ParserImpl implements Parser {
 			handleCriticalError(ErrorType.CLASS_NAME_MISSING, errorContext.getPosition(), errorContext.getContext());
 		}
 		final String className = previousToken.getValue();
+        final Position classPosition = previousToken.getPosition();
 		if (classes.containsKey(className)) {
 			handleCriticalError(ErrorType.CLASS_NAME_NOT_UNIQUE, errorContext.getPosition(), className);
 		}
@@ -138,7 +139,7 @@ public class ParserImpl implements Parser {
 		if (methods == null) {
 			handleCriticalError(ErrorType.CLASS_BODY_MISSING, errorContext.getPosition(), errorContext.getContext());
 		} else {
-			classes.put(className, new ClassDefinition(className, methods));
+			classes.put(className, new ClassDefinition(className, methods, classPosition));
 		}
 		return true;
 	}
@@ -332,6 +333,7 @@ public class ParserImpl implements Parser {
 		if (!consumeIf(TokenType.IF)) {
 			return null;
 		}
+        Position position = previousToken.getPosition();
 		if (!consumeIf(TokenType.OPEN_PARENTHESIS)) {
 			handleNonCriticalError(ErrorType.OPENING_PARENTHESIS_MISSING, errorContext.getPosition(), errorContext.getContext());
 		}
@@ -348,13 +350,13 @@ public class ParserImpl implements Parser {
 			handleCriticalError(ErrorType.CONDITIONAL_STATEMENT_BODY_EXPECTED, errorContext.getPosition(), conditionContext);
 		}
 		if (!consumeIf(TokenType.ELSE)) {
-			return new IfStatement(condition, blockIfTrue, null);
+			return new IfStatement(condition, blockIfTrue, null, position);
 		}
 		Block elseBlock = parseBlock(conditionContext);
 		if (elseBlock == null) {
 			handleCriticalError(ErrorType.CONDITIONAL_STATEMENT_BODY_EXPECTED, errorContext.getPosition(), conditionContext);
 		}
-		return new IfStatement(condition, blockIfTrue, elseBlock);
+		return new IfStatement(condition, blockIfTrue, elseBlock, position);
 	}
 
 	/**

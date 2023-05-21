@@ -13,14 +13,6 @@ public class MethodCallContext extends CallContext {
         this.userObject = userObject;
     }
 
-	public boolean hasAttribute(String name) {
-		return userObject.hasAttribute(name);
-	}
-
-	public boolean hasMethod(String name) {
-		return userObject.hasMethod(name);
-	}
-
 	public void storeAttribute(String name, Object value) {
 		userObject.storeAttribute(name, value);
 	}

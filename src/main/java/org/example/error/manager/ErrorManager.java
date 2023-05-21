@@ -28,6 +28,7 @@ public class ErrorManager {
 	private static final String MISSING_PARENTHESIS_MESSAGE = "While parsing statement << %s >> at line %d position %d given problem was found: %s";
 	private static final String GENERIC_SYNTACTIC_ERROR_MESSAGE = "Syntactic error of type: %s";
     private static final String GENERIC_SEMANTIC_ERROR_MESSAGE = "Semantic error of type: %s: << %s >> at line %d";
+    private static final String MAIN_MISSING_ERROR_MESSAGE = "Main function is missing";
 
 	private static final List<ErrorType> incorrectStatementErrors = new ArrayList<>(Arrays.asList(
 			SEMICOLON_EXPECTED,
@@ -106,11 +107,15 @@ public class ErrorManager {
 	}
 
     private static void handleSemanticError(ErrorDetails errorDetails) throws SemanticException {
-        throw new SemanticException(GENERIC_SEMANTIC_ERROR_MESSAGE.formatted(
-                errorDetails.type(),
-                trimExpression(errorDetails.expression()),
-                errorDetails.position().getLineNumber()
-        ));
+        String errorMessage = switch (errorDetails.type()) {
+            case MAIN_FUNCTION_MISSING -> MAIN_MISSING_ERROR_MESSAGE;
+            default -> GENERIC_SEMANTIC_ERROR_MESSAGE.formatted(
+                    errorDetails.type(),
+                    trimExpression(errorDetails.expression()),
+                    errorDetails.position().getLineNumber()
+            );
+        };
+        throw new SemanticException(errorMessage);
     }
 
 	private static String trimExpression(String expression) {
