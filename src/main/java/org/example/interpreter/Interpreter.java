@@ -335,34 +335,27 @@ public class Interpreter implements Visitor {
         statement.expression().accept(this);
         Object right = consumeEvaluatedLastValue();
         // left side
-        Expression objectAccess = statement.objectAccess();
-        if (objectAccess instanceof IdentifierExpression identifierExpression) {
-            environment.store(identifierExpression.name(), right);
-            return;
-        }
-        objectAccess.accept(this);
-        Object left = consumeLastValue();
-        if (left instanceof Accessible accessible) {
-            if (isAttributeAccess(objectAccess)) {
-                environment.storeAttribute(accessible.getAttributeName(), right);
-            } else {
-                accessible.setTo(right);
+        switch (statement.objectAccess()) {
+            case IdentifierExpression identifier -> environment.store(identifier.name(), right);
+            case ObjectAccess objectAccess
+                && objectAccess.left() instanceof SelfAccess
+                && objectAccess.right() instanceof IdentifierExpression attribute -> // defining attribute
+                    environment.storeAttribute(attribute.name(), right);
+            default -> {
+                statement.objectAccess().accept(this);
+                Object left = consumeLastValue();
+                if (left instanceof Accessible accessible1) {
+                    environment.storeAttribute(accessible1.getAttributeName(), right);
+                } else {
+                    handleError(ErrorType.ASSIGNMENT_INCORRECT);
+                }
             }
-        } else {
-            handleError(ErrorType.ASSIGNMENT_INCORRECT);
         }
-    }
-
-    private boolean isAttributeAccess(Expression expression) {
-        if (expression instanceof ObjectAccess objectAccess) {
-            return objectAccess.left() instanceof SelfAccess && objectAccess.right() instanceof IdentifierExpression;
-        }
-        return false;
     }
 
     @Override
     public void visit(ForStatement statement) {
-
+        // TODO - blocked by list
     }
 
     @SneakyThrows
@@ -423,8 +416,13 @@ public class Interpreter implements Visitor {
         return accessedObject;
     }
 
-    private void handleAttributeAccess(UserObject accessedObject, IdentifierExpression identifierRight) {
-        lastValue = new Accessible(accessedObject, identifierRight.name());
+    private void handleAttributeAccess(UserObject accessedObject, IdentifierExpression identifier) throws Exception {
+        if (accessedObject.hasAttribute(identifier.name())) {
+            lastValue = new Accessible(accessedObject, identifier.name());
+        } else {
+            String errorMessage = accessedObject.getClassName() + "." + identifier.name();
+            handleError(ErrorType.ATTRIBUTE_NOT_DEFINED, identifier.position(), errorMessage);
+        }
     }
 
     private void handleMethodCall(UserObject accessedObject, FunctionCallExpression functionCall) throws SemanticException {

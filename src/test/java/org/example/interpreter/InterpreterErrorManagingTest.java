@@ -18,6 +18,16 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class InterpreterErrorManagingTest {
 
+    private final static String ATTRIBUTE_NOT_DEFINED = """
+            klasa A {
+              A() { }
+            }
+            główna() {
+              a = A();
+              var = a.atrybut;
+            }
+            """;
+
     private static Stream<Arguments> testUnsupportedOperation() {
         return Stream.of(
                 Arguments.of("1 + 2 * prawda", "Semantic error of type: OPERATION_NOT_SUPPORTED: << 2 * prawda >> at line 1"),
@@ -35,6 +45,21 @@ public class InterpreterErrorManagingTest {
         String actualMessage = exception.getMessage();
         assertEquals(expectedMessage, actualMessage);
     }
+
+    private static Stream<Arguments> testErrors() {
+        return Stream.of(
+                Arguments.of(ATTRIBUTE_NOT_DEFINED, "Semantic error of type: ATTRIBUTE_NOT_DEFINED: << A.atrybut >> at line 6")
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    public void testErrors(String inputString, String expectedMessage) {
+        Exception exception = assertThrows(SemanticException.class, () -> readFromString(inputString));
+        String actualMessage = exception.getMessage();
+        assertEquals(expectedMessage, actualMessage);
+    }
+
 
     private static String placeInMain(String expression) {
         return "główna() { var = %s; } ".formatted(expression);

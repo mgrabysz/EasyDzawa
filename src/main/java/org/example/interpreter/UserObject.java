@@ -37,4 +37,8 @@ public class UserObject {
 	public FunctionDefinition getMethodDefinition(String name) {
 		return classDefinition.methods().get(name);
 	}
+
+    public String getClassName() {
+        return classDefinition.name();
+    }
 }
