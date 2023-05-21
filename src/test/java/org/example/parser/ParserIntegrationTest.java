@@ -39,7 +39,7 @@ public class ParserIntegrationTest {
 		assertEquals(4, constructorBlock.statements().size());
 		// first assignment
 		final AssignmentStatement assignmentStatement1 = (AssignmentStatement) constructorBlock.statements().get(0);
-		final ObjectAccess objectAccess1 = (ObjectAccess) assignmentStatement1.objectAccess();
+		final ObjectAccess objectAccess1 = (ObjectAccess) assignmentStatement1.left();
 		final IdentifierExpression identifierExpression10 = (IdentifierExpression) objectAccess1.right();
 		final IdentifierExpression identifierExpression11 = (IdentifierExpression) assignmentStatement1.expression();
 		assertTrue(objectAccess1.left() instanceof SelfAccess);
@@ -47,7 +47,7 @@ public class ParserIntegrationTest {
 		assertEquals("l", identifierExpression11.name());
 		// second assignment
 		final AssignmentStatement assignmentStatement2 = (AssignmentStatement) constructorBlock.statements().get(1);
-		final ObjectAccess objectAccess2 = (ObjectAccess) assignmentStatement2.objectAccess();
+		final ObjectAccess objectAccess2 = (ObjectAccess) assignmentStatement2.left();
 		final IdentifierExpression identifierExpression20 = (IdentifierExpression) objectAccess2.right();
 		final IdentifierExpression identifierExpression21 = (IdentifierExpression) assignmentStatement2.expression();
 		assertTrue(objectAccess2.left() instanceof SelfAccess);
@@ -74,7 +74,7 @@ public class ParserIntegrationTest {
 		final Block blockIfTrue4 = ifStatement4.blockIfTrue();
 		final Block elseBlock = ifStatement4.elseBlock();
 		final AssignmentStatement assignmentStatement40 = (AssignmentStatement) blockIfTrue4.statements().get(0);
-		final ObjectAccess objectAccess40 = (ObjectAccess) assignmentStatement40.objectAccess();
+		final ObjectAccess objectAccess40 = (ObjectAccess) assignmentStatement40.left();
 		final IdentifierExpression identifierExpression42 = (IdentifierExpression) objectAccess40.right();
 		final LiteralBool literalBool = (LiteralBool) assignmentStatement40.expression();
 		assertEquals(RelationalType.LESS, relationalExpression4.relationalType());

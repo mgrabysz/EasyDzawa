@@ -335,17 +335,17 @@ public class Interpreter implements Visitor {
         statement.expression().accept(this);
         Object right = consumeEvaluatedLastValue();
         // left side
-        switch (statement.objectAccess()) {
+        switch (statement.left()) {
             case IdentifierExpression identifier -> environment.store(identifier.name(), right);
             case ObjectAccess objectAccess
                 && objectAccess.left() instanceof SelfAccess
                 && objectAccess.right() instanceof IdentifierExpression attribute -> // defining attribute
                     environment.storeAttribute(attribute.name(), right);
             default -> {
-                statement.objectAccess().accept(this);
-                Object left = consumeLastValue();
-                if (left instanceof Accessible accessible1) {
-                    environment.storeAttribute(accessible1.getAttributeName(), right);
+                statement.left().accept(this);
+                Object leftAccess = consumeLastValue();
+                if (leftAccess instanceof Accessible accessible) {
+                    environment.storeAttribute(accessible.getAttributeName(), right);
                 } else {
                     handleError(ErrorType.ASSIGNMENT_INCORRECT);
                 }

@@ -105,7 +105,7 @@ public class ParserTokenStreamInputTest {
 		assertEquals("name", parameter.name());
 		assertEquals(1, block.statements().size());
 		final AssignmentStatement assignmentStatement = (AssignmentStatement) block.statements().get(0);
-		final ObjectAccess objectAccess = (ObjectAccess) assignmentStatement.objectAccess();
+		final ObjectAccess objectAccess = (ObjectAccess) assignmentStatement.left();
 		final IdentifierExpression attribute = (IdentifierExpression) objectAccess.right();
 		final IdentifierExpression variable = (IdentifierExpression) assignmentStatement.expression();
 		assertTrue(objectAccess.left() instanceof SelfAccess);
