@@ -1,9 +1,6 @@
 package org.example.interpreter;
 
-import org.example.commons.Position;
 import org.example.interpreter.environment.Environment;
-import org.example.interpreter.accessible.UserObject;
-import org.example.programstructure.containers.ClassDefinition;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -29,24 +26,4 @@ public class EnvironmentTest {
         assertNull(environment.find("var2"));
 	}
 
-	@Test
-	void testEnterMethodCall() {
-		ClassDefinition classDefinition = new ClassDefinition("class", null, new Position());
-		UserObject userObject = new UserObject(classDefinition);
-		userObject.storeAttribute("name", "Franek");
-		Environment environment = new Environment();
-		environment.enterMethodCall(userObject);
-		environment.store("var", 10);
-		assertEquals("Franek", environment.findAttribute("name"));
-		assertEquals(10, environment.find("var"));
-        assertNull(environment.findAttribute("var"));
-
-		environment.enterFunctionCall();
-        assertNull(environment.findAttribute("var"));
-		environment.exitCurrentCall();
-
-		assertEquals("Franek", environment.findAttribute("name"));
-		assertEquals(10, environment.find("var"));
-        assertNull(environment.findAttribute("var"));
-	}
 }

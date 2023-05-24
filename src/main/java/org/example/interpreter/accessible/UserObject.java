@@ -2,7 +2,6 @@ package org.example.interpreter.accessible;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.example.programstructure.containers.ClassDefinition;
 import org.example.programstructure.containers.FunctionDefinition;
 
 import java.util.HashMap;
@@ -16,15 +15,9 @@ import java.util.Map;
 public class UserObject {
 
 	private final Map<String, Object> attributes = new HashMap<>();
-	private final ClassDefinition classDefinition;
 
-	public boolean hasAttribute(String name) {
-		return attributes.containsKey(name);
-	}
-
-	public boolean hasMethod(String name) {
-		return classDefinition.methods().containsKey(name);
-	}
+    private final String className;
+    private final Map<String, FunctionDefinition> methods;
 
 	public Object findAttribute(String name) {
 		return attributes.get(name);
@@ -35,10 +28,7 @@ public class UserObject {
 	}
 
 	public FunctionDefinition getMethodDefinition(String name) {
-		return classDefinition.methods().get(name);
+		return methods.get(name);
 	}
 
-    public String getClassName() {
-        return classDefinition.name();
-    }
 }

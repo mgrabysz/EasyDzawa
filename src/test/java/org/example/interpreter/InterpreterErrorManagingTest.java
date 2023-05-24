@@ -114,6 +114,12 @@ public class InterpreterErrorManagingTest {
            }
            """;
 
+    private final static String FUNCTION_NOT_DEFINED = """
+           główna() {
+             hej();
+           }
+           """;
+
     private static Stream<Arguments> testErrors() {
         return Stream.of(
                 Arguments.of(ATTRIBUTE_NOT_DEFINED, "Semantic error of type: ATTRIBUTE_NOT_DEFINED: << A.atrybut >> at line 6"),
@@ -126,8 +132,9 @@ public class InterpreterErrorManagingTest {
                 Arguments.of(CONDITION_NOT_BOOLEAN, "Semantic error of type: CONDITION_NOT_BOOLEAN: << jeżeli (2 + 2) >> at line 2"),
                 Arguments.of(MAIN_FUNCTION_MISSING, "Main function is missing"),
                 Arguments.of(CONSTRUCTOR_CONTAINS_RETURN, "Semantic error of type: CONSTRUCTOR_CONTAINS_RETURN: << A >> at line 1"),
-                Arguments.of(SELF_ACCESS_OUTSIDE_OF_CLASS, "Semantic error of type: SELF_ACCESS_OUTSIDE_OF_CLASS: << tenże.a >> at line 2"),
+                Arguments.of(SELF_ACCESS_OUTSIDE_OF_CLASS, "Semantic error of type: SELF_ACCESS_OUTSIDE_OF_CLASS: << tenże >> at line 2"),
                 Arguments.of(VARIABLE_NOT_DEFINED_IN_SCOPE, "Semantic error of type: VARIABLE_NOT_DEFINED_IN_SCOPE: << b >> at line 2"),
+                Arguments.of(FUNCTION_NOT_DEFINED, "Semantic error of type: FUNCTION_NOT_DEFINED: << hej >> at line 2"),
                 Arguments.of(INCORRECT_NUMBER_OF_ARGUMENTS, "Semantic error of type: INCORRECT_NUMBER_OF_ARGUMENTS: << dodawanie(1,2,3) >> at line 5")
         );
     }
