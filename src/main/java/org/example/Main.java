@@ -1,5 +1,6 @@
 package org.example;
 
+import org.example.commons.AsciiArt;
 import org.example.error.manager.ErrorManager;
 import org.example.interpreter.Interpreter;
 import org.example.lexer.LexerImpl;
@@ -12,6 +13,7 @@ import java.io.IOException;
 public class Main {
 	public static void main(String[] args) throws IOException {
 
+        AsciiArt.printViper();
         System.out.println("Argument count: " + args.length);
         if (args.length == 0) {
             throw new IOException("Path missing");
