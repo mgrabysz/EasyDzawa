@@ -285,7 +285,11 @@ public class Interpreter implements Visitor {
         for (Expression argument : functionCallExpression.arguments()) {
             argument.accept(this);
             if (lastValue instanceof ValueReference valueReference) {
-                arguments.add(valueReference);
+                if (isPrimitiveType(valueReference.getValue())) {
+                    arguments.add(valueReference.clone());
+                } else {
+                    arguments.add(valueReference);
+                }
                 consumeLastValue();
             } else {
                 ValueReference valueReference = new ValueReference(consumeLastValue());
@@ -293,6 +297,10 @@ public class Interpreter implements Visitor {
             }
         }
         return arguments;
+    }
+
+    private boolean isPrimitiveType(Object object) {
+        return object instanceof Number || object instanceof Boolean || object instanceof String;
     }
 
 

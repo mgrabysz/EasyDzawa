@@ -59,6 +59,17 @@ public class InterpreterTest {
         assertEquals(expectedOutput, actualOutput);
     }
 
+    @Test
+    void testInterpretValue() {
+        String path = "src/test/resources/interpreter/value.txt";
+        String expectedOutput = """
+                10
+                10
+                """;
+        String actualOutput = readFromFile(path);
+        assertEquals(expectedOutput, actualOutput);
+    }
+
 	private static String readFromFile(String path) {
 		try (FileReader fileReader = new FileReader(path)) {
 			var file = new BufferedReader(fileReader);

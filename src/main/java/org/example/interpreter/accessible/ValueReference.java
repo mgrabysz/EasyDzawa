@@ -9,8 +9,17 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ValueReference {
+public class ValueReference implements Cloneable {
 
     private Object value = null;
+
+    @Override
+    public ValueReference clone() {
+        try {
+            return (ValueReference) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
+    }
 
 }

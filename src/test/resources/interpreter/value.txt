@@ -1,0 +1,13 @@
+dodaj(a, b) {
+    // example showing that primitive types are passed by value
+    a += a + b;
+    zwróć a;
+}
+
+główna() {
+    a = 10;
+    b = 5;
+    napisz(a);
+    dodaj(a, 5);
+    napisz(a);
+}
