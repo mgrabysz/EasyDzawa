@@ -1,6 +1,9 @@
 package org.example.visitor;
 
 import org.apache.commons.lang3.StringUtils;
+import org.example.interpreter.AbortFunction;
+import org.example.interpreter.PrintFunction;
+import org.example.interpreter.environment.ProgramHolder;
 import org.example.programstructure.containers.*;
 import org.example.programstructure.expression.*;
 import org.example.programstructure.statement.*;
@@ -23,7 +26,7 @@ public class PrinterVisitor implements Visitor {
 	}
 
 	@Override
-	public void visit(FunctionDefinition functionDefinition) {
+	public void visit(UserFunctionDefinition functionDefinition) {
 		print(functionDefinition);
 		spaces += 2;
 		for (Parameter parameter : functionDefinition.parameters()) {
@@ -203,8 +206,23 @@ public class PrinterVisitor implements Visitor {
 		statement.expression().accept(this);
 	}
 
+    @Override
+    public void visit(PrintFunction printFunction) {
 
-	private String space() {
+    }
+
+    @Override
+    public void visit(AbortFunction abortFunction) {
+
+    }
+
+    @Override
+    public void visit(ProgramHolder programHolder) {
+
+    }
+
+
+    private String space() {
 		return "-".repeat(spaces);
 	}
 

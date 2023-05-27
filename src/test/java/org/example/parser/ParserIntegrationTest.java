@@ -4,7 +4,7 @@ import org.example.error.manager.ErrorManager;
 import org.example.lexer.LexerImpl;
 import org.example.programstructure.containers.Block;
 import org.example.programstructure.containers.ClassDefinition;
-import org.example.programstructure.containers.FunctionDefinition;
+import org.example.programstructure.containers.UserFunctionDefinition;
 import org.example.programstructure.containers.Program;
 import org.example.programstructure.expression.*;
 import org.example.programstructure.expression.enums.AdditiveType;
@@ -31,9 +31,9 @@ public class ParserIntegrationTest {
 		final ClassDefinition classDefinition = program.classDefinitions().get("Ułamek");
 		assertEquals("Ułamek", classDefinition.name());
 		assertEquals(2, classDefinition.methods().size());
-		final FunctionDefinition method = classDefinition.methods().get("rozszerz");
+		final UserFunctionDefinition method = classDefinition.methods().get("rozszerz");
 		// constructor
-		final FunctionDefinition constructor = classDefinition.methods().get("Ułamek");
+		final UserFunctionDefinition constructor = classDefinition.methods().get("Ułamek");
 		final Block constructorBlock = constructor.block();
 		assertEquals(2, constructor.parameters().size());
 		assertEquals(4, constructorBlock.statements().size());
@@ -88,7 +88,7 @@ public class ParserIntegrationTest {
 		assertTrue(elseBlock.statements().get(0) instanceof AssignmentStatement);
 
 		// main function
-		final FunctionDefinition main = program.functionDefinitions().get("main");
+		final UserFunctionDefinition main = program.functionDefinitions().get("main");
 		assertEquals("main", main.name());
 		// modify and assign
 		final ModifyAndAssignStatement modifyAndAssignStatement = (ModifyAndAssignStatement) main.block().statements().get(1);

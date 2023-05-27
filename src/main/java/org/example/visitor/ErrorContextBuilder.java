@@ -3,6 +3,9 @@ package org.example.visitor;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.example.interpreter.AbortFunction;
+import org.example.interpreter.PrintFunction;
+import org.example.interpreter.environment.ProgramHolder;
 import org.example.properties.LanguageProperties;
 import org.example.programstructure.containers.*;
 import org.example.programstructure.expression.*;
@@ -36,7 +39,7 @@ public class ErrorContextBuilder implements Visitor {
     }
 
     @Override
-    public void visit(FunctionDefinition functionDefinition) {
+    public void visit(UserFunctionDefinition functionDefinition) {
 
     }
 
@@ -200,6 +203,21 @@ public class ErrorContextBuilder implements Visitor {
 
     @Override
     public void visit(ReturnStatement statement) {
+
+    }
+
+    @Override
+    public void visit(PrintFunction printFunction) {
+
+    }
+
+    @Override
+    public void visit(AbortFunction abortFunction) {
+
+    }
+
+    @Override
+    public void visit(ProgramHolder programHolder) {
 
     }
 

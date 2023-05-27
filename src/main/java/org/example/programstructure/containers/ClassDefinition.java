@@ -6,7 +6,7 @@ import org.example.visitor.Visitor;
 
 import java.util.Map;
 
-public record ClassDefinition(String name, Map<String, FunctionDefinition> methods, Position position) implements Visitable {
+public record ClassDefinition(String name, Map<String, UserFunctionDefinition> methods, Position position) implements Visitable {
 
 	@Override
 	public void accept(Visitor visitor) {

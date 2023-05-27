@@ -46,7 +46,7 @@ public class ParserTokenStreamInputTest {
 		final Program program = parser.parse();
 		assertEquals(1, program.functionDefinitions().size());
 		assertEquals(0, program.classDefinitions().size());
-		final FunctionDefinition functionDefinition = program.functionDefinitions().get("multiply");
+		final UserFunctionDefinition functionDefinition = program.functionDefinitions().get("multiply");
 		assertEquals("multiply", functionDefinition.name());
 		assertEquals(2, functionDefinition.parameters().size());
 		assertNotNull(functionDefinition.block());
@@ -97,7 +97,7 @@ public class ParserTokenStreamInputTest {
 		assertEquals(1, program.classDefinitions().size());
 		final ClassDefinition classDefinition = program.classDefinitions().get("User");
 		assertEquals(1, classDefinition.methods().size());
-		final FunctionDefinition functionDefinition = classDefinition.methods().get("User");
+		final UserFunctionDefinition functionDefinition = classDefinition.methods().get("User");
 		assertEquals(1, functionDefinition.parameters().size());
 		assertNotNull(functionDefinition.block());
 		final Parameter parameter = functionDefinition.parameters().get(0);

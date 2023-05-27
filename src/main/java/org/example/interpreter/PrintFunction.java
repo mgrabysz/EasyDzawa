@@ -1,0 +1,20 @@
+package org.example.interpreter;
+
+import org.example.properties.LanguageProperties;
+import org.example.visitor.Visitor;
+
+public class PrintFunction extends VariadicFunction {
+
+    private static final String PRINT = LanguageProperties.get("PRINT");
+
+    @Override
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public String name() {
+        return PRINT;
+    }
+
+}

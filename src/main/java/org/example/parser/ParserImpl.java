@@ -48,7 +48,7 @@ public class ParserImpl implements Parser {
 	 */
 	@Override
 	public Program parse() {
-		Map<String, FunctionDefinition> functions = new HashMap<>();
+		Map<String, UserFunctionDefinition> functions = new HashMap<>();
 		Map<String, ClassDefinition> classes = new HashMap<>();
 		while (parseFunctionDefinition(functions) || parseClassDefinition(classes)) {
 			errorContext.reset();
@@ -63,7 +63,7 @@ public class ParserImpl implements Parser {
 	/**
 	 * function-definition = identifier, "(", [parameters-list], ")", block;
 	 */
-	private boolean parseFunctionDefinition(Map<String, FunctionDefinition> functions) {
+	private boolean parseFunctionDefinition(Map<String, UserFunctionDefinition> functions) {
 		if (!consumeIf(TokenType.IDENTIFIER)) {
 			return false;
 		}
@@ -82,7 +82,7 @@ public class ParserImpl implements Parser {
 		if (block == null) {
 			handleCriticalError(ErrorType.FUNCTION_BODY_MISSING, errorContext.getPosition(), errorContext.getContext());
 		}
-		functions.put(functionName, new FunctionDefinition(functionName, parameters, block));
+		functions.put(functionName, new UserFunctionDefinition(functionName, parameters, block));
 		return true;
 	}
 
@@ -135,7 +135,7 @@ public class ParserImpl implements Parser {
 		if (classes.containsKey(className)) {
 			handleCriticalError(ErrorType.CLASS_NAME_NOT_UNIQUE, errorContext.getPosition(), className);
 		}
-		final Map<String, FunctionDefinition> methods = parseClassBody(className);
+		final Map<String, UserFunctionDefinition> methods = parseClassBody(className);
 		if (methods == null) {
 			handleCriticalError(ErrorType.CLASS_BODY_MISSING, errorContext.getPosition(), errorContext.getContext());
 		} else {
@@ -147,11 +147,11 @@ public class ParserImpl implements Parser {
 	/**
 	 * class-body = "{", {function-definition}, "}";
 	 */
-	private Map<String, FunctionDefinition> parseClassBody(String className) {
+	private Map<String, UserFunctionDefinition> parseClassBody(String className) {
 		if (!consumeIf(TokenType.OPEN_BRACKET)) {
 			return null;
 		}
-		final Map<String, FunctionDefinition> methods = new HashMap<>();
+		final Map<String, UserFunctionDefinition> methods = new HashMap<>();
 		while (true) {
 			if (!parseFunctionDefinition(methods)) break;
 		}
