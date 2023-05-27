@@ -1,9 +1,7 @@
 package org.example.visitor;
 
 import org.apache.commons.lang3.StringUtils;
-import org.example.interpreter.AbortFunction;
-import org.example.interpreter.PrintFunction;
-import org.example.interpreter.environment.ProgramHolder;
+import org.example.interpreter.*;
 import org.example.programstructure.containers.*;
 import org.example.programstructure.expression.*;
 import org.example.programstructure.statement.*;
@@ -19,8 +17,8 @@ public class PrinterVisitor implements Visitor {
 		for (FunctionDefinition functionDefinition : program.functionDefinitions().values()) {
 			functionDefinition.accept(this);
 		}
-		for (ClassDefinition classDefinition : program.classDefinitions().values()) {
-			classDefinition.accept(this);
+		for (UserClassDefinition userClassDefinition : program.classDefinitions().values()) {
+			userClassDefinition.accept(this);
 		}
 		spaces -= 2;
 	}
@@ -37,10 +35,10 @@ public class PrinterVisitor implements Visitor {
 	}
 
 	@Override
-	public void visit(ClassDefinition classDefinition) {
-		print(classDefinition);
+	public void visit(UserClassDefinition userClassDefinition) {
+		print(userClassDefinition);
 		spaces += 2;
-		for (FunctionDefinition functionDefinition : classDefinition.methods().values()) {
+		for (FunctionDefinition functionDefinition : userClassDefinition.methods().values()) {
 			functionDefinition.accept(this);
 		}
 		spaces -= 2;
@@ -217,7 +215,22 @@ public class PrinterVisitor implements Visitor {
     }
 
     @Override
-    public void visit(ProgramHolder programHolder) {
+    public void visit(ListDefinition listDefinition) {
+
+    }
+
+    @Override
+    public void visit(ListConstructor listConstructor) {
+
+    }
+
+    @Override
+    public void visit(AppendMethod method) {
+
+    }
+
+    @Override
+    public void visit(GetMethod method) {
 
     }
 

@@ -49,7 +49,7 @@ public class ParserImpl implements Parser {
 	@Override
 	public Program parse() {
 		Map<String, UserFunctionDefinition> functions = new HashMap<>();
-		Map<String, ClassDefinition> classes = new HashMap<>();
+		Map<String, UserClassDefinition> classes = new HashMap<>();
 		while (parseFunctionDefinition(functions) || parseClassDefinition(classes)) {
 			errorContext.reset();
 		}
@@ -123,7 +123,7 @@ public class ParserImpl implements Parser {
 	/**
 	 * class-definition = class-keyword, identifier, class-body;
 	 */
-	private boolean parseClassDefinition(Map<String, ClassDefinition> classes) {
+	private boolean parseClassDefinition(Map<String, UserClassDefinition> classes) {
 		if (!consumeIf(TokenType.CLASS)) {
 			return false;
 		}
@@ -139,7 +139,7 @@ public class ParserImpl implements Parser {
 		if (methods == null) {
 			handleCriticalError(ErrorType.CLASS_BODY_MISSING, errorContext.getPosition(), errorContext.getContext());
 		} else {
-			classes.put(className, new ClassDefinition(className, methods, classPosition));
+			classes.put(className, new UserClassDefinition(className, methods, classPosition));
 		}
 		return true;
 	}

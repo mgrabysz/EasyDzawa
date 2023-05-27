@@ -95,9 +95,9 @@ public class ParserTokenStreamInputTest {
 		final Program program = parser.parse();
 		assertEquals(0, program.functionDefinitions().size());
 		assertEquals(1, program.classDefinitions().size());
-		final ClassDefinition classDefinition = program.classDefinitions().get("User");
-		assertEquals(1, classDefinition.methods().size());
-		final UserFunctionDefinition functionDefinition = classDefinition.methods().get("User");
+		final UserClassDefinition userClassDefinition = program.classDefinitions().get("User");
+		assertEquals(1, userClassDefinition.methods().size());
+		final UserFunctionDefinition functionDefinition = userClassDefinition.methods().get("User");
 		assertEquals(1, functionDefinition.parameters().size());
 		assertNotNull(functionDefinition.block());
 		final Parameter parameter = functionDefinition.parameters().get(0);

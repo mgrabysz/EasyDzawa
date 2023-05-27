@@ -1,8 +1,6 @@
 package org.example.visitor;
 
-import org.example.interpreter.AbortFunction;
-import org.example.interpreter.PrintFunction;
-import org.example.interpreter.environment.ProgramHolder;
+import org.example.interpreter.*;
 import org.example.programstructure.containers.*;
 import org.example.programstructure.expression.*;
 import org.example.programstructure.statement.*;
@@ -12,7 +10,7 @@ public interface Visitor {
 	// containers
 	void visit(Program program);
 	void visit(UserFunctionDefinition functionDefinition);
-	void visit(ClassDefinition classDefinition);
+	void visit(UserClassDefinition userClassDefinition);
 	void visit(Block block);
 	void visit(Parameter parameter);
 
@@ -42,5 +40,8 @@ public interface Visitor {
     // external
     void visit(PrintFunction printFunction);
     void visit(AbortFunction abortFunction);
-    void visit(ProgramHolder programHolder);
+    void visit(ListDefinition listDefinition);
+    void visit(ListConstructor listConstructor);
+    void visit(AppendMethod method);
+    void visit(GetMethod method);
 }

@@ -2,22 +2,21 @@ package org.example.interpreter.accessible;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.example.programstructure.containers.UserFunctionDefinition;
+import org.example.programstructure.containers.FunctionDefinition;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Class representing a specific instance of an object defined by the user
+ * Class representing a specific instance of an object
  */
 @Getter
 @RequiredArgsConstructor
-public class UserObject {
-
-	private final Map<String, Object> attributes = new HashMap<>();
+public class ObjectInstance {
 
     private final String className;
-    private final Map<String, UserFunctionDefinition> methods;
+    private final Map<String, FunctionDefinition> methods;
+    private final Map<String, Object> attributes = new HashMap<>();
 
 	public Object findAttribute(String name) {
 		return attributes.get(name);
@@ -27,7 +26,7 @@ public class UserObject {
 		attributes.put(name, value);
 	}
 
-	public UserFunctionDefinition getMethodDefinition(String name) {
+	public FunctionDefinition getMethodDefinition(String name) {
 		return methods.get(name);
 	}
 

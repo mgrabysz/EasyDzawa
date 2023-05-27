@@ -3,7 +3,7 @@ package org.example.parser;
 import org.example.error.manager.ErrorManager;
 import org.example.lexer.LexerImpl;
 import org.example.programstructure.containers.Block;
-import org.example.programstructure.containers.ClassDefinition;
+import org.example.programstructure.containers.UserClassDefinition;
 import org.example.programstructure.containers.UserFunctionDefinition;
 import org.example.programstructure.containers.Program;
 import org.example.programstructure.expression.*;
@@ -28,12 +28,12 @@ public class ParserIntegrationTest {
 		assertEquals(1, program.classDefinitions().size());
 		assertEquals(1, program.functionDefinitions().size());
 		// class definition
-		final ClassDefinition classDefinition = program.classDefinitions().get("Ułamek");
-		assertEquals("Ułamek", classDefinition.name());
-		assertEquals(2, classDefinition.methods().size());
-		final UserFunctionDefinition method = classDefinition.methods().get("rozszerz");
+		final UserClassDefinition userClassDefinition = program.classDefinitions().get("Ułamek");
+		assertEquals("Ułamek", userClassDefinition.name());
+		assertEquals(2, userClassDefinition.methods().size());
+		final UserFunctionDefinition method = userClassDefinition.methods().get("rozszerz");
 		// constructor
-		final UserFunctionDefinition constructor = classDefinition.methods().get("Ułamek");
+		final UserFunctionDefinition constructor = userClassDefinition.methods().get("Ułamek");
 		final Block constructorBlock = constructor.block();
 		assertEquals(2, constructor.parameters().size());
 		assertEquals(4, constructorBlock.statements().size());

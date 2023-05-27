@@ -9,14 +9,14 @@ import org.example.error.details.ErrorDetails;
 import org.example.error.details.ErrorInterpreterDetails;
 import org.example.error.enums.ErrorType;
 import org.example.error.exception.SemanticException;
-import org.example.interpreter.accessible.UserObject;
+import org.example.interpreter.accessible.ListInstance;
+import org.example.interpreter.accessible.ObjectInstance;
 import org.example.interpreter.accessible.ValueReference;
 import org.example.interpreter.computers.*;
 import org.example.interpreter.computers.enums.LogicalOperation;
 import org.example.interpreter.computers.enums.MathematicalOperation;
 import org.example.interpreter.environment.ContextType;
 import org.example.interpreter.environment.Environment;
-import org.example.interpreter.environment.ProgramHolder;
 import org.example.programstructure.containers.*;
 import org.example.programstructure.expression.*;
 import org.example.programstructure.statement.*;
@@ -34,7 +34,7 @@ public class Interpreter implements Visitor {
     private static final String THIS = LanguageProperties.get("THIS");
 
     private final Environment environment = new Environment();
-    private final Map<String, UserFunctionDefinition> constructors = new HashMap<>();
+    private final Map<String, FunctionDefinition> constructors = new HashMap<>();
     private final ErrorHandler errorHandler;
 
     private ProgramHolder programHolder;
@@ -55,17 +55,12 @@ public class Interpreter implements Visitor {
         return outputBuffer.toString();
     }
 
+    @SneakyThrows
     public void execute(Program program) {
         this.programHolder = ProgramHolder.init(program);
-        this.programHolder.accept(this);
-    }
-
-    @SneakyThrows
-    @Override
-    public void visit(ProgramHolder programHolder) {
         // extracting all constructors
-        for (ClassDefinition classDefinition : programHolder.getClassesDefinitions().values()) {
-            classDefinition.accept(this);
+        for (ClassDefinition ClassDefinition : programHolder.getClassesDefinitions().values()) {
+            ClassDefinition.accept(this);
         }
         // visiting main function
         FunctionDefinition main = programHolder.getFunctionDefinitions().get(MAIN);
@@ -79,22 +74,22 @@ public class Interpreter implements Visitor {
 
     @Override
     @SneakyThrows
-    public void visit(ClassDefinition classDefinition) {
-        Optional<UserFunctionDefinition> optionalConstructor = classDefinition.methods()
+    public void visit(UserClassDefinition userClassDefinition) {
+        Optional<UserFunctionDefinition> optionalConstructor = userClassDefinition.methods()
                 .values()
                 .stream()
-                .filter(method -> method.name().equals(classDefinition.name()))
+                .filter(method -> method.name().equals(userClassDefinition.name()))
                 .findFirst();
         if (optionalConstructor.isEmpty()) {
-            handleError(ErrorType.CONSTRUCTOR_MISSING, classDefinition.position(), classDefinition.name());
+            handleError(ErrorType.CONSTRUCTOR_MISSING, userClassDefinition.position(), userClassDefinition.name());
         }
         boolean hasReturnStatement = optionalConstructor.stream()
                 .flatMap(f -> f.block().statements().stream())
                 .anyMatch(s -> s instanceof ReturnStatement);
         if (hasReturnStatement) {
-            handleError(ErrorType.CONSTRUCTOR_CONTAINS_RETURN, classDefinition.position(), classDefinition.name());
+            handleError(ErrorType.CONSTRUCTOR_CONTAINS_RETURN, userClassDefinition.position(), userClassDefinition.name());
         }
-        UserFunctionDefinition constructor = optionalConstructor.get();
+        FunctionDefinition constructor = optionalConstructor.get();
         constructors.put(constructor.name(), constructor);
     }
 
@@ -230,14 +225,14 @@ public class Interpreter implements Visitor {
     }
 
     private void callConstructor(FunctionCallExpression functionCallExpression) throws Exception {
-        UserFunctionDefinition functionDefinition = constructors.get(functionCallExpression.name());
+        FunctionDefinition functionDefinition = constructors.get(functionCallExpression.name());
         List<Parameter> parameters = functionDefinition.parameters();
         List<ValueReference> arguments = resolveArguments(functionCallExpression);
         validateArguments(parameters, arguments, functionCallExpression);
         environment.enterConstructorCall();
         ClassDefinition classDefinition = programHolder.getClassesDefinitions().get(functionDefinition.name());
-        UserObject userObject = new UserObject(classDefinition.name(), classDefinition.methods());
-        ValueReference valueReference = new ValueReference(userObject);
+        ObjectInstance objectInstance = new ObjectInstance(classDefinition.name(), (Map<String, FunctionDefinition>) classDefinition.methods());
+        ValueReference valueReference = new ValueReference(objectInstance);
         environment.store(THIS, valueReference);
         for (int i = 0; i < arguments.size(); ++i) {
             environment.store(parameters.get(i).name(), arguments.get(i));
@@ -249,8 +244,8 @@ public class Interpreter implements Visitor {
 
     private void callMethod(FunctionCallExpression functionCallExpression) throws Exception {
         ValueReference valueReference = (ValueReference) consumeLastValue();
-        UserObject accessedObject = (UserObject) valueReference.getValue();
-        UserFunctionDefinition methodDefinition = accessedObject.getMethodDefinition(functionCallExpression.name());
+        ObjectInstance accessedObject = (ObjectInstance) valueReference.getValue();
+        FunctionDefinition methodDefinition = accessedObject.getMethodDefinition(functionCallExpression.name());
         if (methodDefinition == null) {
             handleError(ErrorType.METHOD_NOT_DEFINED, functionCallExpression.position(),
                     StringUtils.join(accessedObject.getClassName(), ".", functionCallExpression.name(), "()"));
@@ -263,6 +258,7 @@ public class Interpreter implements Visitor {
         for (int i = 0; i < arguments.size(); ++i) {
             environment.store(parameters.get(i).name(), arguments.get(i));
         }
+        lastValue = functionCallExpression;
         methodDefinition.accept(this);
         environment.exitCurrentCall();
         returning = false;
@@ -310,7 +306,7 @@ public class Interpreter implements Visitor {
         } else {
             // accessing object attribute
             ValueReference valueReference = (ValueReference) consumeLastValue();
-            UserObject accessedObject = (UserObject) valueReference.getValue();
+            ObjectInstance accessedObject = (ObjectInstance) valueReference.getValue();
             Object result = accessedObject.findAttribute(expression.name());
             if (result != null) {
                 lastValue = result;
@@ -358,11 +354,16 @@ public class Interpreter implements Visitor {
         lastValue = expression.value();
     }
 
+    @SneakyThrows
     @Override
     public void visit(ModifyAndAssignStatement statement) {
         environment.setIsAssignment(true);
         // left
         statement.left().accept(this);
+        if (!(lastValue instanceof ValueReference)) {
+            handleError(ErrorType.ASSIGNMENT_INCORRECT, statement.left().position(),
+                    ErrorContextBuilder.buildContext(statement));
+        }
         ValueReference valueReference = (ValueReference) consumeLastValue();
         Object oldValue = valueReference.getValue();
         environment.setIsAssignment(false);
@@ -427,7 +428,7 @@ public class Interpreter implements Visitor {
     public void visit(ObjectAccess objectAccess) {
         objectAccess.left().accept(this);
         ValueReference valueReference = (ValueReference) lastValue;
-        if (!(valueReference.getValue() instanceof UserObject)) {
+        if (!(valueReference.getValue() instanceof ObjectInstance)) {
             handleError(ErrorType.ACCESS_NOT_ALLOWED, objectAccess.position(), ErrorContextBuilder.buildContext((Statement) objectAccess));
         }
         objectAccess.right().accept(this);
@@ -463,6 +464,51 @@ public class Interpreter implements Visitor {
     public void visit(AbortFunction abortFunction) {
         FunctionCallExpression functionCallExpression = (FunctionCallExpression) consumeLastValue();
         handleError(ErrorType.ABORTED, functionCallExpression.position(), StringUtils.EMPTY);
+    }
+
+    @Override
+    public void visit(ListDefinition listDefinition) {
+        FunctionDefinition constructor = new ListConstructor();
+        constructors.put(constructor.name(), constructor);
+    }
+
+    @Override
+    public void visit(ListConstructor listConstructor) {
+        ValueReference valueReference = (ValueReference) environment.find(THIS);
+        ListDefinition listDefinition = (ListDefinition) programHolder.getClassesDefinitions().get(ListDefinition.LIST);
+        ListInstance listInstance = new ListInstance(listDefinition.name(), (Map<String, FunctionDefinition>) listDefinition.methods());
+        valueReference.setValue(listInstance);
+    }
+
+    @Override
+    public void visit(AppendMethod method) {
+        ValueReference valueReference = (ValueReference) environment.find(THIS);
+        ListInstance listInstance = (ListInstance) valueReference.getValue();
+        Object item = environment.find(AppendMethod.ITEM);
+        listInstance.getList().add(item);
+    }
+
+    @SneakyThrows
+    @Override
+    public void visit(GetMethod method) {
+        ValueReference valueReference = (ValueReference) environment.find(GetMethod.INDEX);
+        Object arg = valueReference.getValue();
+        if (!(arg instanceof Integer)) {
+            FunctionCallExpression functionCallExpression = (FunctionCallExpression) consumeLastValue();
+            handleError(ErrorType.OPERATION_NOT_SUPPORTED, functionCallExpression.position(),
+                    ErrorContextBuilder.buildContext((Expression) functionCallExpression));
+        }
+        ValueReference selfReference = (ValueReference) environment.find(THIS);
+        ListInstance listInstance = (ListInstance) selfReference.getValue();
+        List<Object> list = listInstance.getList();
+        Integer index = (Integer) arg;
+        if (index > list.size() - 1 || index < 0) {
+            FunctionCallExpression functionCallExpression = (FunctionCallExpression) consumeLastValue();
+            handleError(ErrorType.INDEX_OUT_OF_BOUND, functionCallExpression.position(),
+                    ErrorContextBuilder.buildContext((Expression) functionCallExpression));
+        }
+        lastValue = listInstance.getList().get(index);
+        returning = true;
     }
 
     private void validateArguments(List<Parameter> a, List<ValueReference> b, FunctionCallExpression functionCallExpression) throws Exception {
