@@ -120,6 +120,26 @@ public class InterpreterErrorManagingTest {
            }
            """;
 
+    private final static String INDEX_OUT_OF_BOUND = """
+            główna() {
+                lista = Lista();
+                lista.dodaj(2);
+                lista.pobierz(1);
+            }
+            """;
+
+    private final static String RANGE_NOT_ITERABLE = """
+            fun() {
+                zwróć 4;
+            }
+            
+            główna() {
+                dla i w fun() {
+                    napisz(i);
+                }
+            }
+            """;
+
     private static Stream<Arguments> testErrors() {
         return Stream.of(
                 Arguments.of(ATTRIBUTE_NOT_DEFINED, "Semantic error of type: ATTRIBUTE_NOT_DEFINED: << A.atrybut >> at line 6"),
@@ -135,6 +155,8 @@ public class InterpreterErrorManagingTest {
                 Arguments.of(SELF_ACCESS_OUTSIDE_OF_CLASS, "Semantic error of type: SELF_ACCESS_OUTSIDE_OF_CLASS: << tenże >> at line 2"),
                 Arguments.of(VARIABLE_NOT_DEFINED_IN_SCOPE, "Semantic error of type: VARIABLE_NOT_DEFINED_IN_SCOPE: << b >> at line 2"),
                 Arguments.of(FUNCTION_NOT_DEFINED, "Semantic error of type: FUNCTION_NOT_DEFINED: << hej >> at line 2"),
+                Arguments.of(INDEX_OUT_OF_BOUND, "Semantic error of type: INDEX_OUT_OF_BOUND: << pobierz(1) >> at line 4"),
+                Arguments.of(RANGE_NOT_ITERABLE, "Semantic error of type: RANGE_NOT_ITERABLE: << dla i w fun() >> at line 6"),
                 Arguments.of(INCORRECT_NUMBER_OF_ARGUMENTS, "Semantic error of type: INCORRECT_NUMBER_OF_ARGUMENTS: << dodawanie(1,2,3) >> at line 5")
         );
     }

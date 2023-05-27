@@ -3,7 +3,7 @@ package org.example.visitor;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.example.interpreter.*;
+import org.example.interpreter.builtins.*;
 import org.example.properties.LanguageProperties;
 import org.example.programstructure.containers.*;
 import org.example.programstructure.expression.*;
@@ -180,7 +180,13 @@ public class ErrorContextBuilder implements Visitor {
 
     @Override
     public void visit(ForStatement statement) {
-
+        contextBuilder.append(LanguageProperties.get("FOR"))
+                .append(StringUtils.SPACE)
+                .append(statement.iteratorName())
+                .append(StringUtils.SPACE)
+                .append(LanguageProperties.get("IN"))
+                .append(StringUtils.SPACE);
+        statement.range().accept(this);
     }
 
     @Override
@@ -215,6 +221,11 @@ public class ErrorContextBuilder implements Visitor {
     }
 
     @Override
+    public void visit(RangeFunction rangeFunction) {
+
+    }
+
+    @Override
     public void visit(ListDefinition listDefinition) {
 
     }
@@ -231,6 +242,16 @@ public class ErrorContextBuilder implements Visitor {
 
     @Override
     public void visit(GetMethod method) {
+
+    }
+
+    @Override
+    public void visit(RemoveMethod method) {
+
+    }
+
+    @Override
+    public void visit(LengthMethod method) {
 
     }
 

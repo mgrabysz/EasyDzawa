@@ -1,4 +1,4 @@
-package org.example.interpreter;
+package org.example.interpreter.builtins;
 
 import org.example.programstructure.containers.FunctionDefinition;
 import org.example.programstructure.containers.Parameter;
@@ -7,19 +7,18 @@ import org.example.visitor.Visitor;
 
 import java.util.List;
 
-public class GetMethod implements FunctionDefinition {
+public class LengthMethod implements FunctionDefinition {
 
-    public static final String GET = LanguageProperties.get("GET");
-    public static final String INDEX = "index";
+    public static final String LENGTH = LanguageProperties.get("LENGTH");
 
     @Override
     public String name() {
-        return GET;
+        return LENGTH;
     }
 
     @Override
     public List<Parameter> parameters() {
-        return List.of(new Parameter(INDEX));
+        return List.of();
     }
 
     @Override

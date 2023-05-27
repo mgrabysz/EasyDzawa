@@ -1,4 +1,4 @@
-package org.example.interpreter;
+package org.example.interpreter.builtins;
 
 import org.example.properties.LanguageProperties;
 import org.example.visitor.Visitor;

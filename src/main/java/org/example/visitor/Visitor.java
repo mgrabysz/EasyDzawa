@@ -1,6 +1,6 @@
 package org.example.visitor;
 
-import org.example.interpreter.*;
+import org.example.interpreter.builtins.*;
 import org.example.programstructure.containers.*;
 import org.example.programstructure.expression.*;
 import org.example.programstructure.statement.*;
@@ -37,11 +37,15 @@ public interface Visitor {
 	void visit(ObjectAccess statement);
 	void visit(ReturnStatement statement);
 
-    // external
+    // built-ins
     void visit(PrintFunction printFunction);
     void visit(AbortFunction abortFunction);
+    void visit(RangeFunction rangeFunction);
     void visit(ListDefinition listDefinition);
     void visit(ListConstructor listConstructor);
     void visit(AppendMethod method);
     void visit(GetMethod method);
+    void visit(RemoveMethod method);
+    void visit(LengthMethod method);
+
 }

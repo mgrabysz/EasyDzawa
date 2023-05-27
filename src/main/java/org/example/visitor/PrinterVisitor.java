@@ -1,7 +1,7 @@
 package org.example.visitor;
 
 import org.apache.commons.lang3.StringUtils;
-import org.example.interpreter.*;
+import org.example.interpreter.builtins.*;
 import org.example.programstructure.containers.*;
 import org.example.programstructure.expression.*;
 import org.example.programstructure.statement.*;
@@ -215,6 +215,11 @@ public class PrinterVisitor implements Visitor {
     }
 
     @Override
+    public void visit(RangeFunction rangeFunction) {
+
+    }
+
+    @Override
     public void visit(ListDefinition listDefinition) {
 
     }
@@ -231,6 +236,16 @@ public class PrinterVisitor implements Visitor {
 
     @Override
     public void visit(GetMethod method) {
+
+    }
+
+    @Override
+    public void visit(RemoveMethod method) {
+
+    }
+
+    @Override
+    public void visit(LengthMethod method) {
 
     }
 

@@ -1,4 +1,4 @@
-package org.example.interpreter;
+package org.example.interpreter.builtins;
 
 import org.example.programstructure.containers.ClassDefinition;
 import org.example.programstructure.containers.FunctionDefinition;

@@ -70,6 +70,25 @@ public class InterpreterTest {
         assertEquals(expectedOutput, actualOutput);
     }
 
+    @Test
+    void testInterpretFibonacci() {
+        String path = "src/test/resources/interpreter/fibonacci.txt";
+        String expectedOutput = """
+                0
+                1
+                1
+                2
+                3
+                5
+                8
+                13
+                21
+                34
+                """;
+        String actualOutput = readFromFile(path);
+        assertEquals(expectedOutput, actualOutput);
+    }
+
 	private static String readFromFile(String path) {
 		try (FileReader fileReader = new FileReader(path)) {
 			var file = new BufferedReader(fileReader);

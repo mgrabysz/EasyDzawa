@@ -1,8 +1,0 @@
-główna() {
-
-    lista = Lista();
-    lista.dodaj(20);
-    a = lista.pobierz(0);
-    napisz(a);
-
-}

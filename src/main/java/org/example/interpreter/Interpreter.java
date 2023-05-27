@@ -9,9 +9,9 @@ import org.example.error.details.ErrorDetails;
 import org.example.error.details.ErrorInterpreterDetails;
 import org.example.error.enums.ErrorType;
 import org.example.error.exception.SemanticException;
-import org.example.interpreter.accessible.ListInstance;
 import org.example.interpreter.accessible.ObjectInstance;
 import org.example.interpreter.accessible.ValueReference;
+import org.example.interpreter.builtins.*;
 import org.example.interpreter.computers.*;
 import org.example.interpreter.computers.enums.LogicalOperation;
 import org.example.interpreter.computers.enums.MathematicalOperation;
@@ -26,6 +26,7 @@ import org.example.visitor.Visitor;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @RequiredArgsConstructor
 public class Interpreter implements Visitor {
@@ -399,9 +400,22 @@ public class Interpreter implements Visitor {
     }
 
 
+    @SneakyThrows
     @Override
     public void visit(ForStatement statement) {
-        // TODO - blocked by list
+        environment.enterScope();
+        statement.range().accept(this);
+        Object rangeExpression = consumeEvaluatedLastValue();
+        if (rangeExpression instanceof ListInstance listInstance) {
+            List<Object> range = listInstance.getList();
+            for(Object object : range) {
+                environment.store(statement.iteratorName(), object);
+                statement.block().accept(this);
+            }
+        } else {
+            handleError(ErrorType.RANGE_NOT_ITERABLE, statement.range().position(), ErrorContextBuilder.buildContext(statement));
+        }
+        environment.exitScope();
     }
 
     @SneakyThrows
@@ -470,6 +484,23 @@ public class Interpreter implements Visitor {
         handleError(ErrorType.ABORTED, functionCallExpression.position(), StringUtils.EMPTY);
     }
 
+    @SneakyThrows
+    @Override
+    public void visit(RangeFunction rangeFunction) {
+        Integer start = extractNumericArg(RangeFunction.START);
+        Integer stop = extractNumericArg(RangeFunction.STOP);
+        ListDefinition listDefinition = (ListDefinition) program.classDefinitions().get(ListDefinition.LIST);
+        ListInstance listInstance = new ListInstance(listDefinition.name(), listDefinition.methods());
+        if (start == null || stop == null) {
+            throw new IllegalStateException();
+        }
+        listInstance.setList(IntStream.range(start, stop)
+                .boxed()
+                .collect(Collectors.toList()));
+        lastValue = listInstance;
+        returning = true;
+    }
+
     @Override
     public void visit(ListDefinition listDefinition) {
         FunctionDefinition constructor = new ListConstructor();
@@ -495,25 +526,61 @@ public class Interpreter implements Visitor {
     @SneakyThrows
     @Override
     public void visit(GetMethod method) {
-        ValueReference valueReference = (ValueReference) environment.find(GetMethod.INDEX);
-        Object arg = valueReference.getValue();
-        if (!(arg instanceof Integer)) {
-            FunctionCallExpression functionCallExpression = (FunctionCallExpression) consumeLastValue();
-            handleError(ErrorType.OPERATION_NOT_SUPPORTED, functionCallExpression.position(),
-                    ErrorContextBuilder.buildContext((Expression) functionCallExpression));
-            return;
+        Integer index = extractNumericArg(GetMethod.INDEX);
+        if (index == null) {
+            throw new IllegalStateException();
         }
         ValueReference selfReference = (ValueReference) environment.find(THIS);
         ListInstance listInstance = (ListInstance) selfReference.getValue();
         List<Object> list = listInstance.getList();
-        int index = (Integer) arg;
         if (index > list.size() - 1 || index < 0) {
             FunctionCallExpression functionCallExpression = (FunctionCallExpression) consumeLastValue();
             handleError(ErrorType.INDEX_OUT_OF_BOUND, functionCallExpression.position(),
                     ErrorContextBuilder.buildContext((Expression) functionCallExpression));
         }
-        lastValue = listInstance.getList().get(index);
+        lastValue = list.get(index);
         returning = true;
+    }
+
+    @SneakyThrows
+    @Override
+    public void visit(RemoveMethod method) {
+        Integer index = extractNumericArg(RemoveMethod.INDEX);
+        if (index == null) {
+            throw new IllegalStateException();
+        }
+        ValueReference selfReference = (ValueReference) environment.find(THIS);
+        ListInstance listInstance = (ListInstance) selfReference.getValue();
+        List<Object> list = listInstance.getList();
+        if (index > list.size() - 1 || index < 0) {
+            FunctionCallExpression functionCallExpression = (FunctionCallExpression) consumeLastValue();
+            handleError(ErrorType.INDEX_OUT_OF_BOUND, functionCallExpression.position(),
+                    ErrorContextBuilder.buildContext((Expression) functionCallExpression));
+        }
+        lastValue = list.remove(index);
+        returning = true;
+    }
+
+    @SneakyThrows
+    @Override
+    public void visit(LengthMethod method) {
+        ValueReference selfReference = (ValueReference) environment.find(THIS);
+        ListInstance listInstance = (ListInstance) selfReference.getValue();
+        lastValue = listInstance.getList().size();
+        returning = true;
+    }
+
+    private Integer extractNumericArg(String argName) throws Exception {
+        ValueReference valueReference = (ValueReference) environment.find(argName);
+        Object arg = valueReference.getValue();
+        if (arg instanceof Integer index) {
+            return index;
+        } else {
+            FunctionCallExpression functionCallExpression = (FunctionCallExpression) consumeLastValue();
+            handleError(ErrorType.OPERATION_NOT_SUPPORTED, functionCallExpression.position(),
+                    ErrorContextBuilder.buildContext((Expression) functionCallExpression));
+            return null;
+        }
     }
 
     private void validateArguments(List<Parameter> a, List<ValueReference> b, FunctionCallExpression functionCallExpression) throws Exception {
