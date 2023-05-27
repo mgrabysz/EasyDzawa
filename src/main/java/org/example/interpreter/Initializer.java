@@ -1,7 +1,5 @@
 package org.example.interpreter;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.example.interpreter.builtins.AbortFunction;
 import org.example.interpreter.builtins.ListDefinition;
@@ -10,7 +8,6 @@ import org.example.interpreter.builtins.RangeFunction;
 import org.example.programstructure.containers.Program;
 
 @Getter
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Initializer {
 
     public static void addBuiltIns(Program program) {

@@ -13,14 +13,13 @@ import java.io.IOException;
 public class Main {
 	public static void main(String[] args) throws IOException {
 
-//        AsciiArt.printViper();
-//        System.out.println("Argument count: " + args.length);
-//        if (args.length == 0) {
-//            throw new IOException("Path missing");
-//        }
-//        String path = args[0];
-//        System.out.println("Path: " + path + "\n");
-        String path = "src/test/resources/interpreter/list.txt";
+        if (args.length == 0) {
+            throw new IOException("Path missing");
+        }
+        String path = args[0];
+        AsciiArt.printViper();
+        System.out.println("Interpreting file: " + path + "\n");
+
 		try (FileReader fileReader = new FileReader(path)) {
 			var file = new BufferedReader(fileReader);
 			var lexer = new LexerImpl(file, ErrorManager::handleError);
