@@ -9,7 +9,7 @@ import java.util.List;
 
 public class AbortFunction implements FunctionDefinition {
 
-    private static final String ABORT = LanguageProperties.get("ABORT");
+    public static final String ABORT = LanguageProperties.get("ABORT");
 
     @Override
     public String name() {

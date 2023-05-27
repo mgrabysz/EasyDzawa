@@ -17,8 +17,8 @@ public class PrinterVisitor implements Visitor {
 		for (FunctionDefinition functionDefinition : program.functionDefinitions().values()) {
 			functionDefinition.accept(this);
 		}
-		for (UserClassDefinition userClassDefinition : program.classDefinitions().values()) {
-			userClassDefinition.accept(this);
+		for (ClassDefinition classDefinition : program.classDefinitions().values()) {
+			classDefinition.accept(this);
 		}
 		spaces -= 2;
 	}

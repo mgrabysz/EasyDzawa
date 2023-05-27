@@ -5,7 +5,7 @@ import org.example.visitor.Visitor;
 
 import java.util.Map;
 
-public record UserClassDefinition(String name, Map<String, UserFunctionDefinition> methods, Position position) implements ClassDefinition {
+public record UserClassDefinition(String name, Map<String, FunctionDefinition> methods, Position position) implements ClassDefinition {
 
 	@Override
 	public void accept(Visitor visitor) {

@@ -37,7 +37,7 @@ public class Interpreter implements Visitor {
     private final Map<String, FunctionDefinition> constructors = new HashMap<>();
     private final ErrorHandler errorHandler;
 
-    private ProgramHolder programHolder;
+    private Program program;
     private Object lastValue;
     private boolean returning = false;
     private boolean testingMode = false;
@@ -57,13 +57,14 @@ public class Interpreter implements Visitor {
 
     @SneakyThrows
     public void execute(Program program) {
-        this.programHolder = ProgramHolder.init(program);
+        Initializer.addBuiltIns(program);
+        this.program = program;
         // extracting all constructors
-        for (ClassDefinition ClassDefinition : programHolder.getClassesDefinitions().values()) {
+        for (ClassDefinition ClassDefinition : program.classDefinitions().values()) {
             ClassDefinition.accept(this);
         }
         // visiting main function
-        FunctionDefinition main = programHolder.getFunctionDefinitions().get(MAIN);
+        FunctionDefinition main = program.functionDefinitions().get(MAIN);
         if (main == null) {
             handleError(ErrorType.MAIN_FUNCTION_MISSING, new Position(1, 1), StringUtils.EMPTY);
         } else {
@@ -75,7 +76,7 @@ public class Interpreter implements Visitor {
     @Override
     @SneakyThrows
     public void visit(UserClassDefinition userClassDefinition) {
-        Optional<UserFunctionDefinition> optionalConstructor = userClassDefinition.methods()
+        Optional<FunctionDefinition> optionalConstructor = userClassDefinition.methods()
                 .values()
                 .stream()
                 .filter(method -> method.name().equals(userClassDefinition.name()))
@@ -84,6 +85,7 @@ public class Interpreter implements Visitor {
             handleError(ErrorType.CONSTRUCTOR_MISSING, userClassDefinition.position(), userClassDefinition.name());
         }
         boolean hasReturnStatement = optionalConstructor.stream()
+                .map(functionDefinition -> (UserFunctionDefinition) functionDefinition)
                 .flatMap(f -> f.block().statements().stream())
                 .anyMatch(s -> s instanceof ReturnStatement);
         if (hasReturnStatement) {
@@ -202,9 +204,10 @@ public class Interpreter implements Visitor {
     }
 
     private void callFunction(FunctionCallExpression functionCallExpression) throws Exception {
-        FunctionDefinition functionDefinition = programHolder.getFunctionDefinitions().get(functionCallExpression.name());
+        FunctionDefinition functionDefinition = program.functionDefinitions().get(functionCallExpression.name());
         if (functionDefinition == null) {
             handleError(ErrorType.FUNCTION_NOT_DEFINED, functionCallExpression.position(), functionCallExpression.name());
+            return;
         }
         List<Parameter> parameters = functionDefinition.parameters();
         List<ValueReference> arguments = resolveArguments(functionCallExpression);
@@ -230,8 +233,8 @@ public class Interpreter implements Visitor {
         List<ValueReference> arguments = resolveArguments(functionCallExpression);
         validateArguments(parameters, arguments, functionCallExpression);
         environment.enterConstructorCall();
-        ClassDefinition classDefinition = programHolder.getClassesDefinitions().get(functionDefinition.name());
-        ObjectInstance objectInstance = new ObjectInstance(classDefinition.name(), (Map<String, FunctionDefinition>) classDefinition.methods());
+        ClassDefinition classDefinition = program.classDefinitions().get(functionDefinition.name());
+        ObjectInstance objectInstance = new ObjectInstance(classDefinition.name(), classDefinition.methods());
         ValueReference valueReference = new ValueReference(objectInstance);
         environment.store(THIS, valueReference);
         for (int i = 0; i < arguments.size(); ++i) {
@@ -249,6 +252,7 @@ public class Interpreter implements Visitor {
         if (methodDefinition == null) {
             handleError(ErrorType.METHOD_NOT_DEFINED, functionCallExpression.position(),
                     StringUtils.join(accessedObject.getClassName(), ".", functionCallExpression.name(), "()"));
+            return;
         }
         List<Parameter> parameters = methodDefinition.parameters();
         List<ValueReference> arguments = resolveArguments(functionCallExpression);
@@ -475,8 +479,8 @@ public class Interpreter implements Visitor {
     @Override
     public void visit(ListConstructor listConstructor) {
         ValueReference valueReference = (ValueReference) environment.find(THIS);
-        ListDefinition listDefinition = (ListDefinition) programHolder.getClassesDefinitions().get(ListDefinition.LIST);
-        ListInstance listInstance = new ListInstance(listDefinition.name(), (Map<String, FunctionDefinition>) listDefinition.methods());
+        ListDefinition listDefinition = (ListDefinition) program.classDefinitions().get(ListDefinition.LIST);
+        ListInstance listInstance = new ListInstance(listDefinition.name(), listDefinition.methods());
         valueReference.setValue(listInstance);
     }
 
@@ -497,11 +501,12 @@ public class Interpreter implements Visitor {
             FunctionCallExpression functionCallExpression = (FunctionCallExpression) consumeLastValue();
             handleError(ErrorType.OPERATION_NOT_SUPPORTED, functionCallExpression.position(),
                     ErrorContextBuilder.buildContext((Expression) functionCallExpression));
+            return;
         }
         ValueReference selfReference = (ValueReference) environment.find(THIS);
         ListInstance listInstance = (ListInstance) selfReference.getValue();
         List<Object> list = listInstance.getList();
-        Integer index = (Integer) arg;
+        int index = (Integer) arg;
         if (index > list.size() - 1 || index < 0) {
             FunctionCallExpression functionCallExpression = (FunctionCallExpression) consumeLastValue();
             handleError(ErrorType.INDEX_OUT_OF_BOUND, functionCallExpression.position(),

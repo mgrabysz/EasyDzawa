@@ -5,7 +5,7 @@ import org.example.visitor.Visitor;
 
 public class PrintFunction extends VariadicFunction {
 
-    private static final String PRINT = LanguageProperties.get("PRINT");
+    public static final String PRINT = LanguageProperties.get("PRINT");
 
     @Override
     public void accept(Visitor visitor) {

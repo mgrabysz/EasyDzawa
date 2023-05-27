@@ -5,8 +5,8 @@ import org.example.visitor.Visitor;
 
 import java.util.Map;
 
-public record Program(Map<String, UserFunctionDefinition> functionDefinitions,
-					  Map<String, UserClassDefinition> classDefinitions) implements Visitable {
+public record Program(Map<String, FunctionDefinition> functionDefinitions,
+					  Map<String, ClassDefinition> classDefinitions) implements Visitable {
 
 	@Override
 	public void accept(Visitor visitor) {

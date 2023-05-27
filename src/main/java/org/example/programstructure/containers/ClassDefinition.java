@@ -6,7 +6,7 @@ import java.util.Map;
 
 public interface ClassDefinition extends Visitable {
 
-    Map<String, ?> methods();
+    Map<String, FunctionDefinition> methods();
     String name();
 
 }

@@ -28,12 +28,12 @@ public class ParserIntegrationTest {
 		assertEquals(1, program.classDefinitions().size());
 		assertEquals(1, program.functionDefinitions().size());
 		// class definition
-		final UserClassDefinition userClassDefinition = program.classDefinitions().get("Ułamek");
+		final UserClassDefinition userClassDefinition = (UserClassDefinition) program.classDefinitions().get("Ułamek");
 		assertEquals("Ułamek", userClassDefinition.name());
 		assertEquals(2, userClassDefinition.methods().size());
-		final UserFunctionDefinition method = userClassDefinition.methods().get("rozszerz");
+		final UserFunctionDefinition method = (UserFunctionDefinition) userClassDefinition.methods().get("rozszerz");
 		// constructor
-		final UserFunctionDefinition constructor = userClassDefinition.methods().get("Ułamek");
+		final UserFunctionDefinition constructor = (UserFunctionDefinition) userClassDefinition.methods().get("Ułamek");
 		final Block constructorBlock = constructor.block();
 		assertEquals(2, constructor.parameters().size());
 		assertEquals(4, constructorBlock.statements().size());
@@ -88,7 +88,7 @@ public class ParserIntegrationTest {
 		assertTrue(elseBlock.statements().get(0) instanceof AssignmentStatement);
 
 		// main function
-		final UserFunctionDefinition main = program.functionDefinitions().get("main");
+		final UserFunctionDefinition main = (UserFunctionDefinition) program.functionDefinitions().get("main");
 		assertEquals("main", main.name());
 		// modify and assign
 		final ModifyAndAssignStatement modifyAndAssignStatement = (ModifyAndAssignStatement) main.block().statements().get(1);
