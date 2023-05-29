@@ -489,30 +489,24 @@ public class Interpreter implements Visitor {
     public void visit(RangeFunction rangeFunction) {
         Integer start = extractNumericArg(RangeFunction.START);
         Integer stop = extractNumericArg(RangeFunction.STOP);
-        ListDefinition listDefinition = (ListDefinition) program.classDefinitions().get(ListDefinition.LIST);
-        ListInstance listInstance = new ListInstance(listDefinition.name(), listDefinition.methods());
         if (start == null || stop == null) {
             throw new IllegalStateException();
         }
-        listInstance.setList(IntStream.range(start, stop)
+        lastValue = new ListInstance(IntStream.range(start, stop)
                 .boxed()
                 .collect(Collectors.toList()));
-        lastValue = listInstance;
         returning = true;
     }
 
     @Override
     public void visit(ListDefinition listDefinition) {
-        FunctionDefinition constructor = new ListConstructor();
-        constructors.put(constructor.name(), constructor);
+        constructors.put(ListConstructor.LIST, new ListConstructor());
     }
 
     @Override
     public void visit(ListConstructor listConstructor) {
         ValueReference valueReference = (ValueReference) environment.find(THIS);
-        ListDefinition listDefinition = (ListDefinition) program.classDefinitions().get(ListDefinition.LIST);
-        ListInstance listInstance = new ListInstance(listDefinition.name(), listDefinition.methods());
-        valueReference.setValue(listInstance);
+        valueReference.setValue(new ListInstance());
     }
 
     @Override

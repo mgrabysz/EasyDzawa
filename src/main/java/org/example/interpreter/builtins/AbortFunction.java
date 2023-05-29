@@ -18,7 +18,7 @@ public class AbortFunction implements FunctionDefinition {
 
     @Override
     public List<Parameter> parameters() {
-        return null;
+        return List.of();
     }
 
     @Override
