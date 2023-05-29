@@ -1,6 +1,7 @@
 package org.example.interpreter.environment;
 
 import lombok.NoArgsConstructor;
+import org.example.interpreter.accessible.ValueReference;
 
 import java.util.Stack;
 
@@ -35,14 +36,14 @@ public class Environment {
 		currentContext.exitScope();
 	}
 
-	public void store(String key, Object value) {
+	public void store(String key, ValueReference valueReference) {
 		FunctionCallContext currentContext = functionCallContexts.peek();
-		currentContext.store(key, value);
+		currentContext.store(key, valueReference);
 	}
 
-	public Object find(String key) {
+	public ValueReference find(String key) {
 		FunctionCallContext currentContext = functionCallContexts.peek();
-        return  currentContext.find(key);
+        return currentContext.find(key);
 	}
 
 

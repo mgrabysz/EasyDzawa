@@ -216,7 +216,7 @@ public class Interpreter implements Visitor {
         environment.enterFunctionCall();
         if (parameters == null) {
             // variable number of parameters
-            environment.store(VariadicFunction.ARGS, arguments);
+            environment.store(VariadicFunction.ARGS, new ValueReference(arguments));
         } else {
             for (int i = 0; i < arguments.size(); ++i) {
                 environment.store(parameters.get(i).name(), arguments.get(i));
@@ -408,8 +408,10 @@ public class Interpreter implements Visitor {
         Object rangeExpression = consumeEvaluatedLastValue();
         if (rangeExpression instanceof ListInstance listInstance) {
             List<Object> range = listInstance.getList();
+            environment.store(statement.iteratorName(), new ValueReference());
             for(Object object : range) {
-                environment.store(statement.iteratorName(), object);
+                ValueReference iteratorReference = environment.find(statement.iteratorName());
+                iteratorReference.setValue(object);
                 statement.block().accept(this);
             }
         } else {
@@ -460,7 +462,7 @@ public class Interpreter implements Visitor {
 
     @Override
     public void visit(PrintFunction printFunction) {
-        Object args = environment.find(VariadicFunction.ARGS);
+        Object args = environment.find(VariadicFunction.ARGS).getValue();
         if (!(args instanceof Collection)) {
             throw new IllegalStateException();
         }
@@ -505,13 +507,13 @@ public class Interpreter implements Visitor {
 
     @Override
     public void visit(ListConstructor listConstructor) {
-        ValueReference valueReference = (ValueReference) environment.find(THIS);
+        ValueReference valueReference = environment.find(THIS);
         valueReference.setValue(new ListInstance());
     }
 
     @Override
     public void visit(AppendMethod method) {
-        ValueReference valueReference = (ValueReference) environment.find(THIS);
+        ValueReference valueReference = environment.find(THIS);
         ListInstance listInstance = (ListInstance) valueReference.getValue();
         Object item = environment.find(AppendMethod.ITEM);
         listInstance.getList().add(item);
@@ -524,7 +526,7 @@ public class Interpreter implements Visitor {
         if (index == null) {
             throw new IllegalStateException();
         }
-        ValueReference selfReference = (ValueReference) environment.find(THIS);
+        ValueReference selfReference = environment.find(THIS);
         ListInstance listInstance = (ListInstance) selfReference.getValue();
         List<Object> list = listInstance.getList();
         if (index > list.size() - 1 || index < 0) {
@@ -543,7 +545,7 @@ public class Interpreter implements Visitor {
         if (index == null) {
             throw new IllegalStateException();
         }
-        ValueReference selfReference = (ValueReference) environment.find(THIS);
+        ValueReference selfReference = environment.find(THIS);
         ListInstance listInstance = (ListInstance) selfReference.getValue();
         List<Object> list = listInstance.getList();
         if (index > list.size() - 1 || index < 0) {
@@ -558,14 +560,14 @@ public class Interpreter implements Visitor {
     @SneakyThrows
     @Override
     public void visit(LengthMethod method) {
-        ValueReference selfReference = (ValueReference) environment.find(THIS);
+        ValueReference selfReference = environment.find(THIS);
         ListInstance listInstance = (ListInstance) selfReference.getValue();
         lastValue = listInstance.getList().size();
         returning = true;
     }
 
     private Integer extractNumericArg(String argName) throws Exception {
-        ValueReference valueReference = (ValueReference) environment.find(argName);
+        ValueReference valueReference = environment.find(argName);
         Object arg = valueReference.getValue();
         if (arg instanceof Integer index) {
             return index;
@@ -590,7 +592,7 @@ public class Interpreter implements Visitor {
     @SneakyThrows
     @Override
     public void visit(SelfAccess expression) {
-        ValueReference accessedObjectReference = (ValueReference) environment.find(THIS);
+        ValueReference accessedObjectReference = environment.find(THIS);
         if (accessedObjectReference != null) {
             lastValue = accessedObjectReference;
         } else {

@@ -2,6 +2,7 @@ package org.example.interpreter.environment;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.example.interpreter.accessible.ValueReference;
 
 import java.util.*;
 
@@ -12,7 +13,7 @@ public class FunctionCallContext {
         createScope();
     }
 
-    private final List<Map<String, Object>> scopes = new ArrayList<>();
+    private final List<Map<String, ValueReference>> scopes = new ArrayList<>();
 
     @Getter
     private final ContextType contextType;
@@ -30,12 +31,12 @@ public class FunctionCallContext {
         scopes.remove(0);
     }
 
-    public void store(String key, Object value) {
-        Map<String, Object> scope = scopes.get(0);
+    public void store(String key, ValueReference value) {
+        Map<String, ValueReference> scope = scopes.get(0);
         scope.put(key, value);
     }
 
-    public Object find(String key) {
+    public ValueReference find(String key) {
         return scopes.stream()
                 .map(scope -> scope.get(key))
                 .filter(Objects::nonNull)
