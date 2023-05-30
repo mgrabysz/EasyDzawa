@@ -298,9 +298,9 @@ public class Interpreter implements Visitor {
     public void visit(IdentifierExpression expression) {
         if (lastValue == null) {
             // accessing local variable
-            Object result = environment.find(expression.name());
-            if (result != null) {
-                lastValue = result;
+            ValueReference variableReference = environment.find(expression.name());
+            if (variableReference != null) {
+                lastValue = variableReference;
             } else if (environment.isAssignment()){
                 ValueReference valueReference = new ValueReference();
                 environment.store(expression.name(), valueReference);
@@ -312,9 +312,9 @@ public class Interpreter implements Visitor {
             // accessing object attribute
             ValueReference valueReference = (ValueReference) consumeLastValue();
             ObjectInstance accessedObject = (ObjectInstance) valueReference.getValue();
-            Object result = accessedObject.findAttribute(expression.name());
-            if (result != null) {
-                lastValue = result;
+            ValueReference attribute = accessedObject.findAttribute(expression.name());
+            if (attribute != null) {
+                lastValue = attribute;
             } else if (environment.isAssignment() && environment.getContextType() == ContextType.CONSTRUCTOR) {
                 ValueReference newValueReference = new ValueReference();
                 accessedObject.storeAttribute(expression.name(), newValueReference);

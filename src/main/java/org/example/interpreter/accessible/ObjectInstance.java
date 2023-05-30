@@ -16,14 +16,14 @@ public class ObjectInstance {
 
     private final String className;
     private final Map<String, FunctionDefinition> methods;
-    private final Map<String, Object> attributes = new HashMap<>();
+    private final Map<String, ValueReference> attributes = new HashMap<>();
 
-	public Object findAttribute(String name) {
+	public ValueReference findAttribute(String name) {
 		return attributes.get(name);
 	}
 
-	public void storeAttribute(String name, Object value) {
-		attributes.put(name, value);
+	public void storeAttribute(String name, ValueReference valueReference) {
+		attributes.put(name, valueReference);
 	}
 
 	public FunctionDefinition getMethodDefinition(String name) {
