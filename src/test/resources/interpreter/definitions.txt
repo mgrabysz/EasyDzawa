@@ -30,7 +30,7 @@ zdefiniuj(l, m) {
   napisz("licznik: ", a.licznik, " mianownik: ", a.mianownik);
   a.rozszerz(2);
   napisz("rozszerzony licznik: ", a.licznik,
-         " rozszerzony mianownik: ", a.mianownik);
+        " rozszerzony mianownik: ", a.mianownik);
 
 }
 
