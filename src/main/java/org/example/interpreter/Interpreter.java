@@ -12,8 +12,10 @@ import org.example.error.exception.SemanticException;
 import org.example.interpreter.accessible.ObjectInstance;
 import org.example.interpreter.accessible.ValueReference;
 import org.example.interpreter.builtins.*;
-import org.example.interpreter.computers.*;
-import org.example.interpreter.computers.enums.LogicalOperation;
+import org.example.interpreter.computers.MathematicalComputer;
+import org.example.interpreter.computers.NegationComputer;
+import org.example.interpreter.computers.OperationMapper;
+import org.example.interpreter.computers.RelationalComputer;
 import org.example.interpreter.computers.enums.MathematicalOperation;
 import org.example.interpreter.environment.ContextType;
 import org.example.interpreter.environment.Environment;
@@ -68,6 +70,8 @@ public class Interpreter implements Visitor {
         FunctionDefinition main = program.functionDefinitions().get(MAIN);
         if (main == null) {
             handleError(ErrorType.MAIN_FUNCTION_MISSING, new Position(1, 1), StringUtils.EMPTY);
+        } else if (!main.parameters().isEmpty()){
+            handleError(ErrorType.MAIN_FUNCTION_WITH_PARAMETERS, new Position(1, 1), StringUtils.EMPTY);
         } else {
             environment.enterFunctionCall();
             main.accept(this);
@@ -118,13 +122,20 @@ public class Interpreter implements Visitor {
     public void visit(OrExpression expression) {
         expression.left().accept(this);
         Object left = consumeEvaluatedLastValue();
-        expression.right().accept(this);
-        Object right = consumeEvaluatedLastValue();
-        Object result = LogicalComputer.compute(left, right, LogicalOperation.OR);
-        if (result != null) {
-            lastValue = result;
-        } else {
+        if (!(left instanceof Boolean leftBool)) {
             handleError(ErrorType.OPERATION_NOT_SUPPORTED, expression.position(), ErrorContextBuilder.buildContext(expression));
+        } else {
+            if (leftBool) {
+                lastValue = Boolean.TRUE;
+                return;
+            }
+            expression.right().accept(this);
+            Object right = consumeEvaluatedLastValue();
+            if (!(right instanceof Boolean rightBool)) {
+                handleError(ErrorType.OPERATION_NOT_SUPPORTED, expression.position(), ErrorContextBuilder.buildContext(expression));
+            } else {
+                lastValue = rightBool;
+            }
         }
     }
 
@@ -133,13 +144,20 @@ public class Interpreter implements Visitor {
     public void visit(AndExpression expression) {
         expression.left().accept(this);
         Object left = consumeEvaluatedLastValue();
-        expression.right().accept(this);
-        Object right = consumeEvaluatedLastValue();
-        Object result = LogicalComputer.compute(left, right, LogicalOperation.AND);
-        if (result != null) {
-            lastValue = result;
-        } else {
+        if (!(left instanceof Boolean leftBool)) {
             handleError(ErrorType.OPERATION_NOT_SUPPORTED, expression.position(), ErrorContextBuilder.buildContext(expression));
+        } else {
+            if (!leftBool) {
+                lastValue = Boolean.FALSE;
+                return;
+            }
+            expression.right().accept(this);
+            Object right = consumeEvaluatedLastValue();
+            if (!(right instanceof Boolean rightBool)) {
+                handleError(ErrorType.OPERATION_NOT_SUPPORTED, expression.position(), ErrorContextBuilder.buildContext(expression));
+            } else {
+                lastValue = rightBool;
+            }
         }
     }
 
@@ -403,21 +421,24 @@ public class Interpreter implements Visitor {
     @SneakyThrows
     @Override
     public void visit(ForStatement statement) {
-        environment.enterScope();
         statement.range().accept(this);
         Object rangeExpression = consumeEvaluatedLastValue();
         if (rangeExpression instanceof ListInstance listInstance) {
+            environment.enterScope();
             List<Object> range = listInstance.getList();
             environment.store(statement.iteratorName(), new ValueReference());
             for(Object object : range) {
                 ValueReference iteratorReference = environment.find(statement.iteratorName());
                 iteratorReference.setValue(object);
                 statement.block().accept(this);
+                if (returning) {
+                    break;
+                }
             }
+            environment.exitScope();
         } else {
             handleError(ErrorType.RANGE_NOT_ITERABLE, statement.range().position(), ErrorContextBuilder.buildContext(statement));
         }
-        environment.exitScope();
     }
 
     @SneakyThrows
@@ -436,9 +457,6 @@ public class Interpreter implements Visitor {
             if ((block = statement.elseBlock()) != null) {
                 block.accept(this);
             }
-        }
-        if (returning) {
-            return;
         }
         environment.exitScope();
     }

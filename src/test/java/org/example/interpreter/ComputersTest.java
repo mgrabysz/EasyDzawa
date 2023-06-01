@@ -1,9 +1,7 @@
 package org.example.interpreter;
 
-import org.example.interpreter.computers.LogicalComputer;
 import org.example.interpreter.computers.MathematicalComputer;
 import org.example.interpreter.computers.RelationalComputer;
-import org.example.interpreter.computers.enums.LogicalOperation;
 import org.example.interpreter.computers.enums.MathematicalOperation;
 import org.example.interpreter.computers.enums.RelationalOperation;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -55,23 +53,6 @@ public class ComputersTest {
 	@MethodSource
 	void testRelationalComputer(Object expected, Object left, Object right, RelationalOperation operation) {
 		Object actual = RelationalComputer.compute(left, right, operation);
-		assertEquals(expected, actual);
-	}
-
-	private static Stream<Arguments> testLogicalComputer() {
-		return Stream.of(
-				Arguments.of(true, true, true, LogicalOperation.AND),
-				Arguments.of(false, true, false, LogicalOperation.AND),
-				Arguments.of(true, false, true, LogicalOperation.OR),
-				Arguments.of(false, false, false, LogicalOperation.OR),
-				Arguments.of(null, 2, false, LogicalOperation.OR)
-		);
-	}
-
-	@ParameterizedTest
-	@MethodSource
-	void testLogicalComputer(Object expected, Object left, Object right, LogicalOperation operation) {
-		Object actual = LogicalComputer.compute(left, right, operation);
 		assertEquals(expected, actual);
 	}
 
