@@ -108,6 +108,7 @@ public class Interpreter implements Visitor {
 
     @Override
     public void visit(Block block) {
+        environment.enterScope();
         for (Statement statement : block.statements()) {
             statement.accept(this);
             if (returning) {
@@ -115,6 +116,7 @@ public class Interpreter implements Visitor {
             }
             consumeLastValue();
         }
+        environment.exitScope();
     }
 
     @SneakyThrows
@@ -449,7 +451,6 @@ public class Interpreter implements Visitor {
         if (!(condition instanceof Boolean)) {
             handleError(ErrorType.CONDITION_NOT_BOOLEAN, statement.position(), ErrorContextBuilder.buildContext(statement));
         }
-        environment.enterScope();
         if (condition.equals(Boolean.TRUE)) {
             statement.blockIfTrue().accept(this);
         } else {
@@ -458,7 +459,6 @@ public class Interpreter implements Visitor {
                 block.accept(this);
             }
         }
-        environment.exitScope();
     }
 
     @SneakyThrows
