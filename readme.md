@@ -1,3 +1,7 @@
+The goal of the project was to create an interpreter of a programming language of an own idea. 
+The project had a purely academic purpose and therefore the documentation is available only in Polish; 
+however, the code and all the comments were kept in English. Take a look also at the [grammar of the language](#Gramatyka). 
+
 # Dokumentacja
 
 Nazwa projektu: `Żmija` \
