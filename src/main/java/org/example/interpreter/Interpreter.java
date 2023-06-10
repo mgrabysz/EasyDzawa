@@ -293,15 +293,15 @@ public class Interpreter implements Visitor {
         List<ValueReference> arguments = new ArrayList<>();
         for (Expression argument : functionCallExpression.arguments()) {
             argument.accept(this);
-            if (lastValue instanceof ValueReference valueReference) {
+            Object val = consumeLastValue();
+            if (val instanceof ValueReference valueReference) {
                 if (isPrimitiveType(valueReference.getValue())) {
                     arguments.add(valueReference.clone());
                 } else {
                     arguments.add(valueReference);
                 }
-                consumeLastValue();
             } else {
-                ValueReference valueReference = new ValueReference(consumeLastValue());
+                ValueReference valueReference = new ValueReference(val);
                 arguments.add(valueReference);
             }
         }
