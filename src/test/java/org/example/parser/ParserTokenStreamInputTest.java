@@ -46,7 +46,7 @@ public class ParserTokenStreamInputTest {
 		final Program program = parser.parse();
 		assertEquals(1, program.functionDefinitions().size());
 		assertEquals(0, program.classDefinitions().size());
-		final FunctionDefinition functionDefinition = program.functionDefinitions().get("multiply");
+		final UserFunctionDefinition functionDefinition = (UserFunctionDefinition) program.functionDefinitions().get("multiply");
 		assertEquals("multiply", functionDefinition.name());
 		assertEquals(2, functionDefinition.parameters().size());
 		assertNotNull(functionDefinition.block());
@@ -95,9 +95,9 @@ public class ParserTokenStreamInputTest {
 		final Program program = parser.parse();
 		assertEquals(0, program.functionDefinitions().size());
 		assertEquals(1, program.classDefinitions().size());
-		final ClassDefinition classDefinition = program.classDefinitions().get("User");
-		assertEquals(1, classDefinition.methods().size());
-		final FunctionDefinition functionDefinition = classDefinition.methods().get("User");
+		final UserClassDefinition userClassDefinition = (UserClassDefinition) program.classDefinitions().get("User");
+		assertEquals(1, userClassDefinition.methods().size());
+		final UserFunctionDefinition functionDefinition = (UserFunctionDefinition) userClassDefinition.methods().get("User");
 		assertEquals(1, functionDefinition.parameters().size());
 		assertNotNull(functionDefinition.block());
 		final Parameter parameter = functionDefinition.parameters().get(0);
@@ -105,9 +105,9 @@ public class ParserTokenStreamInputTest {
 		assertEquals("name", parameter.name());
 		assertEquals(1, block.statements().size());
 		final AssignmentStatement assignmentStatement = (AssignmentStatement) block.statements().get(0);
-		final ObjectAccess objectAccess = (ObjectAccess) assignmentStatement.objectAccess();
+		final ObjectAccess objectAccess = (ObjectAccess) assignmentStatement.left();
 		final IdentifierExpression attribute = (IdentifierExpression) objectAccess.right();
-		final IdentifierExpression variable = (IdentifierExpression) assignmentStatement.expression();
+		final IdentifierExpression variable = (IdentifierExpression) assignmentStatement.right();
 		assertTrue(objectAccess.left() instanceof SelfAccess);
 		assertEquals("username", attribute.name());
 		assertEquals("name", variable.name());

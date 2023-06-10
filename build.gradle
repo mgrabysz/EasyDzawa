@@ -21,5 +21,22 @@ dependencies {
 }
 
 test {
+    jvmArgs(['--enable-preview'])
     useJUnitPlatform()
+}
+
+tasks.withType(JavaCompile).each {
+    it.options.compilerArgs.add('--enable-preview')
+}
+
+tasks.withType(JavaExec).configureEach {
+    jvmArgs += '--enable-preview'
+}
+
+jar {
+    manifest {
+        attributes(
+                'Main-Class': 'org.example.Main'
+        )
+    }
 }

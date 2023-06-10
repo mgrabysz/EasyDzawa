@@ -13,7 +13,7 @@ import org.example.programstructure.containers.*;
 import org.example.programstructure.expression.*;
 import org.example.programstructure.expression.enums.AdditiveType;
 import org.example.programstructure.expression.enums.MultiplicativeType;
-import org.example.programstructure.expression.enums.RelativeType;
+import org.example.programstructure.expression.enums.RelationalType;
 import org.example.programstructure.statement.*;
 import org.example.token.Token;
 import org.example.commons.TokenGroups;
@@ -82,7 +82,7 @@ public class ParserImpl implements Parser {
 		if (block == null) {
 			handleCriticalError(ErrorType.FUNCTION_BODY_MISSING, errorContext.getPosition(), errorContext.getContext());
 		}
-		functions.put(functionName, new FunctionDefinition(functionName, parameters, block));
+		functions.put(functionName, new UserFunctionDefinition(functionName, parameters, block));
 		return true;
 	}
 
@@ -131,6 +131,7 @@ public class ParserImpl implements Parser {
 			handleCriticalError(ErrorType.CLASS_NAME_MISSING, errorContext.getPosition(), errorContext.getContext());
 		}
 		final String className = previousToken.getValue();
+        final Position classPosition = previousToken.getPosition();
 		if (classes.containsKey(className)) {
 			handleCriticalError(ErrorType.CLASS_NAME_NOT_UNIQUE, errorContext.getPosition(), className);
 		}
@@ -138,7 +139,7 @@ public class ParserImpl implements Parser {
 		if (methods == null) {
 			handleCriticalError(ErrorType.CLASS_BODY_MISSING, errorContext.getPosition(), errorContext.getContext());
 		} else {
-			classes.put(className, new ClassDefinition(className, methods));
+			classes.put(className, new UserClassDefinition(className, methods, classPosition));
 		}
 		return true;
 	}
@@ -332,6 +333,7 @@ public class ParserImpl implements Parser {
 		if (!consumeIf(TokenType.IF)) {
 			return null;
 		}
+        Position position = previousToken.getPosition();
 		if (!consumeIf(TokenType.OPEN_PARENTHESIS)) {
 			handleNonCriticalError(ErrorType.OPENING_PARENTHESIS_MISSING, errorContext.getPosition(), errorContext.getContext());
 		}
@@ -348,13 +350,13 @@ public class ParserImpl implements Parser {
 			handleCriticalError(ErrorType.CONDITIONAL_STATEMENT_BODY_EXPECTED, errorContext.getPosition(), conditionContext);
 		}
 		if (!consumeIf(TokenType.ELSE)) {
-			return new IfStatement(condition, blockIfTrue, null);
+			return new IfStatement(condition, blockIfTrue, null, position);
 		}
 		Block elseBlock = parseBlock(conditionContext);
 		if (elseBlock == null) {
 			handleCriticalError(ErrorType.CONDITIONAL_STATEMENT_BODY_EXPECTED, errorContext.getPosition(), conditionContext);
 		}
-		return new IfStatement(condition, blockIfTrue, elseBlock);
+		return new IfStatement(condition, blockIfTrue, elseBlock, position);
 	}
 
 	/**
@@ -425,15 +427,15 @@ public class ParserImpl implements Parser {
 	}
 
 	/**
-	 * and-expression = relative-expression, {and-keyword, relative-expression};
+	 * and-expression = relational-expression, {and-keyword, relational-expression};
 	 */
 	private Expression parseAndExpression() {
-		Expression left = parseRelativeExpression();
+		Expression left = parseRelationalExpression();
 		if (left == null) {
 			return null;
 		}
 		while (consumeIf(TokenType.AND)) {
-			Expression right = parseRelativeExpression();
+			Expression right = parseRelationalExpression();
 			if (right == null) {
 				handleCriticalError(ErrorType.EXPRESSION_EXPECTED, errorContext.getPosition(), errorContext.getContext());
 			}
@@ -443,21 +445,21 @@ public class ParserImpl implements Parser {
 	}
 
 	/**
-	 * relative-expression = arithmetic-expression, [relative-operator, arithmetic-expression];
+	 * relational-expression = arithmetic-expression, [relational-operator, arithmetic-expression];
 	 */
-	private Expression parseRelativeExpression() {
+	private Expression parseRelationalExpression() {
 		Expression left = parseArithmeticExpression();
 		if (left == null) {
 			return null;
 		}
-		RelativeType relativeType;
-		if ((relativeType = TokenGroups.RELATIVE_OPERATORS.get(currentToken.getType())) != null) {
+		RelationalType relationalType;
+		if ((relationalType = TokenGroups.RELATIONAL_OPERATORS.get(currentToken.getType())) != null) {
 			consumeCurrent();
 			Expression right = parseArithmeticExpression();
 			if (right == null) {
 				handleCriticalError(ErrorType.EXPRESSION_EXPECTED, errorContext.getPosition(), errorContext.getContext());
 			}
-			left = new RelativeExpression(relativeType, left, right);
+			left = new RelationalExpression(relationalType, left, right);
 		}
 		return left;
 	}

@@ -1,6 +1,7 @@
 package org.example.visitor;
 
 import org.apache.commons.lang3.StringUtils;
+import org.example.interpreter.builtins.*;
 import org.example.programstructure.containers.*;
 import org.example.programstructure.expression.*;
 import org.example.programstructure.statement.*;
@@ -23,7 +24,7 @@ public class PrinterVisitor implements Visitor {
 	}
 
 	@Override
-	public void visit(FunctionDefinition functionDefinition) {
+	public void visit(UserFunctionDefinition functionDefinition) {
 		print(functionDefinition);
 		spaces += 2;
 		for (Parameter parameter : functionDefinition.parameters()) {
@@ -34,10 +35,10 @@ public class PrinterVisitor implements Visitor {
 	}
 
 	@Override
-	public void visit(ClassDefinition classDefinition) {
-		print(classDefinition);
+	public void visit(UserClassDefinition userClassDefinition) {
+		print(userClassDefinition);
 		spaces += 2;
-		for (FunctionDefinition functionDefinition : classDefinition.methods().values()) {
+		for (FunctionDefinition functionDefinition : userClassDefinition.methods().values()) {
 			functionDefinition.accept(this);
 		}
 		spaces -= 2;
@@ -77,7 +78,7 @@ public class PrinterVisitor implements Visitor {
 	}
 
 	@Override
-	public void visit(RelativeExpression expression) {
+	public void visit(RelationalExpression expression) {
 		print(expression);
 		spaces += 2;
 		expression.left().accept(this);
@@ -152,8 +153,8 @@ public class PrinterVisitor implements Visitor {
 	public void visit(ModifyAndAssignStatement statement) {
 		print(statement);
 		spaces += 2;
-		statement.objectAccess().accept(this);
-		statement.expression().accept(this);
+		statement.left().accept(this);
+		statement.right().accept(this);
 		spaces -= 2;
 	}
 
@@ -161,8 +162,8 @@ public class PrinterVisitor implements Visitor {
 	public void visit(AssignmentStatement statement) {
 		print(statement);
 		spaces += 2;
-		statement.objectAccess().accept(this);
-		statement.expression().accept(this);
+		statement.left().accept(this);
+		statement.right().accept(this);
 		spaces -= 2;
 	}
 
@@ -203,8 +204,53 @@ public class PrinterVisitor implements Visitor {
 		statement.expression().accept(this);
 	}
 
+    @Override
+    public void visit(PrintFunction printFunction) {
 
-	private String space() {
+    }
+
+    @Override
+    public void visit(AbortFunction abortFunction) {
+
+    }
+
+    @Override
+    public void visit(RangeFunction rangeFunction) {
+
+    }
+
+    @Override
+    public void visit(ListDefinition listDefinition) {
+
+    }
+
+    @Override
+    public void visit(ListConstructor listConstructor) {
+
+    }
+
+    @Override
+    public void visit(AppendMethod method) {
+
+    }
+
+    @Override
+    public void visit(GetMethod method) {
+
+    }
+
+    @Override
+    public void visit(RemoveMethod method) {
+
+    }
+
+    @Override
+    public void visit(LengthMethod method) {
+
+    }
+
+
+    private String space() {
 		return "-".repeat(spaces);
 	}
 

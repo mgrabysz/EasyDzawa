@@ -1,10 +1,11 @@
+// script presenting a definition of class and mehtods
 klasa Ułamek {
 
   Ułamek(l, m) {            // konstruktor
     tenże.licznik = l;
     tenże.mianownik = m;
     jeżeli (m == 0) {
-        kończWaść();
+        zakończ();
     }
     jeżeli (l < m) {
         tenże.jestWłaściwy = prawda;    // ułamek właściwy to taki, który jest mniejszy od 1
@@ -19,13 +20,21 @@ klasa Ułamek {
   }
 }
 
-
-main() {
-  x = Ułamek(1, 2);
-  jeżeli (x.jestWłaściwy) {
+zdefiniuj(l, m) {
+  a = Ułamek(l, m);
+  jeżeli (a.jestWłaściwy) {
     napisz("Zdefiniowano właśnie ułamek właściwy");
+  } inaczej {
+    napisz("Zdefiniowano właśnie ułamek niewłaściwy");
   }
-  x.rozszerz(2);
-  napisz(y.licznik);      // 2
-  napisz(y.mianownik);    // 4
+  napisz("licznik: ", a.licznik, " mianownik: ", a.mianownik);
+  a.rozszerz(2);
+  napisz("rozszerzony licznik: ", a.licznik,
+         " rozszerzony mianownik: ", a.mianownik);
+
+}
+
+główna() {
+  zdefiniuj(1, 2);
+  zdefiniuj(3, 2);
 }

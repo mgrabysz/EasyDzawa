@@ -2,13 +2,7 @@ package org.example.token;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.example.Configuration;
-
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.util.Properties;
+import org.example.properties.LanguageProperties;
 
 @Getter
 @AllArgsConstructor
@@ -64,8 +58,6 @@ public enum TokenType {
 
 	private String keyword;
 
-	private static Properties properties;
-
 	TokenType() {
 		if (this.keyword == null) {
 			readFromLanguageConfig();
@@ -73,20 +65,7 @@ public enum TokenType {
 	}
 
 	private void readFromLanguageConfig() {
-		loadLanguageConfig();
-		this.keyword = (String) properties.get(this.toString());
-	}
-
-	private static void loadLanguageConfig() {
-		if (properties == null) {
-			properties = new Properties();
-			try {
-				FileInputStream propsInput = new FileInputStream(Configuration.getLanguageConfigPath());
-				properties.load(new InputStreamReader(propsInput, StandardCharsets.UTF_8));	// this aberration reads UTF-8 symbols
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
-		}
+		this.keyword = LanguageProperties.get(this.toString());
 	}
 
 }

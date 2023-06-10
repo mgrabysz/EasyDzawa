@@ -1,0 +1,21 @@
+// testing correct execution of for loops
+fib(n) {
+    temp = 0;
+    prev = 1;
+    new = 0;
+    dla i w zakres(0, n) {
+        temp = new;
+        new += prev;
+        prev = temp;
+    }
+    zwróć new;
+}
+
+główna() {
+
+    dla i w zakres(0,10) {
+        fib = fib(i);
+        napisz(fib);
+    }
+
+}

@@ -1,0 +1,17 @@
+// script presenting modifying an attribute value
+klasa Licznik {
+    Licznik(i) {
+        tenże.wartość = i;
+    }
+
+    podnieś() {
+        tenże.wartość += 1;
+    }
+}
+
+główna() {
+    licznik = Licznik(5);
+    napisz(licznik.wartość);
+    licznik.podnieś();
+    napisz(licznik.wartość);
+}

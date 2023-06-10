@@ -2,7 +2,7 @@ package org.example.lexer;
 
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
-import org.example.Configuration;
+import org.example.properties.Configuration;
 import org.example.commons.EscapeUtils;
 import org.example.commons.Position;
 import org.example.commons.TokenGroups;

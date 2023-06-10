@@ -1,6 +1,6 @@
 package org.example.programstructure.expression.enums;
 
-public enum RelativeType {
+public enum RelationalType {
 
 	EQUAL,
 	NOT_EQUAL,

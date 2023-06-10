@@ -2,9 +2,9 @@ package org.example.programstructure.expression;
 
 import org.example.commons.Position;
 import org.example.visitor.Visitor;
-import org.example.programstructure.expression.enums.RelativeType;
+import org.example.programstructure.expression.enums.RelationalType;
 
-public record RelativeExpression(RelativeType relativeType, Expression left, Expression right) implements Expression {
+public record RelationalExpression(RelationalType relationalType, Expression left, Expression right) implements Expression {
 
 	@Override
 	public Position position() {
