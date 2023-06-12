@@ -44,7 +44,7 @@ ELSE=contrario
 
 Następnie ścieżkę do nowo utworzonego pliku należy umieścić w `properties.config` jako parametr `language.config.path`.
 W pliku `properties.config` można ustawić również własne limity długości identyfikatora, komentarza, tekstu (jako
-argumentu funkcji `napisz()` oraz komunikatu o błędzie):
+argumentu funkcji `napisz()`) oraz komunikatu o błędzie:
 
 ```properties
 language.config.path=src/main/resources/polish.config
