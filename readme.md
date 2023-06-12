@@ -24,7 +24,7 @@ główna() {
 ### Konfiguracja
 
 Do skonfigurowania działania interpretera służą dwa pliki konfiguracyjne umieszczone w folderze
-`src/main/resources/polish.config`:
+`src/main/resources`:
 
 * `properties.config` (ogólne ustawienia programu)
 * `polish.config` (nazwy słów kluczowych i funkcji wbudowanych)
